@@ -1,0 +1,49 @@
+{
+	"deviceVendor": "HTC",
+	"deviceName": "Vive PRE Controller",
+	"author": "Georgiy Frolov <gfrolov@sensics.com>",
+	"version": 1,
+	"lastModified": "",
+	"interfaces": {
+		"tracker": {
+			"count": 1,
+			"bounded": true,
+			"position": true,
+			"orientation": true
+		},
+		"analog": {
+			"count": 1
+		},
+		"button": {
+			"count": 7
+		}
+	},
+	"semantic": {
+		"controller": {
+			"$target": "tracker/0",
+			"menu": "button/1",
+			"system": "button/0",
+			"trigger": {
+				"$target": "analog/2",
+				"button": "button/2"
+			},
+			"trackpad": {
+				"x": "analog/0",
+				"y": "analog/1",
+				"touch": "button/3",
+				"button": "button/4"
+			},
+			"grip": {
+				"left": "button/5",
+				"right": "button/6"
+			}
+		}
+	},
+	"automaticAliases": {
+		"/me/head": "semantic/head",
+		"/me/ipd": "semantic/ipd",
+		"/controller": "semantic/controller/*",
+		"/me/hands/left": "semantic/controller/left",
+		"/me/hands/right": "semantic/controller/right"
+	}
+}

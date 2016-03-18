@@ -74,6 +74,24 @@ namespace vive {
 
     class DriverWrapper;
 
+    struct Controller {
+        /// Constructor to create a separate name for a controller device
+        Controller(OSVR_PluginRegContext ctx, std::uint32_t id);
+
+        /// "Fake" constructor to create a dummy entry for the main (HMD) device
+        /// at entry 0.
+        Controller(OSVR_DeviceToken dev, OSVR_TrackerDeviceInterface tracker)
+            : m_dev(dev), m_tracker(tracker) {}
+
+        void startup();
+        OSVR_DeviceToken m_dev = nullptr;
+        OSVR_TrackerDeviceInterface m_tracker = nullptr;
+        OSVR_AnalogDeviceInterface m_analog = nullptr;
+        OSVR_ButtonDeviceInterface m_button = nullptr;
+        std::uint32_t m_id = 0;
+        std::array<OSVR_ButtonState, 7> buttonStates;
+    };
+
     class ViveDriverHost : public ServerDriverHost {
       public:
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -160,6 +178,7 @@ namespace vive {
         Eigen::Isometry3d m_universeXform;
         Eigen::Quaterniond m_universeRotation;
 
+        std::vector<std::unique_ptr<Controller>> m_devices;
         /// @}
     };
     using DriverHostPtr = std::unique_ptr<ViveDriverHost>;

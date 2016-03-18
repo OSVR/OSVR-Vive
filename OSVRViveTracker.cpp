@@ -30,10 +30,15 @@
 
 // Generated JSON header file
 #include "com_osvr_Vive_json.h"
+#include "org_osvr_ViveController_json.h"
 
 // Library/third-party includes
 #include <osvr/Util/EigenCoreGeometry.h>
 #include <osvr/Util/EigenInterop.h>
+#include <osvr/Util/StringLiteralFileToString.h>
+
+#include <json/reader.h>
+#include <json/writer.h>
 
 // Standard includes
 // - none
@@ -50,6 +55,61 @@ namespace vive {
     static const auto CONTROLLER_SENSORS = {1, 2};
 
     static const auto PREFIX = "[OSVR-Vive] ";
+
+    static const auto CONTROLLER_NUM_BUTTONS = 7;
+    static const auto CONTROLLER_NUM_ANALOGS = 3;
+
+    enum class ControllerFor { Left, Right, Neither };
+    inline std::string getControllerJson(ControllerFor usage) {
+        Json::Value root;
+        Json::Reader reader;
+        reader.parse(osvr::util::makeString(org_osvr_ViveController_json),
+                     root);
+        if (usage != ControllerFor::Neither) {
+            auto hand =
+                std::string{usage == ControllerFor::Left ? "left" : "right"};
+            Json::Value &autoAliases =
+                (root["automaticAliases"] = Json::Value(Json::objectValue));
+            autoAliases["/controller/" + hand] = "semantic/controller/*";
+            autoAliases["/me/hands/" + hand] = "semantic/controller";
+        }
+        Json::FastWriter writer;
+        return writer.write(root);
+    }
+
+    Controller::Controller(OSVR_PluginRegContext ctx, std::uint32_t id)
+        : m_id(id),
+          buttonStates({OSVR_BUTTON_NOT_PRESSED, OSVR_BUTTON_NOT_PRESSED,
+                        OSVR_BUTTON_NOT_PRESSED, OSVR_BUTTON_NOT_PRESSED,
+                        OSVR_BUTTON_NOT_PRESSED, OSVR_BUTTON_NOT_PRESSED,
+                        OSVR_BUTTON_NOT_PRESSED}) {
+
+        /// Finish setting this up as an OSVR device.
+        /// Create the initialization options
+        OSVR_DeviceInitOptions opts = osvrDeviceCreateInitOptions(ctx);
+
+        osvrDeviceTrackerConfigure(opts, &m_tracker);
+        osvrDeviceAnalogConfigure(opts, &m_analog, CONTROLLER_NUM_ANALOGS);
+        osvrDeviceButtonConfigure(opts, &m_button, CONTROLLER_NUM_BUTTONS);
+
+        /// Because the callbacks may not come from the same thread that
+        /// calls RunFrame, we need to be careful to not send directly from
+        /// those callbacks. We can't use an Async device token because the
+        /// waits are too long and they goof up the SteamVR Lighthouse driver.
+        auto name = "ViveController" + std::to_string(id);
+        osvrDeviceSyncInitWithOptions(ctx, name.c_str(), opts, &m_dev);
+    }
+    void Controller::startup() {
+
+        /// Send JSON descriptor - lightly customized for the right auto
+        /// aliases.
+        auto descriptor =
+            getControllerJson(m_id == 1 ? ControllerFor::Left
+                                        : (m_id == 2 ? ControllerFor::Right
+                                                     : ControllerFor::Neither));
+        osvrDeviceSendJsonDescriptor(m_dev, descriptor.c_str(),
+                                     descriptor.size());
+    }
 
     ViveDriverHost::ViveDriverHost()
         : m_universeXform(Eigen::Isometry3d::Identity()),
@@ -73,6 +133,8 @@ namespace vive {
                       << std::endl;
             return false;
         }
+
+        m_ctx = ctx;
 
         /// Power the system up.
         m_vive->serverDevProvider().LeaveStandby();
@@ -149,6 +211,24 @@ namespace vive {
         /// Register update callback
         m_dev.registerUpdateCallback(this);
 
+        /// Populate the 0 entry of the devices list with this main device.
+        std::unique_ptr<Controller> fakeController(
+            new Controller(m_dev, m_tracker));
+        m_devices.emplace_back(std::move(fakeController));
+
+        /// Now make devices for the rest that exist.
+        auto numIds = m_vive->devices().reservedIds();
+        m_devices.resize(numIds);
+
+        for (uint32_t i = 1; i < 3; ++i) {
+            m_devices[i].reset(new Controller(ctx, i));
+        }
+        for (uint32_t i = 1; i < 3; ++i) {
+            if (m_vive->devices().hasDeviceAt(i)) {
+                m_devices[i]->startup();
+            }
+        }
+
         return true;
     }
     inline OSVR_ReturnCode ViveDriverHost::update() {
@@ -158,6 +238,7 @@ namespace vive {
             /// Copy a fixed number of reports that have been queued up.
             m_trackingReports.grabItems(lock);
             m_hmdButtonReports.grabItems(lock);
+            m_newDevices.grabItems(lock);
 
         } // unlock
         // Now that we're out of that mutex, we can go ahead and actually send
@@ -180,6 +261,16 @@ namespace vive {
                 m_dev, m_button,
                 out.buttonState ? OSVR_BUTTON_PRESSED : OSVR_BUTTON_NOT_PRESSED,
                 out.sensor, &out.timestamp);
+        }
+
+        // Any new devices?
+        for (auto &out : m_newDevices.accessWorkItems()) {
+            if (!(out.id < m_devices.size())) {
+                continue;
+                // m_devices.resize(out.id + 1);
+            }
+            // m_devices[out.id].reset(new Controller(m_ctx, out.id));
+            m_devices[out.id]->startup();
         }
 
         return OSVR_RETURN_SUCCESS;
@@ -313,9 +404,12 @@ namespace vive {
                 .translation();
         ei::map(pose.rotation) = m_universeRotation * worldFromDriverRotation *
                                  qRotation * driverFromHeadRotation;
-
-        osvrDeviceTrackerSendPoseTimestamped(m_dev, m_tracker, &pose, sensor,
-                                             &tv);
+        {
+            /// All devices report sensor 0 on their own device.
+            osvrDeviceTrackerSendPoseTimestamped(m_devices[sensor]->m_dev,
+                                                 m_devices[sensor]->m_tracker,
+                                                 &pose, 0, &tv);
+        }
     }
 
     void ViveDriverHost::handleUniverseChange(std::uint64_t newUniverse) {

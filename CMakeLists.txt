@@ -86,6 +86,9 @@ target_include_directories(ViveLoaderLib PRIVATE ${Boost_INCLUDE_DIRS})
 osvr_convert_json(com_osvr_Vive_json
     com_osvr_Vive.json
     "${CMAKE_CURRENT_BINARY_DIR}/com_osvr_Vive_json.h")
+osvr_convert_json(org_osvr_ViveController_json
+    org_osvr_ViveController.json
+    "${CMAKE_CURRENT_BINARY_DIR}/org_osvr_ViveController_json.h")
 osvr_add_plugin(com_osvr_Vive
     CPP
     com_osvr_Vive.cpp
@@ -93,9 +96,10 @@ osvr_add_plugin(com_osvr_Vive
     OSVRViveTracker.h
     QuickProcessingDeque.h
     VerifyLocked.h
-    "${CMAKE_CURRENT_BINARY_DIR}/com_osvr_Vive_json.h")
+    "${CMAKE_CURRENT_BINARY_DIR}/com_osvr_Vive_json.h"
+    "${CMAKE_CURRENT_BINARY_DIR}/org_osvr_ViveController_json.h")
 
-target_link_libraries(com_osvr_Vive ViveLoaderLib)
+target_link_libraries(com_osvr_Vive ViveLoaderLib JsonCpp::JsonCpp)
 target_include_directories(com_osvr_Vive
     PRIVATE
     ${EIGEN3_INCLUDE_DIR})

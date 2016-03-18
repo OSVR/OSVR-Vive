@@ -6,7 +6,7 @@
 	"lastModified": "",
 	"interfaces": {
 		"tracker": {
-			"count": 3,
+			"count": 1,
 			"bounded": true,
 			"position": true,
 			"orientation": true
@@ -15,29 +15,19 @@
 			"count": 1
 		},
 		"button": {
-			"count": 1
+			"count": 2
 		}
 	},
 	"semantic": {
 		"head": {
 			"$target": "tracker/0",
-			"proximity": "button/0"
+			"proximity": "button/1"
 		},
-		"ipd": "analog/0",
-		"controller": {
-			"left": {
-				"$target": "tracker/1"
-			},
-			"right": {
-				"$target": "tracker/2"
-			}
-		}
+		"button": "button/0",
+		"ipd": "analog/0"
 	},
 	"automaticAliases": {
 		"/me/head": "semantic/head",
-		"/me/ipd": "semantic/ipd",
-		"/controller": "semantic/controller/*",
-		"/me/hands/left": "semantic/controller/left",
-		"/me/hands/right": "semantic/controller/right"
+		"/me/ipd": "semantic/ipd"
 	}
 }
