@@ -202,7 +202,7 @@ int main() {
             return false;
         }
         auto ret = vive.devices().addAndActivateDevice(dev);
-        if (!ret.first) {
+        if (!ret) {
             std::cout << PREFIX << "Device with serial number " << serialNum
                       << " couldn't be added to the devices vector."
                       << std::endl;
@@ -210,7 +210,7 @@ int main() {
         }
         std::cout << "\n"
                   << PREFIX << "Device with s/n " << serialNum
-                  << " activated, assigned ID " << ret.second << std::endl;
+                  << " activated, assigned ID " << ret.value << std::endl;
         whatIsThisDevice(dev);
         return true;
     };

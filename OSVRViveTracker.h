@@ -28,6 +28,7 @@
 
 // Internal Includes
 #include "QuickProcessingDeque.h"
+#include "ReturnValue.h"
 #include "ServerDriverHost.h"
 #include <osvr/PluginKit/AnalogInterfaceC.h>
 #include <osvr/PluginKit/ButtonInterfaceC.h>
@@ -87,7 +88,9 @@ namespace vive {
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         ViveDriverHost();
 
+        using DevIdReturnValue = ReturnValue<std::uint32_t, bool>;
         enum class StartResult { Success, TemporaryFailure, PermanentFailure };
+
         /// @return false if we failed to start up for some reason.
         StartResult start(OSVR_PluginRegContext ctx,
                           osvr::vive::DriverWrapper &&inVive);
@@ -98,8 +101,7 @@ namespace vive {
         /// Called when we get a new device from the SteamVR driver that we need
         /// to activate. Delegates the real work - this just displays
         /// information.
-        std::pair<bool, std::uint32_t>
-        activateDevice(vr::ITrackedDeviceServerDriver *dev);
+        DevIdReturnValue activateDevice(vr::ITrackedDeviceServerDriver *dev);
 
         /// @name ServerDriverHost overrides - called from a tracker thread (not
         /// the main thread)
@@ -170,7 +172,7 @@ namespace vive {
                                              bool state);
 
         /// Does the real work of adding a new device.
-        std::pair<bool, std::uint32_t>
+        DevIdReturnValue
         activateDeviceImpl(vr::ITrackedDeviceServerDriver *dev);
 
         osvr::pluginkit::DeviceToken m_dev;

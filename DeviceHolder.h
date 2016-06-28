@@ -26,7 +26,7 @@
 #define INCLUDED_DeviceHolder_h_GUID_58F7E011_8D87_49A3_FE26_0DB159405E77
 
 // Internal Includes
-// - none
+#include "ReturnValue.h"
 
 // Library/third-party includes
 #include <openvr_driver.h>
@@ -77,40 +77,46 @@ namespace vive {
             return *this;
         }
 
-        std::pair<bool, std::uint32_t>
+        using IdReturnValue = ReturnValue<std::uint32_t, bool>;
+
+        IdReturnValue
         addAndActivateDevice(vr::ITrackedDeviceServerDriver *dev) {
             /// check to make sure it's not null and not already in there
-            if (!dev || findDevice(dev).first) {
-                return std::make_pair(false, 0);
+            if (!dev) {
+                return IdReturnValue::makeError();
             }
-            auto it = std::find(begin(devices_), end(devices_), dev);
-            if (it != end(devices_)) {
+            auto existing = findDevice(dev);
+            if (existing) {
+                /// @todo do we return an error or the existing location? This
+                /// returns the existing location after re-activating.
+                dev->Activate(existing.value);
+                return existing;
             }
             auto newId = static_cast<std::uint32_t>(devices_.size());
             devices_.push_back(dev);
             dev->Activate(newId);
-            return std::make_pair(true, newId);
+            return IdReturnValue::makeValue(newId);
         }
 
         /// Add and activate a device at a reserved id.
-        std::pair<bool, std::uint32_t>
+        IdReturnValue
         addAndActivateDeviceAt(vr::ITrackedDeviceServerDriver *dev,
                                std::uint32_t idx) {
             /// check to make sure it's not null and not already in there
             if (!dev) {
-                return std::make_pair(false, 0);
+                return IdReturnValue::makeError();
             }
             auto existing = findDevice(dev);
-            if (existing.first && !existing.second == idx) {
+            if (existing && existing.value != idx) {
                 // if we already found it in there and it's not at the desired
                 // index...
-                return std::make_pair(false, existing.second);
+                return IdReturnValue(existing.value, false);
             }
 
-            if (existing.first) {
+            if (existing) {
                 // well, in this case, we might need to just activate it again.
                 dev->Activate(idx);
-                return std::make_pair(true, idx);
+                return IdReturnValue::makeValue(idx);
             }
 
             if (!(idx < devices_.size())) {
@@ -120,14 +126,14 @@ namespace vive {
 
             if (devices_[idx]) {
                 // there's already somebody else there...
-                return std::make_pair(false, 0);
+                return IdReturnValue::makeError();
             }
 
             /// Finally, if we made it through that, it's our turn.
             devices_[idx] = dev;
             dev->Activate(idx);
 
-            return std::make_pair(true, idx);
+            return IdReturnValue::makeValue(idx);
         }
 
         /// Reserve the first n ids, if not already allocated, for manual
@@ -153,16 +159,14 @@ namespace vive {
         }
 
         /// @return a (found, index) pair for a non-null device pointer.
-        std::pair<bool, std::uint32_t>
-        findDevice(vr::ITrackedDeviceServerDriver *dev) {
+        IdReturnValue findDevice(vr::ITrackedDeviceServerDriver *dev) {
 
-            auto it = std::find(begin(devices_), end(devices_), dev);
-            if (it == end(devices_)) {
-                return std::make_pair(false, 0);
+            auto it = std::find(devices_.cbegin(), devices_.cend(), dev);
+            if (devices_.cend() == it) {
+                return IdReturnValue::makeError();
             }
-            return std::make_pair(
-                true,
-                static_cast<std::uint32_t>(std::distance(begin(devices_), it)));
+            return IdReturnValue::makeValue(static_cast<std::uint32_t>(
+                std::distance(devices_.cbegin(), it)));
         }
 
         /// @return the number of allocated/reserved ids

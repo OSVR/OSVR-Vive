@@ -154,8 +154,8 @@ namespace vive {
         m_vive->serverDevProvider().LeaveStandby();
 
         auto handleNewDevice = [&](const char *serialNum) {
-            auto dev = m_vive->serverDevProvider().FindTrackedDeviceDriver(
-                serialNum, vr::ITrackedDeviceServerDriver_Version);
+            auto dev =
+                m_vive->serverDevProvider().FindTrackedDeviceDriver(serialNum);
             if (!dev) {
                 /// The only devices we usually can't look up by serial number
                 /// seem to be the lighthouse base stations.
@@ -172,13 +172,13 @@ namespace vive {
                 return false;
             }
             auto ret = activateDevice(dev);
-            if (!ret.first) {
+            if (!ret) {
                 std::cout << PREFIX << "Device with serial number " << serialNum
                           << " couldn't be added to the devices vector."
                           << std::endl;
                 return false;
             }
-            NewDeviceReport out{std::string{serialNum}, ret.second};
+            NewDeviceReport out{std::string{serialNum}, ret.value};
             {
                 std::lock_guard<std::mutex> lock(m_mutex);
                 m_newDevices.submitNew(std::move(out), lock);
@@ -292,15 +292,15 @@ namespace vive {
         return OSVR_RETURN_SUCCESS;
     }
 
-    std::pair<bool, std::uint32_t>
+    ViveDriverHost::DevIdReturnValue
     ViveDriverHost::activateDevice(vr::ITrackedDeviceServerDriver *dev) {
         auto ret = activateDeviceImpl(dev);
         auto mfrProp = getProperty<Props::ManufacturerName>(dev);
         auto modelProp = getProperty<Props::ModelNumber>(dev);
         auto serialProp = getProperty<Props::SerialNumber>(dev);
         std::cout << PREFIX;
-        if (ret.first) {
-            std::cout << "Assigned sensor ID " << ret.second << " to ";
+        if (ret) {
+            std::cout << "Assigned sensor ID " << ret.value << " to ";
         } else {
             std::cout << "Could not assign a sensor ID to ";
         }
@@ -309,7 +309,7 @@ namespace vive {
         return ret;
     }
 
-    std::pair<bool, std::uint32_t>
+    ViveDriverHost::DevIdReturnValue
     ViveDriverHost::activateDeviceImpl(vr::ITrackedDeviceServerDriver *dev) {
         auto &devs = m_vive->devices();
         if (getComponent<vr::IVRDisplayComponent>(dev)) {
