@@ -150,6 +150,30 @@ namespace vive {
             return StartResult::PermanentFailure;
         }
 
+        /// Check for interface compatibility
+        if (DriverWrapper::InterfaceVersionStatus::InterfaceMismatch ==
+            m_vive->checkServerDeviceProviderInterfaces()) {
+            std::cerr
+                << PREFIX
+                << "SteamVR lighthouse driver requires unavailable/unsupported "
+                   "interface versions - either too old or too new for "
+                   "this build. Specifically, the following critical "
+                   "mismatches: "
+                << std::endl;
+            for (auto iface : m_vive->getUnsupportedRequestedInterfaces()) {
+                if (isInterfaceNameWeCareAbout(
+                        detail::getInterfaceName(iface))) {
+                    auto supported =
+                        m_vive->getSupportedInterfaceVersions()
+                            .findSupportedVersionOfInterface(iface);
+                    std::cerr << PREFIX << " - SteamVR lighthouse: " << iface
+                              << "\t\t OSVR-Vive: " << supported << std::endl;
+                }
+            }
+            std::cerr << PREFIX << "Cannot continue.\n" << std::endl;
+            return StartResult::PermanentFailure;
+        }
+
         /// Power the system up.
         m_vive->serverDevProvider().LeaveStandby();
 
@@ -584,7 +608,7 @@ namespace vive {
 
     std::pair<vr::ITrackedDeviceServerDriver *, bool>
     ViveDriverHost::getDriverPtr(uint32_t unWhichDevice) {
-        return std::pair<vr::ITrackedDeviceServerDriver *, bool>();
+        // return std::pair<vr::ITrackedDeviceServerDriver *, bool>();
         if (m_vive->devices().hasDeviceAt(unWhichDevice)) {
             return std::make_pair(&(m_vive->devices().getDevice(unWhichDevice)),
                                   true);
