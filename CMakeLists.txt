@@ -95,6 +95,7 @@ add_library(ViveLoaderLib STATIC
     GetComponent.h
     GetProvider.h
     InterfaceTraits.h
+    ReturnValue.h
     SearchPathExtender.h
     ServerDriverHost.cpp
     ServerDriverHost.h
