@@ -221,8 +221,8 @@ namespace vive {
             std::cout << PREFIX << "Got " << numDevices
                       << " tracked devices at startup" << std::endl;
             for (decltype(numDevices) i = 0; i < numDevices; ++i) {
-                auto dev = m_vive->serverDevProvider().GetTrackedDeviceDriver(
-                    i, vr::ITrackedDeviceServerDriver_Version);
+                auto dev =
+                    m_vive->serverDevProvider().GetTrackedDeviceDriver(i);
                 activateDevice(dev);
             }
         }
@@ -455,7 +455,8 @@ namespace vive {
                                                OSVR_ChannelCount sensor,
                                                const DriverPose_t &newPose) {
         if (!(sensor < m_trackingResults.size())) {
-            m_trackingResults.resize(sensor + 1, vr::TrackingResult_Uninitialized);
+            m_trackingResults.resize(sensor + 1,
+                                     vr::TrackingResult_Uninitialized);
         }
 
         if (newPose.result != m_trackingResults[sensor]) {
@@ -614,8 +615,7 @@ namespace vive {
                                   true);
         }
         return std::make_pair(
-            m_vive->serverDevProvider().GetTrackedDeviceDriver(
-                unWhichDevice, vr::ITrackedDeviceServerDriver_Version),
+            m_vive->serverDevProvider().GetTrackedDeviceDriver(unWhichDevice),
             false);
     }
 

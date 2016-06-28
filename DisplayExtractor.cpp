@@ -314,7 +314,7 @@ int main() {
                       << " tracked devices at startup" << std::endl;
             for (decltype(numDevices) i = 0; i < numDevices; ++i) {
                 auto dev = vive.serverDevProvider().GetTrackedDeviceDriver(
-                    i, vr::ITrackedDeviceServerDriver_Version);
+                    i);
                 vive.devices().addAndActivateDevice(dev);
                 std::cout << PREFIX << "Device " << i << std::endl;
                 auto disp =
