@@ -11,6 +11,8 @@
 /*
 Copyright 2016 Razer Inc.
 
+SPDX-License-Identifier: BSD-3-Clause
+
 OpenVR input data:
 Copyright (c) 2015, Valve Corporation
 All rights reserved.
@@ -87,6 +89,9 @@ namespace vive {
         Firmware_ProgrammingTarget = vr::Prop_Firmware_ProgrammingTarget_String,
         DeviceClass = vr::Prop_DeviceClass_Int32,
         HasCamera = vr::Prop_HasCamera_Bool,
+        DriverVersion = vr::Prop_DriverVersion_String,
+        Firmware_ForceUpdateRequired =
+            vr::Prop_Firmware_ForceUpdateRequired_Bool,
         ReportsTimeSinceVSync = vr::Prop_ReportsTimeSinceVSync_Bool,
         SecondsFromVsyncToPhotons = vr::Prop_SecondsFromVsyncToPhotons_Float,
         DisplayFrequency = vr::Prop_DisplayFrequency_Float,
@@ -121,6 +126,11 @@ namespace vive {
         DisplayHardwareVersion = vr::Prop_DisplayHardwareVersion_Uint64,
         AudioFirmwareVersion = vr::Prop_AudioFirmwareVersion_Uint64,
         CameraCompatibilityMode = vr::Prop_CameraCompatibilityMode_Int32,
+        ScreenshotHorizontalFieldOfViewDegrees =
+            vr::Prop_ScreenshotHorizontalFieldOfViewDegrees_Float,
+        ScreenshotVerticalFieldOfViewDegrees =
+            vr::Prop_ScreenshotVerticalFieldOfViewDegrees_Float,
+        DisplaySuppressed = vr::Prop_DisplaySuppressed_Bool,
         AttachedDeviceId = vr::Prop_AttachedDeviceId_String,
         SupportedButtons = vr::Prop_SupportedButtons_Uint64,
         Axis0Type = vr::Prop_Axis0Type_Int32,
@@ -249,6 +259,13 @@ namespace vive {
         template <> struct PropertyTypeTrait<vr::Prop_HasCamera_Bool> {
             using type = bool;
         };
+        template <> struct PropertyTypeTrait<vr::Prop_DriverVersion_String> {
+            using type = std::string;
+        };
+        template <>
+        struct PropertyTypeTrait<vr::Prop_Firmware_ForceUpdateRequired_Bool> {
+            using type = bool;
+        };
         template <>
         struct PropertyTypeTrait<vr::Prop_ReportsTimeSinceVSync_Bool> {
             using type = bool;
@@ -367,6 +384,19 @@ namespace vive {
         template <>
         struct PropertyTypeTrait<vr::Prop_CameraCompatibilityMode_Int32> {
             using type = int32_t;
+        };
+        template <>
+        struct PropertyTypeTrait<
+            vr::Prop_ScreenshotHorizontalFieldOfViewDegrees_Float> {
+            using type = float;
+        };
+        template <>
+        struct PropertyTypeTrait<
+            vr::Prop_ScreenshotVerticalFieldOfViewDegrees_Float> {
+            using type = float;
+        };
+        template <> struct PropertyTypeTrait<vr::Prop_DisplaySuppressed_Bool> {
+            using type = bool;
         };
         template <> struct PropertyTypeTrait<vr::Prop_AttachedDeviceId_String> {
             using type = std::string;
