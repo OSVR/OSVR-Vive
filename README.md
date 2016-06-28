@@ -2,6 +2,8 @@
 > Maintained at <https://github.com/OSVR/OSVR-Vive>
 >
 > For details, see <http://osvr.github.io>
+>
+> Vive specific documentation at <https://github.com/OSVR/OSVR-Docs/blob/master/Configuring/HTC-Vive.md>
 
 This is a plugin for OSVR that provides access to the tracker data on HTC Vive HMDs and controllers. It also contains tools to extract a display descriptor with distortion mesh data from a Vive, as well as additional tools that build from source but are not installed into binary snapshots.
 
