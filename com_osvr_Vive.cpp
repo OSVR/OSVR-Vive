@@ -87,9 +87,11 @@ class HardwareDetection {
             return OSVR_RETURN_SUCCESS;
         }
 
-        std::cout << PREFIX << "Vive driver startup failed somewhere, "
-                               "unloading to perhaps try again later."
-                  << std::endl;
+        std::cout << "\n" << PREFIX << "Vive driver startup failed.";
+        if (m_shouldAttemptDetection) {
+            std::cout << " Unloading to perhaps try again later.";
+        }
+        std::cout << std::endl;
 
         unloadTemporaries();
         return OSVR_RETURN_FAILURE;
@@ -99,10 +101,15 @@ class HardwareDetection {
         auto startResult =
             m_inactiveDriverHost->start(ctx, std::move(*m_viveWrapper));
         m_viveWrapper.reset();
-        if (startResult) {
+        if (osvr::vive::ViveDriverHost::StartResult::Success == startResult) {
             m_driverHost = std::move(m_inactiveDriverHost);
+            return true;
         }
-        return startResult;
+        if (osvr::vive::ViveDriverHost::StartResult::PermanentFailure ==
+            startResult) {
+            stopAttemptingDetection();
+        }
+        return false;
     }
 
     /// Attempts the first part of startup, if required.

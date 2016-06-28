@@ -87,9 +87,10 @@ namespace vive {
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         ViveDriverHost();
 
+        enum class StartResult { Success, TemporaryFailure, PermanentFailure };
         /// @return false if we failed to start up for some reason.
-        bool start(OSVR_PluginRegContext ctx,
-                   osvr::vive::DriverWrapper &&inVive);
+        StartResult start(OSVR_PluginRegContext ctx,
+                          osvr::vive::DriverWrapper &&inVive);
 
         /// Standard OSVR device callback
         OSVR_ReturnCode update();

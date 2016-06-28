@@ -117,12 +117,14 @@ namespace vive {
         : m_universeXform(Eigen::Isometry3d::Identity()),
           m_universeRotation(Eigen::Quaterniond::Identity()) {}
 
-    bool ViveDriverHost::start(OSVR_PluginRegContext ctx,
-                               osvr::vive::DriverWrapper &&inVive) {
+    ViveDriverHost::StartResult
+    ViveDriverHost::start(OSVR_PluginRegContext ctx,
+                          osvr::vive::DriverWrapper &&inVive) {
         if (!inVive) {
             std::cerr << PREFIX << "Error: called ViveDriverHost::start() with "
                                    "an invalid vive object!"
                       << std::endl;
+            return StartResult::TemporaryFailure;
         }
         /// Take ownership of the Vive.
         m_vive.reset(new osvr::vive::DriverWrapper(std::move(inVive)));
@@ -134,7 +136,7 @@ namespace vive {
                                        "device provider in the "
                                        "Vive driver. Exiting."
                           << std::endl;
-                return false;
+                return StartResult::TemporaryFailure;
             }
         } catch (CouldNotGetInterface &e) {
             std::cerr << PREFIX
@@ -145,7 +147,7 @@ namespace vive {
                          "changed, may need to be rebuilt against an updated "
                          "header or use an older SteamVR version. Exiting."
                       << std::endl;
-            return false;
+            return StartResult::PermanentFailure;
         }
 
         /// Power the system up.
@@ -221,7 +223,7 @@ namespace vive {
         /// Register update callback
         m_dev.registerUpdateCallback(this);
 
-        return true;
+        return StartResult::Success;
     }
     inline OSVR_ReturnCode ViveDriverHost::update() {
         m_vive->serverDevProvider().RunFrame();
