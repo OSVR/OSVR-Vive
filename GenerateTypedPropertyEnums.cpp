@@ -57,6 +57,8 @@ static const auto startOfOutput = R"(/** @file
 /*
 Copyright 2016 Razer Inc.
 
+SPDX-License-Identifier: BSD-3-Clause
+
 OpenVR input data:
 Copyright (c) 2015, Valve Corporation
 All rights reserved.
