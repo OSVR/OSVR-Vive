@@ -286,6 +286,26 @@ int main() {
             return 1;
         }
 
+        if (osvr::vive::DriverWrapper::InterfaceVersionStatus::
+                InterfaceMismatch ==
+            vive.checkServerDeviceProviderInterfaces()) {
+            std::cerr << PREFIX
+                      << "SteamVR driver requires unavailable/unsupported "
+                         "interface versions - either too old or too new for "
+                         "this build. Cannot continue."
+                      << std::endl;
+            for (auto iface : vive.getUnsupportedRequestedInterfaces()) {
+                if (osvr::vive::isInterfaceNameWeCareAbout(iface)) {
+                    auto supported =
+                        vive.getSupportedInterfaceVersions()
+                            .findSupportedVersionOfInterface(iface);
+                    std::cerr << PREFIX << " - Driver requested " << iface
+                              << " but we support " << supported << std::endl;
+                }
+            }
+            return 1;
+        }
+
         /// Power the system up.
         vive.serverDevProvider().LeaveStandby();
         {
