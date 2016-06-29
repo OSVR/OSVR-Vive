@@ -27,6 +27,7 @@
 
 // Internal Includes
 #include "InterfaceTraits.h"
+#include "ReturnValue.h"
 
 // Library/third-party includes
 // - none
@@ -105,7 +106,7 @@ namespace vive {
         /// right string and do the right casting. Returns the pointer and
         /// the error code in a pair.
         template <typename InterfaceType>
-        std::pair<InterfaceType *, int> getInterface() const {
+        ReturnValue<InterfaceType *, int> getInterface() const {
             static_assert(
                 InterfaceExpectedFromEntryPointTrait<InterfaceType>::value,
                 "Can only use this function for interface types expected to be "
@@ -115,14 +116,14 @@ namespace vive {
             int returnCode = 0;
             if (!(*this)) {
                 /// We've been reset or could never load.
-                return std::make_pair(ret, returnCode);
+                return makeError<InterfaceType *>(ret, returnCode);
             }
             void *product =
                 factory_(InterfaceNameTrait<InterfaceType>::get(), &returnCode);
             if (product) {
                 ret = static_cast<InterfaceType *>(product);
             }
-            return std::make_pair(ret, returnCode);
+            return makeReturnValue<InterfaceType *>(ret, returnCode);
         }
 
         /// Similar to the above, except that it throws in case of failure,
@@ -130,15 +131,15 @@ namespace vive {
         /// always non-null.
         template <typename InterfaceType>
         InterfaceType *getInterfaceThrowing() const {
-            auto pairRet = getInterface<InterfaceType>();
+            auto ret = getInterface<InterfaceType>();
             if (!(*this)) {
                 /// we early-out
                 throw DriverNotLoaded();
             }
-            if (!pairRet.first) {
-                throw CouldNotGetInterface(pairRet.second);
+            if (!ret) {
+                throw CouldNotGetInterface(ret.errorCode);
             }
-            return pairRet.first;
+            return ret.value;
         }
 
         std::string const &getDriverRoot() const { return driverRoot_; }

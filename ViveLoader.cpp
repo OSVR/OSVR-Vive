@@ -188,13 +188,56 @@ int main() {
 
     /// but now, we can do things with vive.serverDevProvider()
 
+    /// first thing we should do is check driver compatibility.
+    auto interfaceStatus = vive.checkServerDeviceProviderInterfaces();
+    switch (interfaceStatus) {
+    case osvr::vive::DriverWrapper::InterfaceVersionStatus::AllInterfacesOK:
+        std::cerr << PREFIX << "All interface versions mentioned by the driver "
+                               "are available and supported."
+                  << std::endl;
+        break;
+    case osvr::vive::DriverWrapper::InterfaceVersionStatus::AllUsedInterfacesOK:
+        std::cerr << PREFIX << "Not all interface versions mentioned by the "
+                               "driver are available and supported, but the "
+                               "ones used by this code match."
+                  << std::endl;
+        break;
+    case osvr::vive::DriverWrapper::InterfaceVersionStatus::InterfaceMismatch:
+        std::cerr
+            << PREFIX
+            << "Driver requires unavailable/unsupported interface versions."
+            << std::endl;
+        break;
+    default:
+        break;
+    }
+
+    switch (interfaceStatus) {
+    case osvr::vive::DriverWrapper::InterfaceVersionStatus::AllUsedInterfacesOK:
+    case osvr::vive::DriverWrapper::InterfaceVersionStatus::InterfaceMismatch:
+        std::cerr << PREFIX
+                  << "Unavailable interface version strings:" << std::endl;
+        for (auto iface : vive.getUnsupportedRequestedInterfaces()) {
+            std::cerr << PREFIX << " - " << iface << std::endl;
+        }
+        break;
+    case osvr::vive::DriverWrapper::InterfaceVersionStatus::AllInterfacesOK:
+    default:
+        break;
+    }
+
+    if (osvr::vive::DriverWrapper::InterfaceVersionStatus::InterfaceMismatch ==
+        interfaceStatus) {
+        std::cerr << PREFIX << "Cannot continue." << std::endl;
+        return 1;
+    }
+
     /// Power the system up.
     vive.serverDevProvider().LeaveStandby();
 
     std::vector<std::string> knownSerialNumbers;
     auto handleNewDevice = [&](const char *serialNum) {
-        auto dev = vive.serverDevProvider().FindTrackedDeviceDriver(
-            serialNum, vr::ITrackedDeviceServerDriver_Version);
+        auto dev = vive.serverDevProvider().FindTrackedDeviceDriver(serialNum);
         if (!dev) {
             std::cout << PREFIX
                       << "Couldn't find the corresponding device driver for "
@@ -202,7 +245,7 @@ int main() {
             return false;
         }
         auto ret = vive.devices().addAndActivateDevice(dev);
-        if (!ret.first) {
+        if (!ret) {
             std::cout << PREFIX << "Device with serial number " << serialNum
                       << " couldn't be added to the devices vector."
                       << std::endl;
@@ -210,7 +253,7 @@ int main() {
         }
         std::cout << "\n"
                   << PREFIX << "Device with s/n " << serialNum
-                  << " activated, assigned ID " << ret.second << std::endl;
+                  << " activated, assigned ID " << ret.value << std::endl;
         whatIsThisDevice(dev);
         return true;
     };
@@ -222,8 +265,7 @@ int main() {
         std::cout << PREFIX << "Got " << numDevices
                   << " tracked devices at startup" << std::endl;
         for (decltype(numDevices) i = 0; i < numDevices; ++i) {
-            auto dev = vive.serverDevProvider().GetTrackedDeviceDriver(
-                i, vr::ITrackedDeviceServerDriver_Version);
+            auto dev = vive.serverDevProvider().GetTrackedDeviceDriver(i);
             vive.devices().addAndActivateDevice(dev);
             std::cout << PREFIX << "Device " << i << std::endl;
             whatIsThisDevice(dev);

@@ -117,12 +117,14 @@ namespace vive {
         : m_universeXform(Eigen::Isometry3d::Identity()),
           m_universeRotation(Eigen::Quaterniond::Identity()) {}
 
-    bool ViveDriverHost::start(OSVR_PluginRegContext ctx,
-                               osvr::vive::DriverWrapper &&inVive) {
+    ViveDriverHost::StartResult
+    ViveDriverHost::start(OSVR_PluginRegContext ctx,
+                          osvr::vive::DriverWrapper &&inVive) {
         if (!inVive) {
             std::cerr << PREFIX << "Error: called ViveDriverHost::start() with "
                                    "an invalid vive object!"
                       << std::endl;
+            return StartResult::TemporaryFailure;
         }
         /// Take ownership of the Vive.
         m_vive.reset(new osvr::vive::DriverWrapper(std::move(inVive)));
@@ -134,7 +136,7 @@ namespace vive {
                                        "device provider in the "
                                        "Vive driver. Exiting."
                           << std::endl;
-                return false;
+                return StartResult::TemporaryFailure;
             }
         } catch (CouldNotGetInterface &e) {
             std::cerr << PREFIX
@@ -145,15 +147,39 @@ namespace vive {
                          "changed, may need to be rebuilt against an updated "
                          "header or use an older SteamVR version. Exiting."
                       << std::endl;
-            return false;
+            return StartResult::PermanentFailure;
+        }
+
+        /// Check for interface compatibility
+        if (DriverWrapper::InterfaceVersionStatus::InterfaceMismatch ==
+            m_vive->checkServerDeviceProviderInterfaces()) {
+            std::cerr
+                << PREFIX
+                << "SteamVR lighthouse driver requires unavailable/unsupported "
+                   "interface versions - either too old or too new for "
+                   "this build. Specifically, the following critical "
+                   "mismatches: "
+                << std::endl;
+            for (auto iface : m_vive->getUnsupportedRequestedInterfaces()) {
+                if (isInterfaceNameWeCareAbout(
+                        detail::getInterfaceName(iface))) {
+                    auto supported =
+                        m_vive->getSupportedInterfaceVersions()
+                            .findSupportedVersionOfInterface(iface);
+                    std::cerr << PREFIX << " - SteamVR lighthouse: " << iface
+                              << "\t\t OSVR-Vive: " << supported << std::endl;
+                }
+            }
+            std::cerr << PREFIX << "Cannot continue.\n" << std::endl;
+            return StartResult::PermanentFailure;
         }
 
         /// Power the system up.
         m_vive->serverDevProvider().LeaveStandby();
 
         auto handleNewDevice = [&](const char *serialNum) {
-            auto dev = m_vive->serverDevProvider().FindTrackedDeviceDriver(
-                serialNum, vr::ITrackedDeviceServerDriver_Version);
+            auto dev =
+                m_vive->serverDevProvider().FindTrackedDeviceDriver(serialNum);
             if (!dev) {
                 /// The only devices we usually can't look up by serial number
                 /// seem to be the lighthouse base stations.
@@ -170,13 +196,13 @@ namespace vive {
                 return false;
             }
             auto ret = activateDevice(dev);
-            if (!ret.first) {
+            if (!ret) {
                 std::cout << PREFIX << "Device with serial number " << serialNum
                           << " couldn't be added to the devices vector."
                           << std::endl;
                 return false;
             }
-            NewDeviceReport out{std::string{serialNum}, ret.second};
+            NewDeviceReport out{std::string{serialNum}, ret.value};
             {
                 std::lock_guard<std::mutex> lock(m_mutex);
                 m_newDevices.submitNew(std::move(out), lock);
@@ -195,8 +221,8 @@ namespace vive {
             std::cout << PREFIX << "Got " << numDevices
                       << " tracked devices at startup" << std::endl;
             for (decltype(numDevices) i = 0; i < numDevices; ++i) {
-                auto dev = m_vive->serverDevProvider().GetTrackedDeviceDriver(
-                    i, vr::ITrackedDeviceServerDriver_Version);
+                auto dev =
+                    m_vive->serverDevProvider().GetTrackedDeviceDriver(i);
                 activateDevice(dev);
             }
         }
@@ -221,7 +247,7 @@ namespace vive {
         /// Register update callback
         m_dev.registerUpdateCallback(this);
 
-        return true;
+        return StartResult::Success;
     }
     inline OSVR_ReturnCode ViveDriverHost::update() {
         m_vive->serverDevProvider().RunFrame();
@@ -290,15 +316,15 @@ namespace vive {
         return OSVR_RETURN_SUCCESS;
     }
 
-    std::pair<bool, std::uint32_t>
+    ViveDriverHost::DevIdReturnValue
     ViveDriverHost::activateDevice(vr::ITrackedDeviceServerDriver *dev) {
         auto ret = activateDeviceImpl(dev);
         auto mfrProp = getProperty<Props::ManufacturerName>(dev);
         auto modelProp = getProperty<Props::ModelNumber>(dev);
         auto serialProp = getProperty<Props::SerialNumber>(dev);
         std::cout << PREFIX;
-        if (ret.first) {
-            std::cout << "Assigned sensor ID " << ret.second << " to ";
+        if (ret) {
+            std::cout << "Assigned sensor ID " << ret.value << " to ";
         } else {
             std::cout << "Could not assign a sensor ID to ";
         }
@@ -307,7 +333,7 @@ namespace vive {
         return ret;
     }
 
-    std::pair<bool, std::uint32_t>
+    ViveDriverHost::DevIdReturnValue
     ViveDriverHost::activateDeviceImpl(vr::ITrackedDeviceServerDriver *dev) {
         auto &devs = m_vive->devices();
         if (getComponent<vr::IVRDisplayComponent>(dev)) {
@@ -429,7 +455,8 @@ namespace vive {
                                                OSVR_ChannelCount sensor,
                                                const DriverPose_t &newPose) {
         if (!(sensor < m_trackingResults.size())) {
-            m_trackingResults.resize(sensor + 1, vr::TrackingResult_Uninitialized);
+            m_trackingResults.resize(sensor + 1,
+                                     vr::TrackingResult_Uninitialized);
         }
 
         if (newPose.result != m_trackingResults[sensor]) {
@@ -582,14 +609,13 @@ namespace vive {
 
     std::pair<vr::ITrackedDeviceServerDriver *, bool>
     ViveDriverHost::getDriverPtr(uint32_t unWhichDevice) {
-        return std::pair<vr::ITrackedDeviceServerDriver *, bool>();
+        // return std::pair<vr::ITrackedDeviceServerDriver *, bool>();
         if (m_vive->devices().hasDeviceAt(unWhichDevice)) {
             return std::make_pair(&(m_vive->devices().getDevice(unWhichDevice)),
                                   true);
         }
         return std::make_pair(
-            m_vive->serverDevProvider().GetTrackedDeviceDriver(
-                unWhichDevice, vr::ITrackedDeviceServerDriver_Version),
+            m_vive->serverDevProvider().GetTrackedDeviceDriver(unWhichDevice),
             false);
     }
 

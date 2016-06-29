@@ -37,6 +37,7 @@
 // - none
 
 // Standard includes
+#include <algorithm>
 #include <cstdint>
 #include <iterator>
 #include <memory>
@@ -45,6 +46,117 @@
 
 namespace osvr {
 namespace vive {
+    namespace detail {
+        /// Given something like ITrackedDeviceServerDriver_004, returns
+        /// ITrackedDeviceServerDriver
+        inline std::string
+        getInterfaceName(std::string const &interfaceVersionString) {
+            auto pos = interfaceVersionString.find('_');
+            if (std::string::npos == pos) {
+                /// error case:
+                /// passed-in string isn't an interface version string as we
+                /// expect it.
+                /// Return the whole thing.
+                return interfaceVersionString;
+            }
+            return interfaceVersionString.substr(0, pos);
+        }
+
+        /// Helper function for dealing with the arrays of string literals used
+        /// in the list of interface version strings.
+        template <typename F>
+        inline void for_each_const_string_array(const char *const *strings,
+                                                F &&functor) {
+            while (*strings != nullptr) {
+                std::forward<F>(functor)(*strings);
+                ++strings;
+            }
+        }
+
+        /// Helper class managing a list of supported interface version strings.
+        class InterfaceVersionSupport {
+          public:
+            InterfaceVersionSupport() : supportedInterfaces_(populate()) {}
+            InterfaceVersionSupport &
+            operator=(InterfaceVersionSupport const &) = delete;
+
+            /// Given a string (or something convertible to it) that is an
+            /// interface version string, checks to see if it is supported.
+            template <typename T>
+            bool isSupportedInterfaceVersionString(T const &ifaceVerStr) const {
+                return std::binary_search(supportedInterfaces_.cbegin(),
+                                          supportedInterfaces_.cend(),
+                                          ifaceVerStr);
+            }
+
+            /// Given a string (or convertible) without the _\d\d\d version
+            /// suffix, searches the supported list for it and if found, returns
+            /// the full version string corresponding to it. Returns an empty
+            /// string if the interface wasn't found.
+            template <typename T>
+            std::string
+            findVersionStringForInterface(T const &interfaceName) const {
+                auto it =
+                    std::upper_bound(supportedInterfaces_.begin(),
+                                     supportedInterfaces_.end(), interfaceName);
+                std::string ret;
+                if (supportedInterfaces_.end() == it) {
+                    // we didn't find it - hit the end
+                    return ret;
+                }
+                auto ifaceName = getInterfaceName(*it);
+                if (ifaceName != interfaceName) {
+                    // we didn't find it - in the middle
+                    return ret;
+                }
+                // ok, we found it
+                ret = *it;
+                return ret;
+            }
+
+            /// Like findVersionStringForInterface() except that you may also
+            /// pass a full interface version string, which will be trimmed to
+            /// just the interface name for you automatically.
+            std::string findSupportedVersionOfInterface(
+                std::string const &ifaceString) const {
+                return findVersionStringForInterface(
+                    getInterfaceName(ifaceString));
+            }
+
+          private:
+            using Container = std::vector<std::string>;
+            /// Function to create and populate the supported interface
+            /// container, so the object's data member may be const.
+            static Container populate() {
+                Container ret;
+                // Populate a vector with all the supported interfaces.
+                for_each_const_string_array(
+                    vr::k_InterfaceVersions,
+                    [&](const char *str) { ret.emplace_back(str); });
+
+                // so we can use binary_search
+                std::sort(ret.begin(), ret.end());
+                return ret;
+            }
+            const Container supportedInterfaces_;
+        };
+
+        /// A list of just the interface names we actually use.
+        static const auto interfaceNamesWeCareAbout = {
+            "ITrackedDeviceServerDriver", "IVRDisplayComponent",
+            "IVRControllerComponent", //< @todo do we actually use/cast to
+                                      // this interface?
+            "IServerTrackedDeviceProvider", "IClientTrackedDeviceProvider"};
+
+    } // namespace detail
+
+    inline bool isInterfaceNameWeCareAbout(std::string const &interfaceName) {
+        return std::find(detail::interfaceNamesWeCareAbout.begin(),
+                         detail::interfaceNamesWeCareAbout.end(),
+                         interfaceName) !=
+               detail::interfaceNamesWeCareAbout.end();
+    }
+
     /// The do-nothing driver logger.
     class NullDriverLog : public vr::IDriverLog {
       public:
@@ -169,6 +281,65 @@ namespace vive {
             return static_cast<bool>(serverDeviceProvider_);
         }
 
+        enum class InterfaceVersionStatus {
+            /// All mentioned interface version strings are handled/described by
+            /// the header we've built against.
+            AllInterfacesOK,
+            /// Not all mentioned interface version strings are
+            /// handled/described by the header we've built against, but the
+            /// interfaces that we use match.
+            AllUsedInterfacesOK,
+            /// At least one of the interfaces that we use doesn't match the
+            /// version we built against.
+            InterfaceMismatch
+        };
+
+        InterfaceVersionStatus checkServerDeviceProviderInterfaces() {
+            /// Now, go through the interfaces mentioned by the driver.
+            bool allUsedSupported = true;
+            unsupportedRequestedInterfaces_.clear();
+
+            detail::for_each_const_string_array(
+                serverDevProvider().GetInterfaceVersions(),
+                [&](const char *iface) {
+                    auto ifaceStr = std::string{iface};
+                    auto found =
+                        supportedInterfaces_.isSupportedInterfaceVersionString(
+                            ifaceStr);
+                    if (!found) {
+                        // Record all interfaces we didn't find.
+                        unsupportedRequestedInterfaces_.emplace_back(ifaceStr);
+                        // See if not finding this interface will cause a
+                        // problem.
+                        bool isUsed = isInterfaceNameWeCareAbout(
+                            detail::getInterfaceName(iface));
+                        if (isUsed) {
+                            allUsedSupported = false;
+                        }
+                    }
+                });
+            return allUsedSupported
+                       ? (unsupportedRequestedInterfaces_.empty()
+                              ? InterfaceVersionStatus::AllInterfacesOK
+                              : InterfaceVersionStatus::AllUsedInterfacesOK)
+                       : InterfaceVersionStatus::InterfaceMismatch;
+        }
+
+        /// If checkServerDeviceProviderInterfaces is not
+        /// InterfaceVersionStatus::AllInterfacesOK, this will
+        /// return access to a non-empty list of interfaces that the device
+        /// driver reports that were not available in the headers we
+        /// compiled against.
+        std::vector<std::string> const &
+        getUnsupportedRequestedInterfaces() const {
+            return unsupportedRequestedInterfaces_;
+        }
+
+        detail::InterfaceVersionSupport const &
+        getSupportedInterfaceVersions() const {
+            return supportedInterfaces_;
+        }
+
         vr::IServerTrackedDeviceProvider &serverDevProvider() const {
             if (!haveDriverLoaded() || !serverDeviceProvider_) {
                 throw std::logic_error("Attempted to access server device "
@@ -229,6 +400,7 @@ namespace vive {
                 return;
             }
         }
+
         /// This pointer manages lifetime if we created our own host but isn't
         /// accessed beyond that.
         std::unique_ptr<vr::ServerDriverHost> owningServerDriverHost_;
@@ -241,6 +413,9 @@ namespace vive {
 
         std::unique_ptr<DriverLoader> loader_;
         ProviderPtr<vr::IServerTrackedDeviceProvider> serverDeviceProvider_;
+
+        detail::InterfaceVersionSupport supportedInterfaces_;
+        std::vector<std::string> unsupportedRequestedInterfaces_;
 
         DeviceHolder devices_;
         NullDriverLog nullDriverLog_;

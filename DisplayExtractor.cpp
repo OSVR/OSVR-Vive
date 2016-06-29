@@ -286,6 +286,26 @@ int main() {
             return 1;
         }
 
+        if (osvr::vive::DriverWrapper::InterfaceVersionStatus::
+                InterfaceMismatch ==
+            vive.checkServerDeviceProviderInterfaces()) {
+            std::cerr << PREFIX
+                      << "SteamVR driver requires unavailable/unsupported "
+                         "interface versions - either too old or too new for "
+                         "this build. Cannot continue."
+                      << std::endl;
+            for (auto iface : vive.getUnsupportedRequestedInterfaces()) {
+                if (osvr::vive::isInterfaceNameWeCareAbout(iface)) {
+                    auto supported =
+                        vive.getSupportedInterfaceVersions()
+                            .findSupportedVersionOfInterface(iface);
+                    std::cerr << PREFIX << " - Driver requested " << iface
+                              << " but we support " << supported << std::endl;
+                }
+            }
+            return 1;
+        }
+
         /// Power the system up.
         vive.serverDevProvider().LeaveStandby();
         {
@@ -294,7 +314,7 @@ int main() {
                       << " tracked devices at startup" << std::endl;
             for (decltype(numDevices) i = 0; i < numDevices; ++i) {
                 auto dev = vive.serverDevProvider().GetTrackedDeviceDriver(
-                    i, vr::ITrackedDeviceServerDriver_Version);
+                    i);
                 vive.devices().addAndActivateDevice(dev);
                 std::cout << PREFIX << "Device " << i << std::endl;
                 auto disp =
