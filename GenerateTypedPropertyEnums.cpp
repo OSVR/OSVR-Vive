@@ -96,6 +96,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #error "Please include exactly one of openvr.h or openvr_driver.h before including this file"
 #endif
 
+#include <cstddef>
 #include <string>
 
 namespace osvr {

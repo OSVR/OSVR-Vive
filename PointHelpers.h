@@ -33,6 +33,7 @@
 
 // Standard includes
 #include <array>
+#include <utility>
 
 namespace osvr {
 namespace vive {
