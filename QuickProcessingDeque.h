@@ -35,6 +35,7 @@
 #include <cstddef>
 #include <deque>
 #include <mutex>
+#include <utility>
 #include <vector>
 
 namespace osvr {

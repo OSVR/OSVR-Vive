@@ -51,6 +51,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // PropertyHelper (and transitively, the generated traits header)
 #include "PropertyHelper.h"
 
+#include <cstddef>
+
 namespace osvr {
 namespace vive {
     /// Pass a vr::Prop_... enum value as the template parameter, your tracked

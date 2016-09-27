@@ -34,6 +34,7 @@
 // Standard includes
 #include <array>
 #include <memory>
+#include <string>
 
 namespace osvr {
 namespace vive {

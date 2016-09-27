@@ -35,6 +35,7 @@
 // Standard includes
 #include <algorithm>
 #include <cstdlib>
+//#include <iostream>
 #include <string>
 
 namespace osvr {

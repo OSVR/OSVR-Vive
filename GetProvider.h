@@ -36,6 +36,7 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <utility>
 
 namespace osvr {
 namespace vive {
