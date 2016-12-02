@@ -71,7 +71,7 @@ namespace vive {
     static const auto GRIP_BUTTON_OFFSET = 2;
     static const auto TRACKPAD_TOUCH_BUTTON_OFFSET = 3;
     static const auto TRACKPAD_CLICK_BUTTON_OFFSET = 4;
-    static const auto TRIGGER_BUTTON_OFFSET = 4;
+    static const auto TRIGGER_BUTTON_OFFSET = 5;
 
     /// Offsets from the first button ID for a controller that an analog is
     /// reported.
