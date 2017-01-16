@@ -149,3 +149,8 @@ bool ServerDriverHost::IsExiting() {
     LOG_EVENTS("IsExiting()");
     return isExiting_;
 }
+
+bool ServerDriverHost::PollNextEvent(VREvent_t *pEvent, uint32_t uncbVREvent) {
+    LOG_EVENTS("PollNextEvent()");
+    return false;
+}

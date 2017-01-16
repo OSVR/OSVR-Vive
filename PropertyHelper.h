@@ -141,10 +141,9 @@ namespace vive {
                 assert(dev != nullptr &&
                        "Tried to get a string property from a null device "
                        "pointer.");
-                static const auto INITIAL_BUFFER_SIZE =
-                    vr::k_unTrackingStringSize;
-                /// Start with a buffer of k_unTrackingStringSize as suggested.
-                std::vector<char> buf(INITIAL_BUFFER_SIZE, '\0');
+
+                /// Get a buffer of max string size
+                std::vector<char> buf(vr::k_unMaxPropertyStringSize, '\0');
                 vr::ETrackedPropertyError err = vr::TrackedProp_Success;
                 auto ret = dev->GetStringTrackedDeviceProperty(
                     args..., prop, buf.data(),
@@ -155,32 +154,15 @@ namespace vive {
                 }
 
                 if (ret > buf.size()) {
+                    /// received a buffer greater than 32768 chars, which should
+                    /// not happen
                     std::cout
-                        << "[getStringProperty] Got an initial return value "
-                           "larger than the buffer size: ret = "
-                        << ret << ", buf.size() = " << buf.size() << std::endl;
-                }
-                if (vr::TrackedProp_BufferTooSmall == err) {
-                    // first buffer was too small, but now we know how big it
-                    // should be, per the docs.
-                    /// @todo remove this debug print
-                    std::cout << "[getStringProperty] Initial buffer size: "
-                              << buf.size() << ", return value: " << ret
-                              << std::endl;
-                    buf.resize(ret + 1, '\0');
-                    ret = dev->GetStringTrackedDeviceProperty(
-                        args..., prop, buf.data(),
-                        static_cast<uint32_t>(buf.size()), &err);
-                }
-
-                if (ret > buf.size()) {
-                    std::cout
-                        << "[getStringProperty] THIS SHOULDN'T HAPPEN: Got a "
+                        << "[getStringProperty] THAT SHOULD NOT HAPPEN Got a "
                            "return value larger than the buffer size: ret = "
                         << ret << ", buf.size() = " << buf.size() << std::endl;
-
                     return std::make_pair(std::string{}, err);
                 }
+
                 return std::make_pair(std::string{buf.data()}, err);
             }
         };
