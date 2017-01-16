@@ -44,7 +44,6 @@ class VRSettings : public IVRSettings {
     virtual bool Sync(bool bForce = false, EVRSettingsError *peError = nullptr);
 
     virtual bool GetBool(const char *pchSection, const char *pchSettingsKey,
-                         bool bDefaultValue,
                          EVRSettingsError *peError = nullptr);
     virtual void SetBool(const char *pchSection, const char *pchSettingsKey,
                          bool bValue, EVRSettingsError *peError = nullptr);
@@ -54,18 +53,15 @@ class VRSettings : public IVRSettings {
     virtual void SetInt32(const char *pchSection, const char *pchSettingsKey,
                           int32_t nValue, EVRSettingsError *peError = nullptr);
     virtual float GetFloat(const char *pchSection, const char *pchSettingsKey,
-                           float flDefaultValue,
                            EVRSettingsError *peError = nullptr);
     virtual void SetFloat(const char *pchSection, const char *pchSettingsKey,
                           float flValue, EVRSettingsError *peError = nullptr);
     virtual void GetString(const char *pchSection, const char *pchSettingsKey,
                            char *pchValue, uint32_t unValueLen,
-                           const char *pchDefaultValue,
                            EVRSettingsError *peError = nullptr);
     virtual void SetString(const char *pchSection, const char *pchSettingsKey,
                            const char *pchValue,
                            EVRSettingsError *peError = nullptr);
-
     virtual void RemoveSection(const char *pchSection,
                                EVRSettingsError *peError = nullptr);
     virtual void RemoveKeyInSection(const char *pchSection,

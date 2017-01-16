@@ -675,6 +675,13 @@ namespace vive {
                           << unWhichDevice << std::endl;
             }
             break;
+        case vr::TrackedProp_PermissionDenied:
+            /// Refused to give us an update because of permission
+            std::cout << "error: TrackedProp_PermissionDenied when getting "
+                         "universe ID from "
+                      << unWhichDevice << std::endl;
+            return;
+            break;
         default:
             std::cout << "Got unrecognized error " << err
                       << " when getting universe ID from " << unWhichDevice

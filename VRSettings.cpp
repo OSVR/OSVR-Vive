@@ -55,9 +55,9 @@ bool VRSettings::Sync(bool bForce, EVRSettingsError *peError) {
 }
 
 bool VRSettings::GetBool(const char *pchSection, const char *pchSettingsKey,
-                         bool bDefaultValue, EVRSettingsError *peError) {
+                         EVRSettingsError *peError) {
     LOG_EVENTS("GetBool(" << pchSection << ", " << pchSettingsKey << ", "
-                          << bDefaultValue << ", " << peError << ")");
+                          << peError << ")");
     // return true for now
     return true;
 }
@@ -81,9 +81,9 @@ void VRSettings::SetInt32(const char *pchSection, const char *pchSettingsKey,
 }
 
 float VRSettings::GetFloat(const char *pchSection, const char *pchSettingsKey,
-                           float flDefaultValue, EVRSettingsError *peError) {
+                           EVRSettingsError *peError) {
     LOG_EVENTS("SetInt32(" << pchSection << ", " << pchSettingsKey << ", "
-                           << flDefaultValue << ", " << peError << ")");
+                           << peError << ")");
     return 67.0;
 }
 
@@ -94,11 +94,9 @@ void VRSettings::SetFloat(const char *pchSection, const char *pchSettingsKey,
 }
 
 void GetString(const char *pchSection, const char *pchSettingsKey,
-               char *pchValue, uint32_t unValueLen, const char *pchDefaultValue,
-               EVRSettingsError *peError) {
+               char *pchValue, uint32_t unValueLen, EVRSettingsError *peError) {
     LOG_EVENTS("SetInt32(" << pchSection << ", " << pchSettingsKey << ", "
-                           << unValueLen << ", " << pchDefaultValue << ", "
-                           << peError << ")");
+                           << unValueLen << ", " << peError << ")");
 }
 
 void VRSettings::SetString(const char *pchSection, const char *pchSettingsKey,

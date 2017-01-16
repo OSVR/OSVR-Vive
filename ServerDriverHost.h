@@ -90,6 +90,8 @@ class ServerDriverHost : public vr::IServerDriverHost {
 
     virtual bool IsExiting();
 
+    virtual bool PollNextEvent(VREvent_t *pEvent, uint32_t uncbVREvent);
+
     IVRSettings *vrSettings = nullptr;
 
   private:
