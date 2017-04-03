@@ -46,7 +46,9 @@ using namespace vr;
 
 vr::ServerDriverHost::ServerDriverHost() {}
 
-bool ServerDriverHost::TrackedDeviceAdded(const char *pchDeviceSerialNumber) {
+bool ServerDriverHost::TrackedDeviceAdded(const char *pchDeviceSerialNumber, 
+                                          ETrackedDeviceClass eDeviceClass, 
+                                          ITrackedDeviceServerDriver *pDriver) {
     if (onTrackedDeviceAdded) {
         return onTrackedDeviceAdded(pchDeviceSerialNumber);
     }
@@ -55,13 +57,10 @@ bool ServerDriverHost::TrackedDeviceAdded(const char *pchDeviceSerialNumber) {
 }
 
 void ServerDriverHost::TrackedDevicePoseUpdated(uint32_t unWhichDevice,
-                                                const DriverPose_t &newPose) {
+                                                const DriverPose_t &newPose,
+												uint32_t unPoseStructSize) {
 
     LOG_EVENTS("TrackedDevicePoseUpdated(" << unWhichDevice << ", newPose)");
-}
-
-void ServerDriverHost::TrackedDevicePropertiesChanged(uint32_t unWhichDevice) {
-    LOG_EVENTS("TrackedDevicePropertiesChanged(" << unWhichDevice << ")");
 }
 
 void ServerDriverHost::VsyncEvent(double vsyncTimeOffsetSeconds) {
@@ -111,23 +110,6 @@ void ServerDriverHost::TrackedDeviceAxisUpdated(
                                            << unWhichAxis << ", axisState)");
 }
 
-void ServerDriverHost::MCImageUpdated() { LOG_EVENTS("MCImageUpdated()"); }
-
-IVRSettings *ServerDriverHost::GetSettings(const char *pchInterfaceVersion) {
-    if (nullptr == vrSettings) {
-        LOG_EVENTS("GetSettings(" << pchInterfaceVersion << ")");
-    }
-
-    return vrSettings;
-}
-
-void ServerDriverHost::PhysicalIpdSet(uint32_t unWhichDevice,
-                                      float fPhysicalIpdMeters) {
-
-    LOG_EVENTS("PhysicalIpdSet(" << unWhichDevice << ", " << fPhysicalIpdMeters
-                                 << ")");
-}
-
 void ServerDriverHost::ProximitySensorState(uint32_t unWhichDevice,
                                             bool bProximitySensorTriggered) {
     LOG_EVENTS("ProximitySensorState(" << unWhichDevice << ", "
@@ -149,3 +131,10 @@ bool ServerDriverHost::IsExiting() {
     LOG_EVENTS("IsExiting()");
     return isExiting_;
 }
+
+bool ServerDriverHost::PollNextEvent(VREvent_t *pEvent, uint32_t uncbVREvent ) {
+    LOG_EVENTS("PollNextEvent(" << uncbVREvent << ")");
+    return true;
+}
+
+

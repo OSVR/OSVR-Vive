@@ -308,27 +308,45 @@ int main() {
 
         /// Power the system up.
         vive.serverDevProvider().LeaveStandby();
-        {
-            auto numDevices = vive.serverDevProvider().GetTrackedDeviceCount();
-            std::cout << PREFIX << "Got " << numDevices
-                      << " tracked devices at startup" << std::endl;
-            for (decltype(numDevices) i = 0; i < numDevices; ++i) {
-                auto dev = vive.serverDevProvider().GetTrackedDeviceDriver(
-                    i);
-                vive.devices().addAndActivateDevice(dev);
-                std::cout << PREFIX << "Device " << i << std::endl;
-                auto disp =
-                    osvr::vive::getComponent<vr::IVRDisplayComponent>(dev);
-                if (disp) {
-                    std::cout << PREFIX
-                              << "-- it's a display, too! We'll extract its "
-                                 "display parameters now."
-                              << std::endl;
-                    handleDisplay(dev, disp);
-                    break;
-                }
-            }
-        }
+
+		{
+			// SYQ-2: driveHost->start() in the com_osvr_Vive should have
+			// already added all devices to the DeviceWrapper.DeviceHolder.devices
+			// we don't seem to need to add and activate again here, we can just
+			// retrive device from DeviceHolder and call the handleDisplay
+			DeviceHolder devHolder = std::move(vive.devices());
+			auto numDevices = devHolder.numDevices();
+			for (decltype(numDevices) i = 0; i < numDevices; ++i) {
+				vr::ITrackedDeviceServerDriver *dev = &(devHolder.getDevice(i));
+				auto disp = osvr::vive::getComponent<vr::IVRDisplayComponent>(dev);
+				if (disp) {
+					handleDisplay(dev,disp);
+					break;
+				}
+			}
+		}
+		
+        //{ //SYQ-2
+        //    auto numDevices = vive.serverDevProvider().GetTrackedDeviceCount();
+        //    std::cout << PREFIX << "Got " << numDevices
+        //              << " tracked devices at startup" << std::endl;
+        //    for (decltype(numDevices) i = 0; i < numDevices; ++i) {
+        //        auto dev = vive.serverDevProvider().GetTrackedDeviceDriver(
+        //            i);
+        //        vive.devices().addAndActivateDevice(dev);
+        //        std::cout << PREFIX << "Device " << i << std::endl;
+        //        auto disp =
+        //            osvr::vive::getComponent<vr::IVRDisplayComponent>(dev);
+        //        if (disp) {
+        //            std::cout << PREFIX
+        //                      << "-- it's a display, too! We'll extract its "
+        //                         "display parameters now."
+        //                      << std::endl;
+        //            handleDisplay(dev, disp);
+        //            break;
+        //        }
+        //    }
+        //}
         vive.stop();
         if (vive.serverDevProvider().ShouldBlockStandbyMode()) {
             std::cout << PREFIX << "Driver is reporting that it is busy and "

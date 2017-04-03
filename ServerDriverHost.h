@@ -34,22 +34,27 @@
 // Standard includes
 #include <functional>
 
-// refer to IServerDriverHost for details on each function
+// refer to IVRServerDriverHost for details on each function
 namespace vr {
-class ServerDriverHost : public vr::IServerDriverHost {
+class ServerDriverHost : public vr::IVRServerDriverHost {
   public:
     ServerDriverHost();
 
     /// Sets our "IsExiting()" flag to true.
     void setExiting() { isExiting_ = true; }
 
-    virtual bool TrackedDeviceAdded(const char *pchDeviceSerialNumber);
+    IVRSettings *GetSettings(const char *pchInterfaceVersion) { return vrSettings; }
+
+    virtual bool TrackedDeviceAdded( const char *pchDeviceSerialNumber, 
+	                                 ETrackedDeviceClass eDeviceClass, 
+									 ITrackedDeviceServerDriver *pDriver );
     std::function<bool(const char *)> onTrackedDeviceAdded;
 
     virtual void TrackedDevicePoseUpdated(uint32_t unWhichDevice,
-                                          const DriverPose_t &newPose);
+                                          const DriverPose_t &newPose,
+										  uint32_t unPoseStructSize);
 
-    virtual void TrackedDevicePropertiesChanged(uint32_t unWhichDevice);
+    //virtual void TrackedDevicePropertiesChanged(uint32_t unWhichDevice);
 
     virtual void VsyncEvent(double vsyncTimeOffsetSeconds);
 
@@ -73,13 +78,6 @@ class ServerDriverHost : public vr::IServerDriverHost {
                                           uint32_t unWhichAxis,
                                           const VRControllerAxis_t &axisState);
 
-    virtual void MCImageUpdated();
-
-    virtual IVRSettings *GetSettings(const char *pchInterfaceVersion);
-
-    virtual void PhysicalIpdSet(uint32_t unWhichDevice,
-                                float fPhysicalIpdMeters);
-
     virtual void ProximitySensorState(uint32_t unWhichDevice,
                                       bool bProximitySensorTriggered);
 
@@ -89,6 +87,8 @@ class ServerDriverHost : public vr::IServerDriverHost {
                                      double eventTimeOffset);
 
     virtual bool IsExiting();
+	
+	virtual bool PollNextEvent( VREvent_t *pEvent, uint32_t uncbVREvent );
 
     IVRSettings *vrSettings = nullptr;
 

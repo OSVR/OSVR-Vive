@@ -178,6 +178,7 @@ namespace vive {
         m_vive->serverDevProvider().LeaveStandby();
 
         auto handleNewDevice = [&](const char *serialNum) {
+			//SYQ-3
             auto dev =
                 m_vive->serverDevProvider().FindTrackedDeviceDriver(serialNum);
             if (!dev) {
@@ -214,18 +215,18 @@ namespace vive {
 
         /// Reserve ID 0 for the HMD
         m_vive->devices().reserveIds(1);
-
-        {
-            auto numDevices =
-                m_vive->serverDevProvider().GetTrackedDeviceCount();
-            std::cout << PREFIX << "Got " << numDevices
-                      << " tracked devices at startup" << std::endl;
-            for (decltype(numDevices) i = 0; i < numDevices; ++i) {
-                auto dev =
-                    m_vive->serverDevProvider().GetTrackedDeviceDriver(i);
+		//SYQ-4
+        //{
+        //    auto numDevices =
+        //        m_vive->serverDevProvider().GetTrackedDeviceCount();
+        //    std::cout << PREFIX << "Got " << numDevices
+        //              << " tracked devices at startup" << std::endl;
+        //    for (decltype(numDevices) i = 0; i < numDevices; ++i) {
+        //        auto dev =
+        //            m_vive->serverDevProvider().GetTrackedDeviceDriver(i);
                 activateDevice(dev);
-            }
-        }
+        //    }
+        //}
 
         /// Finish setting this up as an OSVR device.
         /// Create the initialization options
@@ -574,15 +575,16 @@ namespace vive {
     }
 
     void ViveDriverHost::TrackedDevicePoseUpdated(uint32_t unWhichDevice,
-                                                  const DriverPose_t &newPose) {
+                                                  const DriverPose_t &newPose,
+										          uint32_t unPoseStructSize) {
         submitTrackingReport(unWhichDevice, osvr::util::time::getNow(),
                              newPose);
     }
 
-    void ViveDriverHost::PhysicalIpdSet(uint32_t unWhichDevice,
-                                        float fPhysicalIpdMeters) {
-        submitAnalog(IPD_ANALOG, fPhysicalIpdMeters);
-    }
+    // void ViveDriverHost::PhysicalIpdSet(uint32_t unWhichDevice,
+                                        // float fPhysicalIpdMeters) {
+        // submitAnalog(IPD_ANALOG, fPhysicalIpdMeters);
+    // }
 
     void ViveDriverHost::ProximitySensorState(uint32_t unWhichDevice,
                                               bool bProximitySensorTriggered) {
@@ -592,20 +594,20 @@ namespace vive {
         submitButton(PROX_SENSOR_BUTTON_OFFSET, bProximitySensorTriggered, 0);
     }
 
-    void
-    ViveDriverHost::TrackedDevicePropertiesChanged(uint32_t unWhichDevice) {
-        bool checkUniverse = false;
-        if (HMD_SENSOR == unWhichDevice) {
-            checkUniverse = true;
-        } else if (!m_vive->devices().hasDeviceAt(HMD_SENSOR)) {
-            checkUniverse = true;
-        }
+    // void
+    // ViveDriverHost::TrackedDevicePropertiesChanged(uint32_t unWhichDevice) {
+        // bool checkUniverse = false;
+        // if (HMD_SENSOR == unWhichDevice) {
+            // checkUniverse = true;
+        // } else if (!m_vive->devices().hasDeviceAt(HMD_SENSOR)) {
+            // checkUniverse = true;
+        // }
 
-        if (!checkUniverse) {
-            return;
-        }
-        getUniverseUpdateFromDevice(unWhichDevice);
-    }
+        // if (!checkUniverse) {
+            // return;
+        // }
+        // getUniverseUpdateFromDevice(unWhichDevice);
+    // }
 
     std::pair<vr::ITrackedDeviceServerDriver *, bool>
     ViveDriverHost::getDriverPtr(uint32_t unWhichDevice) {
@@ -614,9 +616,10 @@ namespace vive {
             return std::make_pair(&(m_vive->devices().getDevice(unWhichDevice)),
                                   true);
         }
-        return std::make_pair(
-            m_vive->serverDevProvider().GetTrackedDeviceDriver(unWhichDevice),
-            false);
+		//SYQ-5
+        //return std::make_pair(
+        //    m_vive->serverDevProvider().GetTrackedDeviceDriver(unWhichDevice),
+        //    false);
     }
 
     void ViveDriverHost::getUniverseUpdateFromDevice(uint32_t unWhichDevice) {

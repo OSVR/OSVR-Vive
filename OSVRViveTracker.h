@@ -108,15 +108,16 @@ namespace vive {
         /// the main thread)
         /// @{
         void TrackedDevicePoseUpdated(uint32_t unWhichDevice,
-                                      const DriverPose_t &newPose) override;
+                                      const DriverPose_t &newPose,
+			                          uint32_t unPoseStructSize) override;
 
-        void PhysicalIpdSet(uint32_t unWhichDevice,
-                            float fPhysicalIpdMeters) override;
+        // void PhysicalIpdSet(uint32_t unWhichDevice,
+                            // float fPhysicalIpdMeters) override;
 
         void ProximitySensorState(uint32_t unWhichDevice,
                                   bool bProximitySensorTriggered) override;
 
-        void TrackedDevicePropertiesChanged(uint32_t unWhichDevice) override;
+        // void TrackedDevicePropertiesChanged(uint32_t unWhichDevice) override;
 
         void TrackedDeviceButtonPressed(uint32_t unWhichDevice,
                                         EVRButtonId eButtonId,
@@ -138,7 +139,7 @@ namespace vive {
         TrackedDeviceAxisUpdated(uint32_t unWhichDevice, uint32_t unWhichAxis,
                                  const VRControllerAxis_t &axisState) override;
 
-        IVRSettings *GetSettings(const char *) override { return nullptr; }
+        IVRSettings *GetSettings(const char *) { return nullptr; }
 /// @}
 
 #if 0

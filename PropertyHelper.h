@@ -62,6 +62,9 @@ namespace osvr {
 namespace vive {
 
     namespace detail {
+		// k_unTrackingStringSize defined in the vr:: is no more, defined here
+		static const uint32_t k_unTrackingStringSize = 32;
+
         template <typename PropertyType>
         using PropertyGetterReturn =
             std::pair<PropertyType, vr::ETrackedPropertyError>;
@@ -101,12 +104,12 @@ namespace vive {
         };
 
         template <> struct PropertyGetter<float> {
-            template <typename T, typename... Args>
             static PropertyGetterReturn<float>
-            get(T *dev, vr::ETrackedDeviceProperty prop, Args... args) {
+            get(vr::ETrackedDeviceProperty prop, vr::TrackedDeviceIndex_t unObjectId) {
                 vr::ETrackedPropertyError err = vr::TrackedProp_Success;
-                float val = dev->GetFloatTrackedDeviceProperty(
-                    std::forward<Args>(args)..., prop, &err);
+				auto ulPropertyContainer = vr::VRProperties()->TrackedDeviceToPropertyContainer(unObjectId);
+				float val = vr::VRProperties()->GetFloatProperty(ulPropertyContainer, prop, &err);
+                //float val = dev->GetFloatTrackedDeviceProperty(std::forward<Args>(args)..., prop, &err);
                 return std::make_pair(val, err);
             }
         };
@@ -141,14 +144,15 @@ namespace vive {
                 assert(dev != nullptr &&
                        "Tried to get a string property from a null device "
                        "pointer.");
-                static const auto INITIAL_BUFFER_SIZE =
-                    vr::k_unTrackingStringSize;
+                static const auto INITIAL_BUFFER_SIZE = k_unTrackingStringSize;
                 /// Start with a buffer of k_unTrackingStringSize as suggested.
                 std::vector<char> buf(INITIAL_BUFFER_SIZE, '\0');
                 vr::ETrackedPropertyError err = vr::TrackedProp_Success;
-                auto ret = dev->GetStringTrackedDeviceProperty(
-                    args..., prop, buf.data(),
-                    static_cast<uint32_t>(buf.size()), &err);
+				// SYQ-10
+				uint32_t ret = 1;
+                //auto ret = dev->GetStringTrackedDeviceProperty(
+                //    args..., prop, buf.data(),
+                //    static_cast<uint32_t>(buf.size()), &err);
                 if (0 == ret) {
                     // property not available
                     return std::make_pair(std::string{}, err);
@@ -168,9 +172,11 @@ namespace vive {
                               << buf.size() << ", return value: " << ret
                               << std::endl;
                     buf.resize(ret + 1, '\0');
-                    ret = dev->GetStringTrackedDeviceProperty(
-                        args..., prop, buf.data(),
-                        static_cast<uint32_t>(buf.size()), &err);
+					// SYQ-10
+					ret = 1;
+                    //ret = dev->GetStringTrackedDeviceProperty(
+                    //    args..., prop, buf.data(),
+                    //    static_cast<uint32_t>(buf.size()), &err);
                 }
 
                 if (ret > buf.size()) {
@@ -190,8 +196,10 @@ namespace vive {
             static PropertyGetterReturn<uint64_t>
             get(T *self, vr::ETrackedDeviceProperty prop, Args... args) {
                 vr::ETrackedPropertyError err = vr::TrackedProp_Success;
-                uint64_t val =
-                    self->GetUint64TrackedDeviceProperty(args..., prop, &err);
+				// SYQ-10
+				uint64_t val = 1;
+                //uint64_t val =
+                //    self->GetUint64TrackedDeviceProperty(args..., prop, &err);
                 return std::make_pair(val, err);
             }
         };

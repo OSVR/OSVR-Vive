@@ -148,7 +148,7 @@ namespace vive {
             "ITrackedDeviceServerDriver", "IVRDisplayComponent",
             "IVRControllerComponent", //< @todo do we actually use/cast to
                                       // this interface?
-            "IServerTrackedDeviceProvider", "IClientTrackedDeviceProvider"};
+            "IServerTrackedDeviceProvider", "IVRWatchdogProvider"};
 
     } // namespace detail
 
@@ -160,7 +160,7 @@ namespace vive {
     }
 
     /// The do-nothing driver logger.
-    class NullDriverLog : public vr::IDriverLog {
+    class NullDriverLog : public vr::IVRDriverLog {
       public:
         void Log(const char *) override {}
     };
@@ -247,6 +247,7 @@ namespace vive {
         /// This method must be called before calling
         /// startServerDeviceProvider()
         bool isHMDPresent() {
+			
             if (!(foundDriver() && foundConfigDirs() && haveDriverLoaded())) {
                 return false;
             }
@@ -271,15 +272,19 @@ namespace vive {
             if (serverDeviceProvider_) {
                 return true;
             }
-            vr::IDriverLog *logger = nullptr;
+            vr::IVRDriverLog *logger = nullptr;
             if (quiet) {
                 logger = &nullDriverLog_;
             }
 
+			VR_INIT_SERVER_DRIVER_CONTEXT(context_);
+
+			// How to get the IVRSystem defined in the openvr.h SYQ
+			EVRInitError eError;
+			IVRSystem pVRSystem = context_->GetGenericInterface(vr::IVRSystem_Version, &eError);
+			
             serverDeviceProvider_ =
-                getProvider<vr::IServerTrackedDeviceProvider>(
-                    std::move(loader_), logger, serverDriverHost_,
-                    locations_.driverConfigDir);
+                getProvider<vr::IServerTrackedDeviceProvider>(std::move(loader_), context_);
             return static_cast<bool>(serverDeviceProvider_);
         }
 
@@ -421,6 +426,9 @@ namespace vive {
 
         DeviceHolder devices_;
         NullDriverLog nullDriverLog_;
+		
+		/// This pointer is used in calling the IServerTrackedDeviceProvider.Init
+		vr::IVRDriverContext *context_;
     };
 } // namespace vive
 } // namespace osvr

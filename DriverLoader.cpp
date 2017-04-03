@@ -128,16 +128,18 @@ namespace vive {
     }
 
     bool DriverLoader::isHMDPresent(std::string const &userConfigDir) const {
-        auto ret = getInterface<vr::IClientTrackedDeviceProvider>();
+        auto ret = getInterface<vr::IVRWatchdogProvider>();
         if (ret) {
-            // std::cout << "Successfully got the
-            // IClientTrackedDeviceProvider!";
-            auto clientProvider = ret.value;
-            auto isPresent =
-                clientProvider->BIsHmdPresent(userConfigDir.c_str());
-            // std::cout << " is present? " << std::boolalpha << isPresent
-            //          << std::endl;
-            return isPresent;
+			//SYQ-1
+			return true;
+            //// std::cout << "Successfully got the
+            //// IClientTrackedDeviceProvider!";
+            //auto clientProvider = ret.value;
+            //auto isPresent =
+            //    clientProvider->BIsHmdPresent(userConfigDir.c_str());
+            //// std::cout << " is present? " << std::boolalpha << isPresent
+            ////          << std::endl;
+            //return isPresent;
         }
         // std::cout << "Couldn't get it, error code " << ret.errorCode <<
         // std::endl;
