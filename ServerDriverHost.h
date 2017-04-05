@@ -48,13 +48,13 @@ class ServerDriverHost : public vr::IVRServerDriverHost {
     virtual bool TrackedDeviceAdded( const char *pchDeviceSerialNumber, 
 	                                 ETrackedDeviceClass eDeviceClass, 
 									 ITrackedDeviceServerDriver *pDriver );
-    std::function<bool(const char *)> onTrackedDeviceAdded;
+    std::function<bool(const char *, 
+		               ETrackedDeviceClass, 
+		               ITrackedDeviceServerDriver *)> onTrackedDeviceAdded;
 
     virtual void TrackedDevicePoseUpdated(uint32_t unWhichDevice,
                                           const DriverPose_t &newPose,
 										  uint32_t unPoseStructSize);
-
-    //virtual void TrackedDevicePropertiesChanged(uint32_t unWhichDevice);
 
     virtual void VsyncEvent(double vsyncTimeOffsetSeconds);
 

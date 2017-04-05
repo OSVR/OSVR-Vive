@@ -50,7 +50,7 @@ bool ServerDriverHost::TrackedDeviceAdded(const char *pchDeviceSerialNumber,
                                           ETrackedDeviceClass eDeviceClass, 
                                           ITrackedDeviceServerDriver *pDriver) {
     if (onTrackedDeviceAdded) {
-        return onTrackedDeviceAdded(pchDeviceSerialNumber);
+        return onTrackedDeviceAdded(pchDeviceSerialNumber, eDeviceClass, pDriver);
     }
     LOG_EVENTS("TrackedDeviceAdded(" << pchDeviceSerialNumber << ")");
     return true;

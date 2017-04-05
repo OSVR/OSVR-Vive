@@ -127,10 +127,10 @@ namespace vive {
         return static_cast<bool>(impl_);
     }
 
+	/// this will not be called because of the removal of ClientTrackDeviceProvider
     bool DriverLoader::isHMDPresent(std::string const &userConfigDir) const {
         auto ret = getInterface<vr::IVRWatchdogProvider>();
         if (ret) {
-			//SYQ-1
 			return true;
             //// std::cout << "Successfully got the
             //// IClientTrackedDeviceProvider!";

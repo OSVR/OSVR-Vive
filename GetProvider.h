@@ -106,7 +106,8 @@ namespace vive {
             std::move(loader), context, [](SharedDriverLoader const &) {});
     }
 
-	//SYQ-6 : didn't see this function is used anywhere
+	///SYQ-3 : didn't see this function is used anywhere, and with
+	///        ClientProvider is removed, we don't need this either
 	//inline std::pair<ProviderPtr<vr::IServerTrackedDeviceProvider>,
 	//                 ProviderPtr<vr::IVRWatchdogProvider>>
 	//getServerProviderWithUninitializedClientProvider(

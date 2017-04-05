@@ -246,8 +246,7 @@ namespace vive {
 
         /// This method must be called before calling
         /// startServerDeviceProvider()
-        bool isHMDPresent() {
-			
+        bool isHMDPresent() {		
             if (!(foundDriver() && foundConfigDirs() && haveDriverLoaded())) {
                 return false;
             }
@@ -278,13 +277,10 @@ namespace vive {
             }
 
 			VR_INIT_SERVER_DRIVER_CONTEXT(context_);
-
-			// How to get the IVRSystem defined in the openvr.h SYQ
-			EVRInitError eError;
-			IVRSystem pVRSystem = context_->GetGenericInterface(vr::IVRSystem_Version, &eError);
-			
+		
             serverDeviceProvider_ =
                 getProvider<vr::IServerTrackedDeviceProvider>(std::move(loader_), context_);
+
             return static_cast<bool>(serverDeviceProvider_);
         }
 

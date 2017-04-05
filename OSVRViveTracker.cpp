@@ -121,8 +121,9 @@ namespace vive {
     ViveDriverHost::start(OSVR_PluginRegContext ctx,
                           osvr::vive::DriverWrapper &&inVive) {
         if (!inVive) {
-            std::cerr << PREFIX << "Error: called ViveDriverHost::start() with "
-                                   "an invalid vive object!"
+            std::cerr << PREFIX
+                      << "Error: called ViveDriverHost::start() with "
+                         "an invalid vive object!"
                       << std::endl;
             return StartResult::TemporaryFailure;
         }
@@ -132,9 +133,10 @@ namespace vive {
         /// Finish setting up the Vive.
         try {
             if (!m_vive->startServerDeviceProvider()) {
-                std::cerr << PREFIX << "Error: could not start the server "
-                                       "device provider in the "
-                                       "Vive driver. Exiting."
+                std::cerr << PREFIX
+                          << "Error: could not start the server "
+                             "device provider in the "
+                             "Vive driver. Exiting."
                           << std::endl;
                 return StartResult::TemporaryFailure;
             }
@@ -177,23 +179,13 @@ namespace vive {
         /// Power the system up.
         m_vive->serverDevProvider().LeaveStandby();
 
-        auto handleNewDevice = [&](const char *serialNum) {
-			//SYQ-3
-            auto dev =
-                m_vive->serverDevProvider().FindTrackedDeviceDriver(serialNum);
+        /// define the lambda to handle the ServerDriverHost::TrackedDeviceAdded
+        auto handleNewDevice = [&](const char *serialNum,
+                                   ETrackedDeviceClass eDeviceClass,
+                                   ITrackedDeviceServerDriver *pDriver) {
+            auto dev = pDriver;
             if (!dev) {
-                /// The only devices we usually can't look up by serial number
-                /// seem to be the lighthouse base stations.
-                if (serialNum[0] == 'L' && serialNum[1] == 'H' &&
-                    serialNum[2] == 'B') {
-                    /// This is one for sure.
-                    std::cout << PREFIX << "Tracked object " << serialNum
-                              << " is a Lighthouse base station" << std::endl;
-                    recordBaseStationSerial(serialNum);
-                    return true;
-                }
-                std::cout << PREFIX << "Unrecognized tracked object "
-                          << serialNum << std::endl;
+                std::cout << PREFIX << "null input device" << std::endl;
                 return false;
             }
             auto ret = activateDevice(dev);
@@ -215,18 +207,6 @@ namespace vive {
 
         /// Reserve ID 0 for the HMD
         m_vive->devices().reserveIds(1);
-		//SYQ-4
-        //{
-        //    auto numDevices =
-        //        m_vive->serverDevProvider().GetTrackedDeviceCount();
-        //    std::cout << PREFIX << "Got " << numDevices
-        //              << " tracked devices at startup" << std::endl;
-        //    for (decltype(numDevices) i = 0; i < numDevices; ++i) {
-        //        auto dev =
-        //            m_vive->serverDevProvider().GetTrackedDeviceDriver(i);
-                activateDevice(dev);
-        //    }
-        //}
 
         /// Finish setting this up as an OSVR device.
         /// Create the initialization options
@@ -250,6 +230,7 @@ namespace vive {
 
         return StartResult::Success;
     }
+
     inline OSVR_ReturnCode ViveDriverHost::update() {
         m_vive->serverDevProvider().RunFrame();
         {
@@ -308,8 +289,9 @@ namespace vive {
             auto id = m_vive->chaperone().guessUniverseIdFromBaseStations(
                 baseStations);
             if (0 != id) {
-                std::cout << PREFIX << "No HMD attached, but guessed universe "
-                                       "from sighted base stations..."
+                std::cout << PREFIX
+                          << "No HMD attached, but guessed universe "
+                             "from sighted base stations..."
                           << std::endl;
                 handleUniverseChange(id);
             }
@@ -320,9 +302,10 @@ namespace vive {
     ViveDriverHost::DevIdReturnValue
     ViveDriverHost::activateDevice(vr::ITrackedDeviceServerDriver *dev) {
         auto ret = activateDeviceImpl(dev);
-        auto mfrProp = getProperty<Props::ManufacturerName>(dev);
-        auto modelProp = getProperty<Props::ModelNumber>(dev);
-        auto serialProp = getProperty<Props::SerialNumber>(dev);
+        vr::TrackedDeviceIndex_t idx = ret.value;
+        auto mfrProp = getProperty<Props::ManufacturerName>(idx);
+        auto modelProp = getProperty<Props::ModelNumber>(idx);
+        auto serialProp = getProperty<Props::SerialNumber>(idx);
         std::cout << PREFIX;
         if (ret) {
             std::cout << "Assigned sensor ID " << ret.value << " to ";
@@ -576,14 +559,14 @@ namespace vive {
 
     void ViveDriverHost::TrackedDevicePoseUpdated(uint32_t unWhichDevice,
                                                   const DriverPose_t &newPose,
-										          uint32_t unPoseStructSize) {
+                                                  uint32_t unPoseStructSize) {
         submitTrackingReport(unWhichDevice, osvr::util::time::getNow(),
                              newPose);
     }
 
     // void ViveDriverHost::PhysicalIpdSet(uint32_t unWhichDevice,
-                                        // float fPhysicalIpdMeters) {
-        // submitAnalog(IPD_ANALOG, fPhysicalIpdMeters);
+    // float fPhysicalIpdMeters) {
+    // submitAnalog(IPD_ANALOG, fPhysicalIpdMeters);
     // }
 
     void ViveDriverHost::ProximitySensorState(uint32_t unWhichDevice,
@@ -594,21 +577,6 @@ namespace vive {
         submitButton(PROX_SENSOR_BUTTON_OFFSET, bProximitySensorTriggered, 0);
     }
 
-    // void
-    // ViveDriverHost::TrackedDevicePropertiesChanged(uint32_t unWhichDevice) {
-        // bool checkUniverse = false;
-        // if (HMD_SENSOR == unWhichDevice) {
-            // checkUniverse = true;
-        // } else if (!m_vive->devices().hasDeviceAt(HMD_SENSOR)) {
-            // checkUniverse = true;
-        // }
-
-        // if (!checkUniverse) {
-            // return;
-        // }
-        // getUniverseUpdateFromDevice(unWhichDevice);
-    // }
-
     std::pair<vr::ITrackedDeviceServerDriver *, bool>
     ViveDriverHost::getDriverPtr(uint32_t unWhichDevice) {
         // return std::pair<vr::ITrackedDeviceServerDriver *, bool>();
@@ -616,12 +584,10 @@ namespace vive {
             return std::make_pair(&(m_vive->devices().getDevice(unWhichDevice)),
                                   true);
         }
-		//SYQ-5
-        //return std::make_pair(
-        //    m_vive->serverDevProvider().GetTrackedDeviceDriver(unWhichDevice),
-        //    false);
+        return std::make_pair(nullptr, false);
     }
 
+    // this is not called anywhere when TrackedDevicePropertiesChanged is gone
     void ViveDriverHost::getUniverseUpdateFromDevice(uint32_t unWhichDevice) {
         auto devRet = getDriverPtr(unWhichDevice);
         auto dev = devRet.first;
@@ -632,7 +598,8 @@ namespace vive {
 
         vr::ETrackedPropertyError err;
         uint64_t universe = 0;
-        std::tie(universe, err) = getProperty<Props::CurrentUniverseId>(dev);
+        std::tie(universe, err) =
+            getProperty<Props::CurrentUniverseId>(unWhichDevice);
         switch (err) {
         case vr::TrackedProp_WrongDataType:
         case vr::TrackedProp_StringExceedsMaximumLength:

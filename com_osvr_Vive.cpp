@@ -27,6 +27,8 @@
 #include <osvr/PluginKit/PluginKit.h>
 #include <osvr/Util/PlatformConfig.h>
 
+// "com_Sensics_Callback_json.h"
+
 // Library/third-party includes
 #include <math.h>
 #include <openvr_driver.h>
@@ -45,45 +47,50 @@ namespace {
 
 static const auto PREFIX = "[OSVR-Vive] ";
 
-class HardwareDetection {
-
+class CallbackDevice {
   public:
-    HardwareDetection()
-        : m_inactiveDriverHost(new osvr::vive::ViveDriverHost) {}
-    OSVR_ReturnCode operator()(OSVR_PluginRegContext ctx) {
-        if (m_driverHost) {
-            // Already found a Vive.
-            /// @todo what are the semantics of the return value from a hardware
-            /// detect?
-            return OSVR_RETURN_SUCCESS;
+    CallbackDevice::CallbackDevice(OSVR_PluginRegContext ctx,
+                                   osvr::vive::DriverWrapperPtr inVive,
+                                   osvr::vive::DriverHostPtr inHost)
+        : m_ctx(ctx), m_startedInSuccess(false),
+          m_shouldAttemptDetection(true) {
+        m_viveWrapper = std::move(inVive);
+        m_inactiveDriverHost = std::move(inHost);
+
+        OSVR_DeviceInitOptions opts = osvrDeviceCreateInitOptions(ctx);
+        m_dev.initAsync(ctx, "Callback", opts);
+        // need to create json here?
+        // m_dev.sendJsonDescriptor(com_Sensics_Callback_json);
+        m_dev.registerUpdateCallback(this);
+    }
+
+    CallbackDevice::~CallbackDevice() {
+        if (m_startedInSuccess) {
+            m_driverHost.reset();
+        } else {
+            unloadTemporaries();
         }
+    }
+
+    OSVR_ReturnCode CallbackDevice::update() {
+        if (m_startedInSuccess) {
+            // alread started, return here
+            OSVR_RETURN_SUCCESS;
+        }
+
         if (!m_shouldAttemptDetection) {
             /// We said we shouldn't and wouldn't try again.
             return OSVR_RETURN_FAILURE;
         }
 
-        auto vivePtr = startupAndGetVive();
-        if (!vivePtr) {
-            /// There was trouble in early startup
-            return OSVR_RETURN_FAILURE;
-        }
-
-        if (!vivePtr->isHMDPresent()) {
-            /// Didn't detect anything - leave the driver DLL loaded,
-            /// though, to make things faster next time around.
-            /// Silent failure, to avoid annoying users.
-            return OSVR_RETURN_FAILURE;
-        }
-
-        std::cout << PREFIX << "Vive is connected." << std::endl;
-
         /// Hand the Vive object off to the OSVR driver.
-        auto startResult = finishViveStartup(ctx);
+        auto startResult = finishViveStartup();
         if (startResult) {
             /// and it started up the rest of the way just fine!
             /// We'll keep the driver around!
             std::cout << PREFIX << "Vive driver finished startup successfully!"
                       << std::endl;
+            m_startedInSuccess = true;
             return OSVR_RETURN_SUCCESS;
         }
 
@@ -93,13 +100,12 @@ class HardwareDetection {
         }
         std::cout << std::endl;
 
-        unloadTemporaries();
         return OSVR_RETURN_FAILURE;
     }
 
-    bool finishViveStartup(OSVR_PluginRegContext ctx) {
+    bool CallbackDevice::finishViveStartup() {
         auto startResult =
-            m_inactiveDriverHost->start(ctx, std::move(*m_viveWrapper));
+            m_inactiveDriverHost->start(m_ctx, std::move(*m_viveWrapper));
         m_viveWrapper.reset();
         if (osvr::vive::ViveDriverHost::StartResult::Success == startResult) {
             m_driverHost = std::move(m_inactiveDriverHost);
@@ -112,11 +118,75 @@ class HardwareDetection {
         return false;
     }
 
+    void CallbackDevice::stopAttemptingDetection() {
+        std::cerr << PREFIX << "Will not re-attempt detecting Vive."
+                  << std::endl;
+        m_shouldAttemptDetection = false;
+        unloadTemporaries();
+        m_driverHost.reset();
+    }
+
+    void CallbackDevice::unloadTemporaries() {
+        m_viveWrapper.reset();
+        m_inactiveDriverHost.reset();
+    }
+
+  private:
+    /// This is the OSVR driver object, which also serves as the "SteamVR"
+    /// driver host. We can only run one Vive at a time.
+    osvr::vive::DriverHostPtr m_driverHost;
+
+    /// A Vive object that we hang on to if we don't have a fully-started-up
+    /// device, to save time in hardware detection.
+    osvr::vive::DriverWrapperPtr m_viveWrapper;
+
+    /// Populated only when we don't have an active driver - we keep it around
+    /// so we don't have to re-load the full driver every time we get hit with a
+    /// hardware detect request.
+    osvr::vive::DriverHostPtr m_inactiveDriverHost;
+
+    bool m_startedInSuccess;
+
+    bool m_shouldAttemptDetection;
+
+    OSVR_PluginRegContext m_ctx;
+
+    osvr::pluginkit::DeviceToken m_dev;
+};
+
+class HardwareDetection {
+
+  public:
+    HardwareDetection() : m_startedInSuccess(false) {}
+
+    OSVR_ReturnCode operator()(OSVR_PluginRegContext ctx) {
+        if (m_startedInSuccess) {
+            return OSVR_RETURN_SUCCESS;
+        }
+
+        auto vivePtr = startupAndGetVive();
+        if (!vivePtr) {
+            /// There was trouble in early startup
+            return OSVR_RETURN_FAILURE;
+        }
+
+        // complete the first stage startup, and now pass
+        // the vive and driveHost to callback device to complete
+        // the second stage startup
+        // create a fake call-back device for device detection
+        // this is to replace the unavailable isHMDPresent func
+        osvr::pluginkit::registerObjectForDeletion(
+            ctx, new CallbackDevice(ctx, std::move(m_viveWrapper),
+                                    std::move(m_driverHost)));
+
+        m_startedInSuccess = true;
+        return OSVR_RETURN_SUCCESS;
+    }
+
     /// Attempts the first part of startup, if required.
     osvr::vive::DriverWrapper *startupAndGetVive() {
         if (!m_viveWrapper) {
-            m_viveWrapper.reset(
-                new osvr::vive::DriverWrapper(&getInactiveHost()));
+            m_viveWrapper.reset(new osvr::vive::DriverWrapper(&getDriveHost()));
 
             if (m_viveWrapper->foundDriver()) {
                 std::cout << PREFIX << "Found the Vive driver at "
@@ -126,7 +196,8 @@ class HardwareDetection {
 
             if (!m_viveWrapper->haveDriverLoaded()) {
                 std::cout << PREFIX << "Could not open driver." << std::endl;
-                stopAttemptingDetection();
+                m_viveWrapper.reset();
+                m_driverHost.reset();
                 return nullptr;
             }
 
@@ -148,44 +219,20 @@ class HardwareDetection {
 
     /// returns a reference because it will never be null.
     /// Creates one if needed.
-    osvr::vive::ViveDriverHost &getInactiveHost() {
-        if (m_driverHost) {
-            throw std::logic_error("Can't get an inactive host - we already "
-                                   "have a live device driver!");
+    osvr::vive::ViveDriverHost &getDriveHost() {
+        if (!m_driverHost) {
+            m_driverHost.reset(new osvr::vive::ViveDriverHost);
         }
-        if (!m_inactiveDriverHost) {
-            m_inactiveDriverHost.reset(new osvr::vive::ViveDriverHost);
-        }
-        return *m_inactiveDriverHost.get();
-    }
-
-    void stopAttemptingDetection() {
-        std::cerr << PREFIX << "Will not re-attempt detecting Vive."
-                  << std::endl;
-        m_shouldAttemptDetection = false;
-        unloadTemporaries();
-        m_driverHost.reset();
-    }
-
-    void unloadTemporaries() {
-        m_viveWrapper.reset();
-        m_inactiveDriverHost.reset();
+        return *m_driverHost.get();
     }
 
   private:
-    /// This is the OSVR driver object, which also serves as the "SteamVR"
-    /// driver host. We can only run one Vive at a time.
+    // after first stage startup, we will pass the vive and drivehost
+    // to the CallbackDevice to complete the second stage startup.
+    osvr::vive::DriverWrapperPtr m_viveWrapper;
     osvr::vive::DriverHostPtr m_driverHost;
 
-    /// A Vive object that we hang on to if we don't have a fully-started-up
-    /// device, to save time in hardware detection.
-    std::unique_ptr<osvr::vive::DriverWrapper> m_viveWrapper;
-    /// Populated only when we don't have an active driver - we keep it around
-    /// so we don't have to re-load the full driver every time we get hit with a
-    /// hardware detect request.
-    osvr::vive::DriverHostPtr m_inactiveDriverHost;
-
-    bool m_shouldAttemptDetection = true;
+    bool m_startedInSuccess;
 };
 } // namespace
 

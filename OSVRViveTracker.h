@@ -117,8 +117,6 @@ namespace vive {
         void ProximitySensorState(uint32_t unWhichDevice,
                                   bool bProximitySensorTriggered) override;
 
-        // void TrackedDevicePropertiesChanged(uint32_t unWhichDevice) override;
-
         void TrackedDeviceButtonPressed(uint32_t unWhichDevice,
                                         EVRButtonId eButtonId,
                                         double eventTimeOffset) override;
@@ -238,6 +236,7 @@ namespace vive {
         /// @}
     };
     using DriverHostPtr = std::unique_ptr<ViveDriverHost>;
+	using DriverWrapperPtr = std::unique_ptr<DriverWrapper>;
 
 } // namespace vive
 } // namespace osvr

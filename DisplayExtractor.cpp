@@ -67,7 +67,7 @@ inline UnitClippingPlane getClippingPlanes(vr::IVRDisplayComponent *display,
 }
 
 void updateCenterOfProjection(DisplayDescriptor &descriptor,
-                              vr::ITrackedDeviceServerDriver *dev) {
+	                          vr::TrackedDeviceIndex_t idx) {
     /// Get the two eye/lens center of projections.
     using CenterOfProjectionIndices =
         std::tuple<std::size_t, osvr::vive::Props, osvr::vive::Props>;
@@ -76,8 +76,8 @@ void updateCenterOfProjection(DisplayDescriptor &descriptor,
                                                  Props::LensCenterLeftV},
                        CenterOfProjectionIndices{1, Props::LensCenterRightU,
                                                  Props::LensCenterRightV}}) {
-        auto x = getPropertyOfType<float>(dev, get<1>(data)).first;
-        auto y = getPropertyOfType<float>(dev, get<2>(data)).first;
+        auto x = getPropertyOfType<float>(get<1>(data), idx).first;
+        auto y = getPropertyOfType<float>(get<2>(data), idx).first;
 
         g_descriptor->updateCenterOfProjection(get<0>(data), {{x, y}});
     }
@@ -154,7 +154,7 @@ std::string generateMeshFileContents(vr::IVRDisplayComponent *display,
     return mesh.getSeparateFile();
 }
 
-void handleDisplay(vr::ITrackedDeviceServerDriver *dev,
+void handleDisplay(vr::TrackedDeviceIndex_t idx,
                    vr::IVRDisplayComponent *display) {
 
     g_gotDisplay = true;
@@ -163,7 +163,7 @@ void handleDisplay(vr::ITrackedDeviceServerDriver *dev,
     {
         vr::ETrackedPropertyError err;
         std::string mfr;
-        std::tie(mfr, err) = getProperty<Props::ManufacturerName>(dev);
+        std::tie(mfr, err) = getProperty<Props::ManufacturerName>(idx);
         if (mfr.empty() || err != vr::TrackedProp_Success) {
             std::cerr << "Error trying to read the manufacturer of the "
                          "attached HMD..."
@@ -173,7 +173,7 @@ void handleDisplay(vr::ITrackedDeviceServerDriver *dev,
             g_descriptor->setVendor(mfr);
         }
         std::string model;
-        std::tie(model, err) = getProperty<Props::ModelNumber>(dev);
+        std::tie(model, err) = getProperty<Props::ModelNumber>(idx);
         if (model.empty() || err != vr::TrackedProp_Success) {
             std::cerr << "Error trying to read the model of the attached HMD..."
                       << std::endl;
@@ -187,7 +187,7 @@ void handleDisplay(vr::ITrackedDeviceServerDriver *dev,
         }
 
         std::string serial;
-        std::tie(serial, err) = getProperty<Props::SerialNumber>(dev);
+        std::tie(serial, err) = getProperty<Props::SerialNumber>(idx);
         std::string unit;
         if (serial.empty() || err != vr::TrackedProp_Success) {
             std::cerr << "Error trying to read the serial number of the "
@@ -211,7 +211,7 @@ void handleDisplay(vr::ITrackedDeviceServerDriver *dev,
         g_descriptor->setResolution(width, height);
     }
 
-    updateCenterOfProjection(*g_descriptor, dev);
+    updateCenterOfProjection(*g_descriptor, idx);
 
     if (!updateFOV(*g_descriptor, display)) {
         g_gotDisplay = false;
@@ -310,8 +310,7 @@ int main() {
         vive.serverDevProvider().LeaveStandby();
 
 		{
-			// SYQ-2: driveHost->start() in the com_osvr_Vive should have
-			// already added all devices to the DeviceWrapper.DeviceHolder.devices
+			// SYQ-2: by now we should have all the devices in DeviceHoler
 			// we don't seem to need to add and activate again here, we can just
 			// retrive device from DeviceHolder and call the handleDisplay
 			DeviceHolder devHolder = std::move(vive.devices());
@@ -320,13 +319,15 @@ int main() {
 				vr::ITrackedDeviceServerDriver *dev = &(devHolder.getDevice(i));
 				auto disp = osvr::vive::getComponent<vr::IVRDisplayComponent>(dev);
 				if (disp) {
-					handleDisplay(dev,disp);
+					vr::TrackedDeviceIndex_t idx = i;
+					handleDisplay(idx, disp);
 					break;
 				}
 			}
 		}
 		
-        //{ //SYQ-2
+		/// SYQ-2: Using the above block to replace the following one
+        //{
         //    auto numDevices = vive.serverDevProvider().GetTrackedDeviceCount();
         //    std::cout << PREFIX << "Got " << numDevices
         //              << " tracked devices at startup" << std::endl;
