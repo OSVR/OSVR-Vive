@@ -275,7 +275,7 @@ namespace vive {
             if (quiet) {
                 logger = &nullDriverLog_;
             }
-
+			context_ = new vive::ViveDriverContext();
 			VR_INIT_SERVER_DRIVER_CONTEXT(context_);
 		
             serverDeviceProvider_ =
@@ -424,7 +424,7 @@ namespace vive {
         NullDriverLog nullDriverLog_;
 		
 		/// This pointer is used in calling the IServerTrackedDeviceProvider.Init
-		IVRDriverContext *context_;
+		vive::ViveDriverContext *context_;
     };
 } // namespace vive
 } // namespace osvr

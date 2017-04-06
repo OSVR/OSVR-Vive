@@ -40,14 +40,14 @@
 
 namespace osvr {
 namespace vive {
-/*
+
 	class ViveDriverContext : public vr::IVRDriverContext {
 	public:
 		/// Returns the requested interface. If the interface was not available 
 		/// it will return NULL and fill out the error.
 		virtual void *GetGenericInterface(const char *pchInterfaceVersion,
 			vr::EVRInitError *peError = nullptr) {
-			vr::VRDriverContext()->GetGenericInterface(pchInterfaceVersion, peError);
+			return vr::VRDriverContext()->GetGenericInterface(pchInterfaceVersion, peError);
 		}
 
 		/// Returns the property container handle for this driver  
@@ -55,7 +55,7 @@ namespace vive {
 			return vr::VRDriverContext()->GetDriverHandle();
 		}
 	};
-*/
+
     template <typename InterfaceType>
     using ProviderPtr = std::shared_ptr<InterfaceType>;
     using SharedDriverLoader = std::shared_ptr<DriverLoader>;
