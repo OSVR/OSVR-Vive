@@ -36,6 +36,7 @@
 #include <osvr/PluginKit/TrackerInterfaceC.h>
 #include <osvr/Util/ClientReportTypesC.h>
 #include <osvr/Util/TimeValue.h>
+#include <osvr/Util/Logger.h>
 
 // Library/third-party includes
 #include <osvr/Util/EigenCoreGeometry.h>
@@ -181,6 +182,8 @@ namespace vive {
         OSVR_ButtonDeviceInterface m_button;
 
         std::unique_ptr<osvr::vive::DriverWrapper> m_vive;
+
+		osvr::util::log::LoggerPtr m_logger;
 
         /// Cached copy of the universe ID only touched from tracking thread
         /// callbacks

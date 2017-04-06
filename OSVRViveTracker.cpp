@@ -115,16 +115,14 @@ namespace vive {
 
     ViveDriverHost::ViveDriverHost()
         : m_universeXform(Eigen::Isometry3d::Identity()),
-          m_universeRotation(Eigen::Quaterniond::Identity()) {}
+          m_universeRotation(Eigen::Quaterniond::Identity()),
+		  m_logger(osvr::util::log::make_logger(PREFIX)) {}
 
     ViveDriverHost::StartResult
     ViveDriverHost::start(OSVR_PluginRegContext ctx,
                           osvr::vive::DriverWrapper &&inVive) {
         if (!inVive) {
-            std::cerr << PREFIX
-                      << "Error: called ViveDriverHost::start() with "
-                         "an invalid vive object!"
-                      << std::endl;
+			m_logger->error("Called ViveDriverHost::start() with an invalid vive object!");
             return StartResult::TemporaryFailure;
         }
         /// Take ownership of the Vive.
@@ -133,46 +131,42 @@ namespace vive {
         /// Finish setting up the Vive.
         try {
             if (!m_vive->startServerDeviceProvider()) {
-                std::cerr << PREFIX
-                          << "Error: could not start the server "
-                             "device provider in the "
-                             "Vive driver. Exiting."
-                          << std::endl;
+				m_logger->error("Could not start the server device provider in the Vive driver. Exiting.");
                 return StartResult::TemporaryFailure;
             }
         } catch (CouldNotGetInterface &e) {
-            std::cerr << PREFIX
-                      << "Caught exception trying to start Vive server device "
-                         "provider: "
-                      << e.what() << std::endl;
-            std::cerr << "SteamVR interface version may have "
-                         "changed, may need to be rebuilt against an updated "
-                         "header or use an older SteamVR version. Exiting."
-                      << std::endl;
+			std::string os = "Caught exception trying to start Vive server device provider: ";
+			os += e.what();
+			m_logger->error(os.c_str());
+			os = "SteamVR interface version may have ";
+			os += "changed, may need to be rebuilt against an updated ";
+			os += "header or use an older SteamVR version. Exiting.";
+			m_logger->error(os.c_str());
             return StartResult::PermanentFailure;
         }
 
         /// Check for interface compatibility
         if (DriverWrapper::InterfaceVersionStatus::InterfaceMismatch ==
             m_vive->checkServerDeviceProviderInterfaces()) {
-            std::cerr
-                << PREFIX
-                << "SteamVR lighthouse driver requires unavailable/unsupported "
-                   "interface versions - either too old or too new for "
-                   "this build. Specifically, the following critical "
-                   "mismatches: "
-                << std::endl;
+			std::string os = "SteamVR lighthouse driver requires unavailable/unsupported";
+			os += "SteamVR lighthouse driver requires unavailable/unsupported ";
+			os += "interface versions - either too old or too new for ";
+			os += "this build. Specifically, the following critical mismaches: ";
+			m_logger->error(os.c_str());
             for (auto iface : m_vive->getUnsupportedRequestedInterfaces()) {
                 if (isInterfaceNameWeCareAbout(
                         detail::getInterfaceName(iface))) {
                     auto supported =
                         m_vive->getSupportedInterfaceVersions()
                             .findSupportedVersionOfInterface(iface);
-                    std::cerr << PREFIX << " - SteamVR lighthouse: " << iface
-                              << "\t\t OSVR-Vive: " << supported << std::endl;
+					std::string os = " - SteamVR lighthouse: ";
+					os += iface;
+					os += "\t\t OSVR-Vive: ";
+					os += supported; 
+					m_logger->error(os.c_str());
                 }
             }
-            std::cerr << PREFIX << "Cannot continue.\n" << std::endl;
+			m_logger->error("Cannot continue.\n");
             return StartResult::PermanentFailure;
         }
 
@@ -185,14 +179,15 @@ namespace vive {
                                    ITrackedDeviceServerDriver *pDriver) {
             auto dev = pDriver;
             if (!dev) {
-                std::cout << PREFIX << "null input device" << std::endl;
+				m_logger->info("null input device");
                 return false;
             }
             auto ret = activateDevice(dev);
             if (!ret) {
-                std::cout << PREFIX << "Device with serial number " << serialNum
-                          << " couldn't be added to the devices vector."
-                          << std::endl;
+				std::string os = "Device with serial number ";
+				os += serialNum;
+				os += " couldn't be added to the devices vector.";
+				m_logger->error(os.c_str());
                 return false;
             }
             NewDeviceReport out{std::string{serialNum}, ret.value};
@@ -289,10 +284,7 @@ namespace vive {
             auto id = m_vive->chaperone().guessUniverseIdFromBaseStations(
                 baseStations);
             if (0 != id) {
-                std::cout << PREFIX
-                          << "No HMD attached, but guessed universe "
-                             "from sighted base stations..."
-                          << std::endl;
+				m_logger->info("No HMD attached, but guessed universe from sighted base stations...");
                 handleUniverseChange(id);
             }
         }
@@ -306,14 +298,14 @@ namespace vive {
         auto mfrProp = getProperty<Props::ManufacturerName>(idx);
         auto modelProp = getProperty<Props::ModelNumber>(idx);
         auto serialProp = getProperty<Props::SerialNumber>(idx);
-        std::cout << PREFIX;
+		std::string os;
         if (ret) {
-            std::cout << "Assigned sensor ID " << ret.value << " to ";
+			os = "Assigned sensor ID " + std::to_string(ret.value) + " to ";
         } else {
-            std::cout << "Could not assign a sensor ID to ";
+            os = "Could not assign a sensor ID to ";
         }
-        std::cout << mfrProp.first << " " << modelProp.first << " "
-                  << serialProp.first << std::endl;
+		os += mfrProp.first + " " + modelProp.first + " " + serialProp.first;
+		m_logger->info(os.c_str());
         return ret;
     }
 

@@ -115,6 +115,9 @@ target_include_directories(ViveLoaderLib PUBLIC ${CMAKE_CURRENT_BINARY_DIRECTORY
 osvr_convert_json(com_osvr_Vive_json
     com_osvr_Vive.json
     "${CMAKE_CURRENT_BINARY_DIR}/com_osvr_Vive_json.h")
+osvr_convert_json(com_osvr_ViveSync_json
+    com_osvr_ViveSync.json
+    "${CMAKE_CURRENT_BINARY_DIR}/com_osvr_ViveSync_json.h")
 osvr_add_plugin(com_osvr_Vive
     CPP
     com_osvr_Vive.cpp
@@ -122,7 +125,8 @@ osvr_add_plugin(com_osvr_Vive
     OSVRViveTracker.h
     QuickProcessingDeque.h
     VerifyLocked.h
-    "${CMAKE_CURRENT_BINARY_DIR}/com_osvr_Vive_json.h")
+    "${CMAKE_CURRENT_BINARY_DIR}/com_osvr_Vive_json.h"
+	"${CMAKE_CURRENT_BINARY_DIR}/com_osvr_ViveSync_json.h")
 
 target_link_libraries(com_osvr_Vive ViveLoaderLib)
 target_include_directories(com_osvr_Vive
