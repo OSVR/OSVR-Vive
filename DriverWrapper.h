@@ -32,8 +32,9 @@
 #include "FindDriver.h"
 #include "GetProvider.h"
 #include "ServerDriverHost.h"
-#include "VRDriverContext.h"
-#include "VRSettings.h"
+#include "DriverContext.h"
+#include "Settings.h"
+#include "DriverLog.h"
 
 // Library/third-party includes
 // - none
@@ -278,8 +279,8 @@ namespace vive {
                 logger = &nullDriverLog_;
             }
 
-			settings_ = new vive::VRSettings();
-            context_ = new vive::ViveDriverContext(serverDriverHost_, settings_);
+            settings_ = new vr::Settings();
+            context_ = new vr::DriverContext(serverDriverHost_, settings_);
 
             vr::EVRInitError err;
             err = Init();
@@ -437,9 +438,9 @@ namespace vive {
 
         /// This pointer is used in calling the
         /// IServerTrackedDeviceProvider.Init
-        vive::ViveDriverContext *context_;
+        vr::DriverContext *context_;
 
-        vive::VRSettings *settings_;
+        vr::Settings *settings_;
     };
 } // namespace vive
 } // namespace osvr

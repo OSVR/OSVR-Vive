@@ -240,8 +240,8 @@ int main() {
 
     std::vector<std::string> knownSerialNumbers;
     auto handleNewDevice = [&](const char *serialNum, 
-			                   ETrackedDeviceClass eDeviceClass, 
-			                   ITrackedDeviceServerDriver *pDriver)
+			                   vr::ETrackedDeviceClass eDeviceClass, 
+			                   vr::ITrackedDeviceServerDriver *pDriver)
 	{								   
 		auto dev = pDriver;
         if (!dev) {

@@ -23,7 +23,7 @@
 // limitations under the License.
 
 // Internal Includes
-#include "VRDriverContext.h"
+#include "DriverContext.h"
 
 // Library/third-party includes
 // - none
@@ -32,50 +32,41 @@
 // - none
 
 using namespace vr;
-	ViveDriverContext::ViveDriverContext() 
-		: m_pServerDriverHost(nullptr), 
-		  m_pVRProperties(nullptr),
-		  m_pVRSetting(nullptr), 
-		  m_pVRDriverLog(nullptr) {}
-		
-	ViveDriverContext::ViveDriverContext(vr::ServerDriverHost *serverDriverHost, vive::VRSettings *settings)
-	    : m_pServerDriverHost(serverDriverHost),
-		  m_pVRProperties(nullptr),
-		  m_pVRSetting(settings),
-		  m_pVRDriverLog(nullptr) {}
-		 
-    // only consider four type of interfaces		 
-    void *ViveDriverContext::GetGenericInterface( const char *pchInterfaceVersion, 
-		vr::EVRInitError *peError) 
-	{
-		std::string interfaceVersion = pchInterfaceVersion;
-		if (interfaceVersion.compare("IVRServerDriverHost_004") == 0) {
-			std::cout << "Return Server Driver Host" << std::endl;
-			return m_pServerDriverHost;
-		}
-		else if (interfaceVersion.compare("IVRSettings_002") == 0) {
-			std::cout << "Return m_pVRSetting" << std::endl;
-			return m_pVRSetting;
-		}
-		else if (interfaceVersion.compare("IVRProperties_001") == 0) {
-			std::cout << "Return m_pVRProperties" << std::endl;
-			return m_pVRProperties;
-		}
-		else if (interfaceVersion.compare("IVRDriverLog_001") == 0) {
-			std::cout << "Return m_pVRDriverLog" << std::endl;
-			return m_pVRDriverLog;
-		}
-		else {
-			std::cout << "Got an unhandled type: " 
-			          << pchInterfaceVersion << std::endl;
-			return nullptr;
-		}
-	}
-	
-	// not sure which driver handle to return now
-	vr::DriverHandle_t ViveDriverContext::GetDriverHandle() 
-	{
-		vr::DriverHandle_t dh = 1;
-		return dh;
-	}	
 
+DriverContext::DriverContext()
+    : m_pServerDriverHost(nullptr), m_pVRProperties(nullptr),
+      m_pVRSetting(nullptr), m_pVRDriverLog(nullptr) {}
+
+DriverContext::DriverContext(vr::ServerDriverHost *serverDriverHost,
+                             vr::Settings *settings)
+    : m_pServerDriverHost(serverDriverHost), m_pVRProperties(nullptr),
+      m_pVRSetting(settings), m_pVRDriverLog(nullptr) {}
+
+// only consider four type of interfaces
+void *DriverContext::GetGenericInterface(const char *pchInterfaceVersion,
+                                         vr::EVRInitError *peError) {
+    std::string interfaceVersion = pchInterfaceVersion;
+    if (interfaceVersion.compare("IVRServerDriverHost_004") == 0) {
+        std::cout << "Return Server Driver Host" << std::endl;
+        return m_pServerDriverHost;
+    } else if (interfaceVersion.compare("IVRSettings_002") == 0) {
+        std::cout << "Return m_pVRSetting" << std::endl;
+        return m_pVRSetting;
+    } else if (interfaceVersion.compare("IVRProperties_001") == 0) {
+        std::cout << "Return m_pVRProperties" << std::endl;
+        return m_pVRProperties;
+    } else if (interfaceVersion.compare("IVRDriverLog_001") == 0) {
+        std::cout << "Return m_pVRDriverLog" << std::endl;
+        return m_pVRDriverLog;
+    } else {
+        std::cout << "Got an unhandled type: " << pchInterfaceVersion
+                  << std::endl;
+        return nullptr;
+    }
+}
+
+// not sure which driver handle to return now
+vr::DriverHandle_t DriverContext::GetDriverHandle() {
+    vr::DriverHandle_t dh = 1;
+    return dh;
+}

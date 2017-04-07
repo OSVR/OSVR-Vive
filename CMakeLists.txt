@@ -102,10 +102,12 @@ add_library(ViveLoaderLib STATIC
     ServerPropertyHelper.h
     PropertyHelper.h
     PropertyTraits.h
-    VRSettings.cpp
-    VRSettings.h
-	VRDriverContext.h
-	VRDriverContext.cpp)
+    Settings.cpp
+    Settings.h
+    DriverLog.h
+    DriverLog.cpp
+	DriverContext.h
+	DriverContext.cpp)
 target_link_libraries(ViveLoaderLib
     PUBLIC
     OpenVRDriver osvr::osvrUtil linkable_into_dll

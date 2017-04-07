@@ -52,6 +52,8 @@
 #include <utility>
 #include <vector>
 
+using namespace vr;
+
 namespace osvr {
 namespace vive {
     struct TrackingReport {

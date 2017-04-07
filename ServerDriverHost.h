@@ -26,7 +26,7 @@
 #define INCLUDED_ServerDriverHost_h_GUID_CD530D68_1639_42B7_9B06_BA9E59464E9C
 
 // Internal Includes
-#include <VRSettings.h>
+#include <Settings.h>
 
 // Library/third-party includes
 #include <openvr_driver.h>

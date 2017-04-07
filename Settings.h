@@ -1,14 +1,14 @@
 /** @file
     @brief Header
 
-    @date 2016
+    @date 2017
 
     @author
     Sensics, Inc.
     <http://sensics.com/osvr>
 */
 
-// Copyright 2016 Razer Inc.
+// Copyright 2017 Sensics, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,8 +22,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef INCLUDED_VRSettings_h_GUID_138FAF71_763D_4499_62A1_BBD01F8F2567
-#define INCLUDED_VRSettings_h_GUID_138FAF71_763D_4499_62A1_BBD01F8F2567
+#ifndef INCLUDED_Settings_h_GUID_94402E2B_13D0_4E97_FA1F_CA2B7F647A38
+#define INCLUDED_Settings_h_GUID_94402E2B_13D0_4E97_FA1F_CA2B7F647A38
 
 // Internal Includes
 
@@ -34,7 +34,7 @@
 // - none
 namespace vr {
 
-class VRSettings : public vr::IVRSettings {
+class Settings : public vr::IVRSettings {
 
   public:
     virtual const char *
@@ -75,4 +75,4 @@ class VRSettings : public vr::IVRSettings {
 
 } // namespace vr
 
-#endif // INCLUDED_IVRSettings_h_GUID_138FAF71_763D_4499_62A1_BBD01F8F2567
+#endif // INCLUDED_Settings_h_GUID_94402E2B_13D0_4E97_FA1F_CA2B7F647A38
