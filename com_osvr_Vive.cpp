@@ -50,7 +50,7 @@ static const auto PREFIX = "[OSVR-Vive] ";
 
 class ViveSyncDevice {
   public:
-    ViveSyncDevice::ViveSyncDevice(OSVR_PluginRegContext ctx,
+    ViveSyncDevice(OSVR_PluginRegContext ctx,
                                    osvr::vive::DriverWrapperPtr inVive,
                                    osvr::vive::DriverHostPtr inHost)
         : m_ctx(ctx), m_startedInSuccess(false),
@@ -67,7 +67,7 @@ class ViveSyncDevice {
         m_dev.registerUpdateCallback(this);
     }
 
-    ViveSyncDevice::~ViveSyncDevice() {
+    ~ViveSyncDevice() {
         if (m_startedInSuccess) {
             m_driverHost.reset();
         } else {
@@ -75,7 +75,7 @@ class ViveSyncDevice {
         }
     }
 
-    OSVR_ReturnCode ViveSyncDevice::update() {
+    OSVR_ReturnCode update() {
         if (m_startedInSuccess) {
             // alread started, return here
             OSVR_RETURN_SUCCESS;
@@ -107,7 +107,7 @@ class ViveSyncDevice {
         return OSVR_RETURN_FAILURE;
     }
 
-    bool ViveSyncDevice::finishViveStartup() {
+    bool finishViveStartup() {
         auto startResult =
             m_inactiveDriverHost->start(m_ctx, std::move(*m_viveWrapper));
         m_viveWrapper.reset();
@@ -122,14 +122,14 @@ class ViveSyncDevice {
         return false;
     }
 
-    void ViveSyncDevice::stopAttemptingDetection() {
+    void stopAttemptingDetection() {
 		m_logger->error("Will not re-attempt detecting Vive.");
         m_shouldAttemptDetection = false;
         unloadTemporaries();
         m_driverHost.reset();
     }
 
-    void ViveSyncDevice::unloadTemporaries() {
+    void unloadTemporaries() {
         m_viveWrapper.reset();
         m_inactiveDriverHost.reset();
     }
