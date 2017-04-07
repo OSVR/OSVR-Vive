@@ -30,8 +30,7 @@
 // Standard includes
 #include <iostream>
 
-namespace osvr {
-namespace vive {
+using namespace vr;
 
 #ifdef DISABLE_LOG_EVENTS
 #define LOG_EVENTS(X)                                                          \
@@ -44,86 +43,79 @@ namespace vive {
     } while (0)
 #endif
 
-    const char *
-    VRSettings::GetSettingsErrorNameFromEnum(vr::EVRSettingsError eError) {
-        LOG_EVENTS("GetSettingsErrorNameFromEnum(" << eError << ")");
-        return "Error";
-    }
-
-    bool VRSettings::Sync(bool bForce, vr::EVRSettingsError *peError) {
-        LOG_EVENTS("Sync(" << bForce << ", " << peError << ")");
-        // retur true for now
-        return true;
-    }
-
-    bool VRSettings::GetBool(const char *pchSection, const char *pchSettingsKey,
-                             vr::EVRSettingsError *peError) {
-        LOG_EVENTS("GetBool(" << pchSection << ", " << pchSettingsKey << ", "
-                              << peError << ")");
-        // return true for now
-        return true;
-    }
-    void VRSettings::SetBool(const char *pchSection, const char *pchSettingsKey,
-                             bool bValue, vr::EVRSettingsError *peError) {
-        LOG_EVENTS("SetBool(" << pchSection << ", " << pchSettingsKey << ", "
-                              << bValue << ", " << peError << ")");
-    }
-
-    int32_t VRSettings::GetInt32(const char *pchSection,
-                                 const char *pchSettingsKey,
-                                 vr::EVRSettingsError *peError) {
-        LOG_EVENTS("SetBool(" << pchSection << ", " << pchSettingsKey << ", "
-                              << peError << ")");
-        // return non-existing value for now
-        return 67;
-    }
-    void VRSettings::SetInt32(const char *pchSection,
-                              const char *pchSettingsKey, int32_t nValue,
-                              vr::EVRSettingsError *peError) {
-        LOG_EVENTS("SetInt32(" << pchSection << ", " << pchSettingsKey << ", "
-                               << nValue << ", " << peError << ")");
-    }
-
-    float VRSettings::GetFloat(const char *pchSection,
-                               const char *pchSettingsKey,
-                               vr::EVRSettingsError *peError) {
-        LOG_EVENTS("SetInt32(" << pchSection << ", " << pchSettingsKey << ", "
-                               << peError << ")");
-        return 67.0;
-    }
-
-    void VRSettings::SetFloat(const char *pchSection,
-                              const char *pchSettingsKey, float flValue,
-                              vr::EVRSettingsError *peError) {
-        LOG_EVENTS("SetInt32(" << pchSection << ", " << pchSettingsKey << ", "
-                               << flValue << ", " << peError << ")");
-    }
-
-    void osvr::vive::VRSettings::GetString(const char *pchSection,
-                                           const char *pchSettingsKey,
-                                           char *pchValue, uint32_t unValueLen,
-                                           vr::EVRSettingsError *peError) {
-        LOG_EVENTS("SetInt32(" << pchSection << ", " << pchSettingsKey << ", "
-                               << unValueLen << ", " << peError << ")");
-    }
-
-    void VRSettings::SetString(const char *pchSection,
-                               const char *pchSettingsKey, const char *pchValue,
-                               vr::EVRSettingsError *peError) {
-        LOG_EVENTS("SetInt32(" << pchSection << ", " << pchSettingsKey << ", "
-                               << pchValue << ", " << peError << ")");
-    }
-
-    void VRSettings::RemoveSection(const char *pchSection,
-                                   vr::EVRSettingsError *peError) {
-        LOG_EVENTS("SetInt32(" << pchSection << ", " << peError << ")");
-    }
-
-    void VRSettings::RemoveKeyInSection(const char *pchSection,
-                                        const char *pchSettingsKey,
-                                        vr::EVRSettingsError *peError) {
-        LOG_EVENTS("SetInt32(" << pchSection << ", " << pchSettingsKey << ", "
-                               << peError << ")");
-    }
+const char *
+VRSettings::GetSettingsErrorNameFromEnum(vr::EVRSettingsError eError) {
+    LOG_EVENTS("GetSettingsErrorNameFromEnum(" << eError << ")");
+    return "Error";
 }
+
+bool VRSettings::Sync(bool bForce, vr::EVRSettingsError *peError) {
+    LOG_EVENTS("Sync(" << bForce << ", " << peError << ")");
+    // retur true for now
+    return true;
+}
+
+bool VRSettings::GetBool(const char *pchSection, const char *pchSettingsKey,
+                         vr::EVRSettingsError *peError) {
+    LOG_EVENTS("GetBool(" << pchSection << ", " << pchSettingsKey << ", "
+                          << peError << ")");
+    // return true for now
+    return true;
+}
+void VRSettings::SetBool(const char *pchSection, const char *pchSettingsKey,
+                         bool bValue, vr::EVRSettingsError *peError) {
+    LOG_EVENTS("SetBool(" << pchSection << ", " << pchSettingsKey << ", "
+                          << bValue << ", " << peError << ")");
+}
+
+int32_t VRSettings::GetInt32(const char *pchSection, const char *pchSettingsKey,
+                             vr::EVRSettingsError *peError) {
+    LOG_EVENTS("SetBool(" << pchSection << ", " << pchSettingsKey << ", "
+                          << peError << ")");
+    // return non-existing value for now
+    return 67;
+}
+void VRSettings::SetInt32(const char *pchSection, const char *pchSettingsKey,
+                          int32_t nValue, vr::EVRSettingsError *peError) {
+    LOG_EVENTS("SetInt32(" << pchSection << ", " << pchSettingsKey << ", "
+                           << nValue << ", " << peError << ")");
+}
+
+float VRSettings::GetFloat(const char *pchSection, const char *pchSettingsKey,
+                           vr::EVRSettingsError *peError) {
+    LOG_EVENTS("SetInt32(" << pchSection << ", " << pchSettingsKey << ", "
+                           << peError << ")");
+    return 67.0;
+}
+
+void VRSettings::SetFloat(const char *pchSection, const char *pchSettingsKey,
+                          float flValue, vr::EVRSettingsError *peError) {
+    LOG_EVENTS("SetInt32(" << pchSection << ", " << pchSettingsKey << ", "
+                           << flValue << ", " << peError << ")");
+}
+
+void VRSettings::GetString(const char *pchSection, const char *pchSettingsKey,
+                           char *pchValue, uint32_t unValueLen,
+                           vr::EVRSettingsError *peError) {
+    LOG_EVENTS("SetInt32(" << pchSection << ", " << pchSettingsKey << ", "
+                           << unValueLen << ", " << peError << ")");
+}
+
+void VRSettings::SetString(const char *pchSection, const char *pchSettingsKey,
+                           const char *pchValue,
+                           vr::EVRSettingsError *peError) {
+    LOG_EVENTS("SetInt32(" << pchSection << ", " << pchSettingsKey << ", "
+                           << pchValue << ", " << peError << ")");
+}
+
+void VRSettings::RemoveSection(const char *pchSection,
+                               vr::EVRSettingsError *peError) {
+    LOG_EVENTS("SetInt32(" << pchSection << ", " << peError << ")");
+}
+
+void VRSettings::RemoveKeyInSection(const char *pchSection,
+                                    const char *pchSettingsKey,
+                                    vr::EVRSettingsError *peError) {
+    LOG_EVENTS("SetInt32(" << pchSection << ", " << pchSettingsKey << ", "
+                           << peError << ")");
 }

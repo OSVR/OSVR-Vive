@@ -31,8 +31,7 @@
 // Standard includes
 // - none
 
-namespace osvr {
-namespace vive {
+using namespace vr;
 	ViveDriverContext::ViveDriverContext() 
 		: m_pServerDriverHost(nullptr), 
 		  m_pVRProperties(nullptr),
@@ -78,9 +77,5 @@ namespace vive {
 	{
 		vr::DriverHandle_t dh = 1;
 		return dh;
-	}
-
-} // namespace vive
-} // namespace osvr
-	
+	}	
 

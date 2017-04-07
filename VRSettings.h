@@ -32,53 +32,47 @@
 
 // Standard includes
 // - none
-using namespace vr;
-namespace osvr {
-namespace vive {
+namespace vr {
 
-    class VRSettings : public vr::IVRSettings {
+class VRSettings : public vr::IVRSettings {
 
-      public:
-        virtual const char *
-        GetSettingsErrorNameFromEnum(vr::EVRSettingsError eError);
+  public:
+    virtual const char *
+    GetSettingsErrorNameFromEnum(vr::EVRSettingsError eError);
 
-        // Returns true if file sync occurred (force or settings dirty)
-        virtual bool Sync(bool bForce = false,
+    // Returns true if file sync occurred (force or settings dirty)
+    virtual bool Sync(bool bForce = false,
+                      vr::EVRSettingsError *peError = nullptr);
+
+    virtual bool GetBool(const char *pchSection, const char *pchSettingsKey,
+                         vr::EVRSettingsError *peError = nullptr);
+
+    virtual void SetBool(const char *pchSection, const char *pchSettingsKey,
+                         bool bValue, vr::EVRSettingsError *peError = nullptr);
+    virtual int32_t GetInt32(const char *pchSection, const char *pchSettingsKey,
+                             vr::EVRSettingsError *peError = nullptr);
+    virtual void SetInt32(const char *pchSection, const char *pchSettingsKey,
+                          int32_t nValue,
                           vr::EVRSettingsError *peError = nullptr);
-
-        virtual bool GetBool(const char *pchSection, const char *pchSettingsKey,
-                             vr::EVRSettingsError *peError = nullptr);
-
-        virtual void SetBool(const char *pchSection, const char *pchSettingsKey,
-                             bool bValue,
-                             vr::EVRSettingsError *peError = nullptr);
-        virtual int32_t GetInt32(const char *pchSection,
-                                 const char *pchSettingsKey,
-                                 vr::EVRSettingsError *peError = nullptr);
-        virtual void SetInt32(const char *pchSection,
-                              const char *pchSettingsKey, int32_t nValue,
-                              vr::EVRSettingsError *peError = nullptr);
-        virtual float GetFloat(const char *pchSection,
-                               const char *pchSettingsKey, 
-                               vr::EVRSettingsError *peError = nullptr);
-        virtual void SetFloat(const char *pchSection,
-                              const char *pchSettingsKey, float flValue,
-                              vr::EVRSettingsError *peError = nullptr);
-        virtual void GetString(const char *pchSection,
-                               const char *pchSettingsKey, char *pchValue,
-                               uint32_t unValueLen,
-                               vr::EVRSettingsError *peError = nullptr);
-        virtual void SetString(const char *pchSection,
-                               const char *pchSettingsKey, const char *pchValue,
-                               vr::EVRSettingsError *peError = nullptr);
-
-        virtual void RemoveSection(const char *pchSection,
-                                   vr::EVRSettingsError *peError = nullptr);
-        virtual void
-        RemoveKeyInSection(const char *pchSection, const char *pchSettingsKey,
+    virtual float GetFloat(const char *pchSection, const char *pchSettingsKey,
                            vr::EVRSettingsError *peError = nullptr);
-    };
-}
-}
+    virtual void SetFloat(const char *pchSection, const char *pchSettingsKey,
+                          float flValue,
+                          vr::EVRSettingsError *peError = nullptr);
+    virtual void GetString(const char *pchSection, const char *pchSettingsKey,
+                           char *pchValue, uint32_t unValueLen,
+                           vr::EVRSettingsError *peError = nullptr);
+    virtual void SetString(const char *pchSection, const char *pchSettingsKey,
+                           const char *pchValue,
+                           vr::EVRSettingsError *peError = nullptr);
+
+    virtual void RemoveSection(const char *pchSection,
+                               vr::EVRSettingsError *peError = nullptr);
+    virtual void RemoveKeyInSection(const char *pchSection,
+                                    const char *pchSettingsKey,
+                                    vr::EVRSettingsError *peError = nullptr);
+};
+
+} // namespace vr
 
 #endif // INCLUDED_IVRSettings_h_GUID_138FAF71_763D_4499_62A1_BBD01F8F2567

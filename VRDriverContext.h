@@ -28,6 +28,7 @@
 
 // Internal 
 #include "ServerDriverHost.h"
+#include "VRSettings.h"
 
 // Library/third-party includes
 #include <openvr_driver.h>
@@ -38,13 +39,11 @@
 #include <string>
 #include <utility>
 
-namespace osvr {
-namespace vive {
-
+namespace vr{
 	class ViveDriverContext : public vr::IVRDriverContext {
 	  public:
 	    ViveDriverContext();
-		ViveDriverContext(vr::ServerDriverHost *serverDriverHost, vive::VRSettings *settings);
+		ViveDriverContext(vr::ServerDriverHost *serverDriverHost, vr::VRSettings *settings);
 		                 
 		/// Returns the requested interface. If the interface was not available 
 		/// it will return NULL and fill out the error.
@@ -61,8 +60,7 @@ namespace vive {
 		vr::IVRDriverLog *m_pVRDriverLog;
 	};
 	
-} // namespace vive
-} // namespace osvr
+} // namespace vr
 	
 
 #endif // INCLUDED_VRDriverContext_h_GUID_28E4DDCE_CA2A_4987_FA60_A63AF5C87993
