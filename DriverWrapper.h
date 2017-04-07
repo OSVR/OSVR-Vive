@@ -32,6 +32,8 @@
 #include "FindDriver.h"
 #include "GetProvider.h"
 #include "ServerDriverHost.h"
+#include "VRDriverContext.h"
+#include "VRSettings.h"
 
 // Library/third-party includes
 // - none
@@ -246,7 +248,7 @@ namespace vive {
 
         /// This method must be called before calling
         /// startServerDeviceProvider()
-        bool isHMDPresent() {		
+        bool isHMDPresent() {
             if (!(foundDriver() && foundConfigDirs() && haveDriverLoaded())) {
                 return false;
             }
@@ -275,13 +277,23 @@ namespace vive {
             if (quiet) {
                 logger = &nullDriverLog_;
             }
-			context_ = new vive::ViveDriverContext();
-			VR_INIT_SERVER_DRIVER_CONTEXT(context_);
-		
+
+			settings_ = new vive::VRSettings();
+            context_ = new vive::ViveDriverContext(serverDriverHost_, settings_);
+
+            vr::EVRInitError err;
+            err = Init();
+
             serverDeviceProvider_ =
-                getProvider<vr::IServerTrackedDeviceProvider>(std::move(loader_), context_);
+                getProvider<vr::IServerTrackedDeviceProvider>(
+                    std::move(loader_), context_);
 
             return static_cast<bool>(serverDeviceProvider_);
+        }
+
+        vr::EVRInitError Init() {
+            VR_INIT_SERVER_DRIVER_CONTEXT(context_);
+            return vr::VRInitError_None;
         }
 
         enum class InterfaceVersionStatus {
@@ -422,9 +434,12 @@ namespace vive {
 
         DeviceHolder devices_;
         NullDriverLog nullDriverLog_;
-		
-		/// This pointer is used in calling the IServerTrackedDeviceProvider.Init
-		vive::ViveDriverContext *context_;
+
+        /// This pointer is used in calling the
+        /// IServerTrackedDeviceProvider.Init
+        vive::ViveDriverContext *context_;
+
+        vive::VRSettings *settings_;
     };
 } // namespace vive
 } // namespace osvr

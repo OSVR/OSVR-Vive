@@ -175,7 +175,7 @@ int main() {
     //    return 0;
     //}
 
-    std::cout << PREFIX << "Vive is connected." << std::endl;
+    std::cout << PREFIX << "Vive is connected!!!" << std::endl;
 
     if (!vive.startServerDeviceProvider()) {
         // can either check return value of this, or do another if (!vive) after
@@ -186,6 +186,8 @@ int main() {
                   << std::endl;
         return 1;
     }
+
+	std::cout << "Vive has started." << std::endl;
 
     /// but now, we can do things with vive.serverDevProvider()
 

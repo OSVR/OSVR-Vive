@@ -28,6 +28,7 @@
 // Internal Includes
 #include "DriverLoader.h"
 #include "InterfaceTraits.h"
+#include "ServerDriverHost.h"
 
 // Library/third-party includes
 #include <openvr_driver.h>
@@ -40,21 +41,6 @@
 
 namespace osvr {
 namespace vive {
-
-	class ViveDriverContext : public vr::IVRDriverContext {
-	public:
-		/// Returns the requested interface. If the interface was not available 
-		/// it will return NULL and fill out the error.
-		virtual void *GetGenericInterface(const char *pchInterfaceVersion,
-			vr::EVRInitError *peError = nullptr) {
-			return vr::VRDriverContext()->GetGenericInterface(pchInterfaceVersion, peError);
-		}
-
-		/// Returns the property container handle for this driver  
-		virtual vr::DriverHandle_t GetDriverHandle() {
-			return vr::VRDriverContext()->GetDriverHandle();
-		}
-	};
 
     template <typename InterfaceType>
     using ProviderPtr = std::shared_ptr<InterfaceType>;

@@ -85,7 +85,9 @@ class ViveSyncDevice {
             /// We said we shouldn't and wouldn't try again.
             return OSVR_RETURN_FAILURE;
         }
+		if (m_viveWrapper->devices().numDevices() > 0) {
 
+		};
         /// Hand the Vive object off to the OSVR driver.
         auto startResult = finishViveStartup();
         if (startResult) {
