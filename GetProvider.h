@@ -38,6 +38,7 @@
 #include <memory>
 #include <string>
 #include <utility>
+#include <exception>
 
 namespace osvr {
 namespace vive {
@@ -62,15 +63,13 @@ namespace vive {
             /// gets unloaded.
             std::unique_ptr<DriverLoader> myLoader(std::move(loader));
             auto rawPtr = myLoader->getInterfaceThrowing<InterfaceType>();
-            auto initResults =  rawPtr->Init(context);
-            //rawPtr->Init(driverLog, host, userDriverConfigDir.c_str(),
-            // myLoader->getDriverRoot().c_str());
-            if (vr::VRInitError_None != initResults) {
-                /// Failed, reset the loader pointer to unload the driver.
-                std::cout << "Got error code " << initResults << std::endl;
-                myLoader.reset();
-                return return_type{};
-            }
+			auto initResults = rawPtr->Init(context);
+			if (vr::VRInitError_None != initResults) {
+				/// Failed, reset the loader pointer to unload the driver.
+				std::cout << "Got error code " << initResults << std::endl;
+				myLoader.reset();
+				return return_type{};
+			}
 
             /// OK, so this is the interface. Move the loader into a shared
             /// pointer, make the loader responsible for cleanup of the

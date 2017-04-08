@@ -35,6 +35,7 @@
 #include "DriverContext.h"
 #include "Settings.h"
 #include "DriverLog.h"
+#include "Properties.h"
 
 // Library/third-party includes
 // - none
@@ -280,7 +281,9 @@ namespace vive {
             }
 
             settings_ = new vr::Settings();
-            context_ = new vr::DriverContext(serverDriverHost_, settings_);
+			driverLog_ = new vr::DriverLog();
+			properties_ = new vr::Properties();
+            context_ = new vr::DriverContext(serverDriverHost_, settings_, driverLog_, properties_);
 
             vr::EVRInitError err;
             err = Init();
@@ -436,11 +439,13 @@ namespace vive {
         DeviceHolder devices_;
         NullDriverLog nullDriverLog_;
 
-        /// This pointer is used in calling the
+        /// This context pointer is used in calling the
         /// IServerTrackedDeviceProvider.Init
+		/// the next three object ptrs are used for context
         vr::DriverContext *context_;
-
         vr::Settings *settings_;
+		vr::DriverLog *driverLog_;
+		vr::Properties *properties_;
     };
 } // namespace vive
 } // namespace osvr

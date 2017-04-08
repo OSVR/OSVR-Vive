@@ -38,9 +38,11 @@ DriverContext::DriverContext()
       m_pVRSetting(nullptr), m_pVRDriverLog(nullptr) {}
 
 DriverContext::DriverContext(vr::ServerDriverHost *serverDriverHost,
-                             vr::Settings *settings)
-    : m_pServerDriverHost(serverDriverHost), m_pVRProperties(nullptr),
-      m_pVRSetting(settings), m_pVRDriverLog(nullptr) {}
+                             vr::Settings *settings,
+	                         vr::DriverLog *driverLog,
+	                         vr::Properties *properties)
+    : m_pServerDriverHost(serverDriverHost), m_pVRProperties(properties),
+      m_pVRSetting(settings), m_pVRDriverLog(driverLog) {}
 
 // only consider four type of interfaces
 void *DriverContext::GetGenericInterface(const char *pchInterfaceVersion,

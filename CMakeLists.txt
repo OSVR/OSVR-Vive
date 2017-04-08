@@ -102,6 +102,8 @@ add_library(ViveLoaderLib STATIC
     ServerPropertyHelper.h
     PropertyHelper.h
     PropertyTraits.h
+	Properties.h
+	Properties.cpp
     Settings.cpp
     Settings.h
     DriverLog.h

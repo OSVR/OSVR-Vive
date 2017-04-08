@@ -29,6 +29,7 @@
 #include "ServerDriverHost.h"
 #include "Settings.h"
 #include "DriverLog.h"
+#include "Properties.h"
 
 // Library/third-party includes
 #include <openvr_driver.h>
@@ -44,7 +45,9 @@ class DriverContext : public vr::IVRDriverContext {
   public:
     DriverContext();
     DriverContext(vr::ServerDriverHost *serverDriverHost,
-                  vr::Settings *settings);
+                  vr::Settings *settings, 
+		          vr::DriverLog *driverLog,
+	              vr::Properties *properties);
 
     /// Returns the requested interface. If the interface was not available
     /// it will return NULL and fill out the error.
