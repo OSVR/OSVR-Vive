@@ -62,7 +62,6 @@ class ViveSyncDevice {
 
         OSVR_DeviceInitOptions opts = osvrDeviceCreateInitOptions(ctx);
         m_dev.initAsync(ctx, "ViveSync", opts);
-        // need to create json here?
         m_dev.sendJsonDescriptor(com_osvr_ViveSync_json);
         m_dev.registerUpdateCallback(this);
     }
@@ -77,7 +76,10 @@ class ViveSyncDevice {
 
     OSVR_ReturnCode update() {
         if (m_startedInSuccess) {
-            // alread started, return here
+            // alread started, log the number of devices added and return
+			int numDevices = m_viveWrapper->devices().numDevices();
+			std::string os = "There are " + std::to_string(numDevices) + " devices added.";
+			m_logger->info(os.c_str());
             OSVR_RETURN_SUCCESS;
         }
 
@@ -85,9 +87,7 @@ class ViveSyncDevice {
             /// We said we shouldn't and wouldn't try again.
             return OSVR_RETURN_FAILURE;
         }
-		if (m_viveWrapper->devices().numDevices() > 0) {
 
-		};
         /// Hand the Vive object off to the OSVR driver.
         auto startResult = finishViveStartup();
         if (startResult) {
