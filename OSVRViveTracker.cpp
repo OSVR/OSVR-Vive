@@ -128,6 +128,33 @@ namespace vive {
         /// Take ownership of the Vive.
         m_vive.reset(new osvr::vive::DriverWrapper(std::move(inVive)));
 
+        /// define the lambda to handle the ServerDriverHost::TrackedDeviceAdded
+        auto handleNewDevice = [&](const char *serialNum,
+            ETrackedDeviceClass eDeviceClass,
+            ITrackedDeviceServerDriver *pDriver) {
+            auto dev = pDriver;
+            if (!dev) {
+                m_logger->info("null input device");
+                return false;
+            }
+            auto ret = activateDevice(dev);
+            if (!ret) {
+                std::string os = "Device with serial number ";
+                os += serialNum;
+                os += " couldn't be added to the devices vector.";
+                m_logger->error(os.c_str());
+                return false;
+            }
+            NewDeviceReport out{ std::string{ serialNum }, ret.value };
+            {
+                std::lock_guard<std::mutex> lock(m_mutex);
+                m_newDevices.submitNew(std::move(out), lock);
+            }
+            return true;
+        };
+
+        m_vive->driverHost().onTrackedDeviceAdded = handleNewDevice;
+
         /// Finish setting up the Vive.
         try {
             if (!m_vive->startServerDeviceProvider()) {
@@ -172,33 +199,6 @@ namespace vive {
 
         /// Power the system up.
         m_vive->serverDevProvider().LeaveStandby();
-
-        /// define the lambda to handle the ServerDriverHost::TrackedDeviceAdded
-        auto handleNewDevice = [&](const char *serialNum,
-                                   ETrackedDeviceClass eDeviceClass,
-                                   ITrackedDeviceServerDriver *pDriver) {
-            auto dev = pDriver;
-            if (!dev) {
-				m_logger->info("null input device");
-                return false;
-            }
-            auto ret = activateDevice(dev);
-            if (!ret) {
-				std::string os = "Device with serial number ";
-				os += serialNum;
-				os += " couldn't be added to the devices vector.";
-				m_logger->error(os.c_str());
-                return false;
-            }
-            NewDeviceReport out{std::string{serialNum}, ret.value};
-            {
-                std::lock_guard<std::mutex> lock(m_mutex);
-                m_newDevices.submitNew(std::move(out), lock);
-            }
-            return true;
-        };
-
-        m_vive->driverHost().onTrackedDeviceAdded = handleNewDevice;
 
         /// Reserve ID 0 for the HMD
         m_vive->devices().reserveIds(1);

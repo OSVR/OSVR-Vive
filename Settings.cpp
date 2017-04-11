@@ -70,8 +70,8 @@ void Settings::SetBool(const char *pchSection, const char *pchSettingsKey,
 
 int32_t Settings::GetInt32(const char *pchSection, const char *pchSettingsKey,
                            vr::EVRSettingsError *peError) {
-    LOG_EVENTS("SetBool(" << pchSection << ", " << pchSettingsKey << ", "
-                          << peError << ")");
+    LOG_EVENTS("GetInt32(" << pchSection << ", " << pchSettingsKey << ", "
+                           << peError << ")");
     // return non-existing value for now
     return 67;
 }
@@ -83,38 +83,38 @@ void Settings::SetInt32(const char *pchSection, const char *pchSettingsKey,
 
 float Settings::GetFloat(const char *pchSection, const char *pchSettingsKey,
                          vr::EVRSettingsError *peError) {
-    LOG_EVENTS("SetInt32(" << pchSection << ", " << pchSettingsKey << ", "
+    LOG_EVENTS("GetFloat(" << pchSection << ", " << pchSettingsKey << ", "
                            << peError << ")");
     return 67.0;
 }
 
 void Settings::SetFloat(const char *pchSection, const char *pchSettingsKey,
                         float flValue, vr::EVRSettingsError *peError) {
-    LOG_EVENTS("SetInt32(" << pchSection << ", " << pchSettingsKey << ", "
+    LOG_EVENTS("SetFloat(" << pchSection << ", " << pchSettingsKey << ", "
                            << flValue << ", " << peError << ")");
 }
 
 void Settings::GetString(const char *pchSection, const char *pchSettingsKey,
                          char *pchValue, uint32_t unValueLen,
                          vr::EVRSettingsError *peError) {
-    LOG_EVENTS("SetInt32(" << pchSection << ", " << pchSettingsKey << ", "
-                           << unValueLen << ", " << peError << ")");
+    LOG_EVENTS("GetString(" << pchSection << ", " << pchSettingsKey << ", "
+                            << unValueLen << ", " << peError << ")");
 }
 
 void Settings::SetString(const char *pchSection, const char *pchSettingsKey,
                          const char *pchValue, vr::EVRSettingsError *peError) {
-    LOG_EVENTS("SetInt32(" << pchSection << ", " << pchSettingsKey << ", "
-                           << pchValue << ", " << peError << ")");
+    LOG_EVENTS("SetString(" << pchSection << ", " << pchSettingsKey << ", "
+                            << pchValue << ", " << peError << ")");
 }
 
 void Settings::RemoveSection(const char *pchSection,
                              vr::EVRSettingsError *peError) {
-    LOG_EVENTS("SetInt32(" << pchSection << ", " << peError << ")");
+    LOG_EVENTS("RemoveSection(" << pchSection << ", " << peError << ")");
 }
 
 void Settings::RemoveKeyInSection(const char *pchSection,
                                   const char *pchSettingsKey,
                                   vr::EVRSettingsError *peError) {
-    LOG_EVENTS("SetInt32(" << pchSection << ", " << pchSettingsKey << ", "
-                           << peError << ")");
+    LOG_EVENTS("RemoveKeyInSection(" << pchSection << ", " << pchSettingsKey
+                                     << ", " << peError << ")");
 }

@@ -38,9 +38,8 @@ DriverContext::DriverContext()
       m_pVRSetting(nullptr), m_pVRDriverLog(nullptr) {}
 
 DriverContext::DriverContext(vr::ServerDriverHost *serverDriverHost,
-                             vr::Settings *settings,
-	                         vr::DriverLog *driverLog,
-	                         vr::Properties *properties)
+                             vr::Settings *settings, vr::DriverLog *driverLog,
+                             vr::Properties *properties)
     : m_pServerDriverHost(serverDriverHost), m_pVRProperties(properties),
       m_pVRSetting(settings), m_pVRDriverLog(driverLog) {}
 
@@ -48,21 +47,18 @@ DriverContext::DriverContext(vr::ServerDriverHost *serverDriverHost,
 void *DriverContext::GetGenericInterface(const char *pchInterfaceVersion,
                                          vr::EVRInitError *peError) {
     std::string interfaceVersion = pchInterfaceVersion;
-    if (interfaceVersion.compare("IVRServerDriverHost_004") == 0) {
-        std::cout << "Return Server Driver Host" << std::endl;
+    if (interfaceVersion.compare(IVRServerDriverHost_Version) == 0) {
         return m_pServerDriverHost;
-    } else if (interfaceVersion.compare("IVRSettings_002") == 0) {
-        std::cout << "Return m_pVRSetting" << std::endl;
+    } else if (interfaceVersion.compare(IVRSettings_Version) == 0) {
         return m_pVRSetting;
-    } else if (interfaceVersion.compare("IVRProperties_001") == 0) {
-        std::cout << "Return m_pVRProperties" << std::endl;
+    } else if (interfaceVersion.compare(IVRProperties_Version) == 0) {
         return m_pVRProperties;
-    } else if (interfaceVersion.compare("IVRDriverLog_001") == 0) {
-        std::cout << "Return m_pVRDriverLog" << std::endl;
+    } else if (interfaceVersion.compare(IVRDriverLog_Version) == 0) {
         return m_pVRDriverLog;
     } else {
-        std::cout << "Got an unhandled type: " << pchInterfaceVersion
-                  << std::endl;
+        std::string errMsg = "Got an unhandled interface type version - " +
+                             std::string(pchInterfaceVersion);
+        m_pVRDriverLog->Log(errMsg.c_str());
         return nullptr;
     }
 }
