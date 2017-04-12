@@ -20,6 +20,11 @@ find_package(JsonCpp REQUIRED)
 find_package(Boost REQUIRED COMPONENTS system iostreams filesystem)
 find_package(Eigen3 REQUIRED)
 
+#
+# Third-party libraries
+#
+add_subdirectory(vendor)
+
 option(BUILD_EXTRA_TOOLS "Whether the extra, optional tools should also be built." OFF)
 
 # Interface target for the openvr_driver.h header we'll use to interact with the target driver.
@@ -109,7 +114,8 @@ add_library(ViveLoaderLib STATIC
     DriverLog.h
     DriverLog.cpp
 	DriverContext.h
-	DriverContext.cpp)
+	DriverContext.cpp
+	ValveStrCpy.h)
 target_link_libraries(ViveLoaderLib
     PUBLIC
     OpenVRDriver osvr::osvrUtil linkable_into_dll
