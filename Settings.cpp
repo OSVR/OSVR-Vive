@@ -101,7 +101,7 @@ float Settings::GetFloat(const char *pchSection, const char *pchSettingsKey,
 void Settings::SetFloat(const char *pchSection, const char *pchSettingsKey,
                         float flValue, vr::EVRSettingsError *peError) {
 	m_logger->info("SetFloat: ") << pchSection << ", " << pchSettingsKey;
-	m_settingStore.set<int32_t>(pchSettingsKey, flValue);
+	m_settingStore.set<float>(pchSettingsKey, flValue);
 }
 
 void Settings::GetString(const char *pchSection, const char *pchSettingsKey,

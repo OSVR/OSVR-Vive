@@ -41,7 +41,7 @@ ETrackedPropertyError
 Properties::ReadPropertyBatch(PropertyContainerHandle_t ulContainerHandle,
                               PropertyRead_t *pBatch,
                               uint32_t unBatchEntryCount) {
-    uint32_t deviceId = ulContainerHandle - 1;
+    uint64_t deviceId = ulContainerHandle - 1;
     if (!hasDeviceAt(deviceId)) {
         m_logger->error("doesn't have the property container with id: ")
             << ulContainerHandle;
@@ -100,7 +100,7 @@ Properties::WritePropertyBatch(PropertyContainerHandle_t ulContainerHandle,
         m_logger->error("pBatch is null");
         return TrackedProp_NotYetAvailable;
     }
-    uint32_t deviceId = ulContainerHandle - 1;
+	uint64_t deviceId = ulContainerHandle - 1;
     if (!hasDeviceAt(deviceId)) {
         addDeviceAt(deviceId);
     }
@@ -160,12 +160,12 @@ Properties::TrackedDeviceToPropertyContainer(TrackedDeviceIndex_t nDevice) {
     return containerId;
 }
 
-bool Properties::hasDeviceAt(const std::uint32_t idx) const {
+bool Properties::hasDeviceAt(const std::uint64_t idx) const {
     return (idx < m_propertyStores.size()) &&
            (nullptr != m_propertyStores[idx]);
 }
 
-void Properties::addDeviceAt(const std::uint32_t idx) {
+void Properties::addDeviceAt(const std::uint64_t idx) {
     if (!(idx < m_propertyStores.size())) {
         /// OK, we need to reserve more room
         reserveIds(idx + 1);
@@ -173,7 +173,7 @@ void Properties::addDeviceAt(const std::uint32_t idx) {
     m_propertyStores[idx] = new PropertiesStore;
 }
 
-bool Properties::reserveIds(std::uint32_t n) {
+bool Properties::reserveIds(std::uint64_t n) {
     if (m_propertyStores.size() < n) {
         m_propertyStores.resize(n, nullptr);
         return true;

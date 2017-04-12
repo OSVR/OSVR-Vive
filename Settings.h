@@ -27,7 +27,7 @@
 
 // Internal Includes
 #include <osvr/Util/Logger.h>
-#include <KVDataStore.h>
+#include <vendor/util-headers/util/KVDataStore.h>
 
 // Library/third-party includes
 #include <openvr_driver.h>
