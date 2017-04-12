@@ -76,11 +76,7 @@ class ViveSyncDevice {
 
     OSVR_ReturnCode update() {
         if (m_startedInSuccess) {
-            // alread started, log the number of devices added and return
-			int numDevices = m_viveWrapper->devices().numDevices();
-			std::string os = "There are " + std::to_string(numDevices) + " devices added.";
-			m_logger->info(os.c_str());
-            OSVR_RETURN_SUCCESS;
+            return OSVR_RETURN_SUCCESS;
         }
 
         if (!m_shouldAttemptDetection) {
