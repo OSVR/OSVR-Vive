@@ -55,8 +55,8 @@ Properties::ReadPropertyBatch(PropertyContainerHandle_t ulContainerHandle,
         break;
     }
     case k_unInt32PropertyTag: {
-        uint32_t val = pStore->get<uint32_t>(pBatch->prop);
-        pBatch->pvBuffer = new uint32_t(val);
+        int32_t val = pStore->get<int32_t>(pBatch->prop);
+        pBatch->pvBuffer = new int32_t(val);
         break;
     }
     case k_unUint64PropertyTag: {
@@ -113,8 +113,8 @@ Properties::WritePropertyBatch(PropertyContainerHandle_t ulContainerHandle,
             break;
         }
         case k_unInt32PropertyTag: {
-			uint32_t val = *((uint32_t *)pBatch->pvBuffer);
-            pStore->set<uint32_t>(pBatch->prop, val);
+			int32_t val = *((int32_t *)pBatch->pvBuffer);
+            pStore->set<int32_t>(pBatch->prop, val);
             break;
         }
         case k_unUint64PropertyTag: {

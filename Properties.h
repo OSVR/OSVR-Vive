@@ -35,8 +35,8 @@
 
 // Standard includes
 
-using PropertiesStoreVariant = boost::variant<bool, float, std::uint32_t, std::uint64_t, std::string>;
-using PropertiesStore = osvr::util::KVDataStore<std::uint64_t, PropertiesStoreVariant>;
+using PropertiesStoreVariant = boost::variant<bool, float, std::int32_t, std::uint64_t, std::string>;
+using PropertiesStore = osvr::util::KVDataStore<vr::ETrackedDeviceProperty, PropertiesStoreVariant>;
 
 
 namespace vr {
