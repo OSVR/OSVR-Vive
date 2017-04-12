@@ -508,26 +508,24 @@ namespace vive {
         if (m_universeId != 0 && newUniverse == 0) {
             /// These are usually tracking glitches, not actual changes in
             /// tracking universes.
-            std::cout << PREFIX
-                      << "Got loss of universe ID (Change of universe ID from "
-                      << m_universeId << " to " << newUniverse
-                      << ") but will continue using existing transforms for "
-                         "optimum reliability."
-                      << std::endl;
+			std::string os = "Got loss of universe ID (Change of universe ID from ";
+			os += m_universeId + " to " + newUniverse;
+			os += ") but will continue using existing transforms for optimum reliability.";
+			m_logger->info(os.c_str());
             return;
         }
-        std::cout << PREFIX << "Change of universe ID from " << m_universeId
-                  << " to " << newUniverse << std::endl;
+		std::string os = "Change of universe ID from " + m_universeId;
+		os += " to " + newUniverse;
+		m_logger->info(os.c_str());
         m_universeId = newUniverse;
         auto known = m_vive->chaperone().knowUniverseId(m_universeId);
         if (!known) {
-            std::cout << PREFIX
-                      << "No usable information on this universe "
-                         "could be found - there may not be a "
-                         "calibration for it in your room setup. You may wish "
-                         "to complete that then start the OSVR server again. "
-                         "Will operate without universe transforms."
-                      << std::endl;
+			std::string os = "No usable information on this universe ";
+			os += "could be found - there may not be a ";
+			os += "calibration for it in your room setup. You may wish ";
+			os += "to complete that then start the OSVR server again. ";
+			os += "Will operate without universe transforms.";
+			m_logger->info(os.c_str());
             m_universeXform.setIdentity();
             m_universeRotation.setIdentity();
         }
@@ -535,10 +533,9 @@ namespace vive {
         /// Fetch the data
         auto univData = m_vive->chaperone().getDataForUniverse(m_universeId);
         if (univData.type == osvr::vive::CalibrationType::Seated) {
-            std::cout << PREFIX
-                      << "Only a seated calibration for this universe ID "
-                         "exists: y=0 will not be at floor level."
-                      << std::endl;
+			std::string os = "Only a seated calibration for this universe ID ";
+			os += "exists: y=0 will not be at floor level.";
+			m_logger->info(os.c_str());
         }
         using namespace Eigen;
         /// Populate the transforms.
@@ -590,6 +587,7 @@ namespace vive {
 
         vr::ETrackedPropertyError err;
         uint64_t universe = 0;
+		std::string os;
         std::tie(universe, err) =
             getProperty<Props::CurrentUniverseId>(unWhichDevice);
         switch (err) {
@@ -609,17 +607,17 @@ namespace vive {
         case vr::TrackedProp_WrongDeviceClass:
             /// OK, that's realistic. We'll just not update the universe based
             /// on it.
-            std::cout << "error: TrackedProp_WrongDeviceClass when getting "
-                         "universe ID from "
-                      << unWhichDevice << std::endl;
+			os = "error: TrackedProp_WrongDeviceClass when getting ";
+			os += "universe ID from " + unWhichDevice;
+			m_logger->info(os.c_str());
             return;
             break;
         case vr::TrackedProp_ValueNotProvidedByDevice:
             /// OK, that's realistic. We'll just not update the universe based
             /// on it.
-            std::cout << "error: TrackedProp_ValueNotProvidedByDevice when "
-                         "getting universe ID from "
-                      << unWhichDevice << std::endl;
+			os = "error: TrackedProp_ValueNotProvidedByDevice when ";
+			os += "getting universe ID from " + unWhichDevice;
+			m_logger->info(os.c_str());
             return;
             break;
         case vr::TrackedProp_InvalidDevice:
@@ -632,15 +630,15 @@ namespace vive {
                 /// Well, here we want to set the universe to 0.
                 universe = 0;
             } else {
-                std::cout << "error: TrackedProp_NotYetAvailable when getting "
-                             "universe ID from "
-                          << unWhichDevice << std::endl;
+				os = "error: TrackedProp_NotYetAvailable when ";
+				os += "getting universe ID from " + unWhichDevice;
+				m_logger->info(os.c_str());
             }
             break;
         default:
-            std::cout << "Got unrecognized error " << err
-                      << " when getting universe ID from " << unWhichDevice
-                      << std::endl;
+			os = "Got unrecognized error ";
+			os += " when getting universe ID from " + unWhichDevice;
+			m_logger->info(os.c_str());
             break;
         }
 

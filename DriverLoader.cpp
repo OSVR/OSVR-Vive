@@ -78,7 +78,8 @@ namespace vive {
     /// function pointer.
     DriverLoader::DriverLoader(std::string const &driverRoot,
                                std::string const &driverFile)
-        : impl_(new Impl) {
+        : impl_(new Impl), 
+		  logger_(osvr::util::log::make_logger("DriverLoader")) {
         /// Set the PATH to include the driver directory so it can
         /// find its deps.
         SearchPathExtender extender(driverRoot);
@@ -132,13 +133,9 @@ namespace vive {
         auto ret = getInterface<vr::IVRWatchdogProvider>();
         if (ret) {
 			return true;
-            //// std::cout << "Successfully got the
-            //// IClientTrackedDeviceProvider!";
             //auto clientProvider = ret.value;
             //auto isPresent =
             //    clientProvider->BIsHmdPresent(userConfigDir.c_str());
-            //// std::cout << " is present? " << std::boolalpha << isPresent
-            ////          << std::endl;
             //return isPresent;
         }
         // std::cout << "Couldn't get it, error code " << ret.errorCode <<
@@ -148,19 +145,12 @@ namespace vive {
 
     void DriverLoader::reset() {
         if (cleanup_) {
-#if 0
-            std::cout << "osvr::vive::DriverLoader::reset() - cleaning "
-                         "up main provider"
-                      << std::endl;
-#endif
+			//logger_->info("osvr::vive::DriverLoader::reset() - cleaning up main provider ");
             cleanup_();
             cleanup_ = std::function<void()>{};
         }
         if (impl_) {
-#if 0
-            std::cout << "osvr::vive::DriverLoader::reset() - unloading driver"
-                      << std::endl;
-#endif
+			//logger_->info("osvr::vive::DriverLoader::reset() - unloading driver");
             impl_.reset();
         }
     }
