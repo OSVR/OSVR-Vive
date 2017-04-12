@@ -28,11 +28,16 @@
 
 // Internal Includes
 #include <osvr/Util/Logger.h>
+#include <KVDataStore.h>
 
 // Library/third-party includes
 #include <openvr_driver.h>
 
 // Standard includes
+
+using PropertiesStoreVariant = boost::variant<bool, float, std::int32_t, std::uint64_t, std::string>;
+using PropertiesStore = osvr::util::KVDataStore<std::uint64_t, PropertiesStoreVariant>;
+
 
 namespace vr {
 
@@ -58,7 +63,12 @@ class Properties : public vr::IVRProperties {
 
 
   private:
+	bool hasDeviceAt(const std::uint32_t idx) const;
+	void addDeviceAt(const std::uint32_t idx);
+	bool reserveIds(std::uint32_t n);
+
     osvr::util::log::LoggerPtr m_logger;
+	std::vector<PropertiesStore *> m_propertyStores;
 };
 
 } // namespace vr
