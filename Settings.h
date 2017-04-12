@@ -26,17 +26,24 @@
 #define INCLUDED_Settings_h_GUID_94402E2B_13D0_4E97_FA1F_CA2B7F647A38
 
 // Internal Includes
+#include <osvr/Util/Logger.h>
+#include <KVDataStore.h>
 
 // Library/third-party includes
 #include <openvr_driver.h>
 
+using SettingsStoreVariant = boost::variant<bool, std::int32_t, float, std::string>;
+using SettingsStore = osvr::util::KVDataStore<std::string, SettingsStoreVariant>;
+
 // Standard includes
-// - none
+
 namespace vr {
 
 class Settings : public vr::IVRSettings {
 
   public:
+	Settings();
+
     virtual const char *
     GetSettingsErrorNameFromEnum(vr::EVRSettingsError eError);
 
@@ -71,6 +78,10 @@ class Settings : public vr::IVRSettings {
     virtual void RemoveKeyInSection(const char *pchSection,
                                     const char *pchSettingsKey,
                                     vr::EVRSettingsError *peError = nullptr);
+
+  private:
+    osvr::util::log::LoggerPtr m_logger;
+	SettingsStore m_settingStore;
 };
 
 } // namespace vr
