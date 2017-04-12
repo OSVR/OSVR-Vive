@@ -151,7 +151,7 @@ if(BUILD_EXTRA_TOOLS)
         ViveLoader.cpp)
     target_link_libraries(ViveLoader PRIVATE ViveLoaderLib)
     copy_imported_targets(ViveLoader osvr::osvrUtil)
-
+	target_include_directories(ViveLoader PRIVATE ${Boost_INCLUDE_DIRS})
 
     add_executable(GenerateTypedPropertyEnums
         GenerateTypedPropertyEnums.cpp)
