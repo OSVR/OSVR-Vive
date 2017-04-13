@@ -177,6 +177,32 @@ int main() {
 
     std::cout << PREFIX << "Vive is connected!!!" << std::endl;
 
+	auto handleNewDevice = [&](const char *serialNum,
+		vr::ETrackedDeviceClass eDeviceClass,
+		vr::ITrackedDeviceServerDriver *pDriver)
+	{
+		auto dev = pDriver;
+		if (!dev) {
+			std::cout << PREFIX << "null input device" << std::endl;
+			return false;
+		}
+		auto ret = vive.devices().addAndActivateDevice(dev);
+		if (!ret) {
+			std::cout << PREFIX << "Device with serial number " << serialNum
+				<< " couldn't be added to the devices vector."
+				<< std::endl;
+			return false;
+		}
+		std::cout << "\n"
+			<< PREFIX << "Device with s/n " << serialNum
+			<< " activated, assigned ID " << ret.value << std::endl;
+		vr::TrackedDeviceIndex_t idx = ret.value;
+		whatIsThisDevice(dev, idx);
+		return true;
+	};
+
+	vive.driverHost().onTrackedDeviceAdded = handleNewDevice;
+
     if (!vive.startServerDeviceProvider()) {
         // can either check return value of this, or do another if (!vive) after
         // calling - equivalent.
@@ -239,31 +265,7 @@ int main() {
     vive.serverDevProvider().LeaveStandby();
 
     std::vector<std::string> knownSerialNumbers;
-    auto handleNewDevice = [&](const char *serialNum, 
-			                   vr::ETrackedDeviceClass eDeviceClass, 
-			                   vr::ITrackedDeviceServerDriver *pDriver)
-	{								   
-		auto dev = pDriver;
-        if (!dev) {
-                std::cout << PREFIX << "null input device" << std::endl;
-                return false;
-        }
-        auto ret = vive.devices().addAndActivateDevice(dev);
-        if (!ret) {
-            std::cout << PREFIX << "Device with serial number " << serialNum
-                      << " couldn't be added to the devices vector."
-                      << std::endl;
-            return false;
-        }
-        std::cout << "\n"
-                  << PREFIX << "Device with s/n " << serialNum
-                  << " activated, assigned ID " << ret.value << std::endl;
-		vr::TrackedDeviceIndex_t idx = ret.value;
-        whatIsThisDevice(dev, idx);
-        return true;
-    };
-
-    vive.driverHost().onTrackedDeviceAdded = handleNewDevice;
+    
 
     // {
         // auto numDevices = vive.serverDevProvider().GetTrackedDeviceCount();
@@ -281,6 +283,7 @@ int main() {
     for (int i = 0; i < 3000; ++i) {
         vive.serverDevProvider().RunFrame();
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		std::cout << "i = " << i << std::endl;
     }
     std::cout << "*** Done with dummy mainloop" << std::endl;
 
