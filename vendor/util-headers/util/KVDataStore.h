@@ -66,7 +66,7 @@ namespace util {
 
             // This signature of get() on variant returns nullptr if the
             // contents are not of that type.
-            T *contents = boost::get<T *>(it->second);
+            const T *contents = boost::get<T>(&(it->second));
             return contents != nullptr;
         }
 
