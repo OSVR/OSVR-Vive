@@ -29,12 +29,11 @@
 // - none
 
 // Library/third-party includes
-// - none
-
-// Standard includes
 #include <boost/variant.hpp>
 
+// Standard includes
 #include <cstdint>
+#include <stdexcept>
 #include <string>
 #include <unordered_map>
 
@@ -70,11 +69,30 @@ namespace util {
             return contents != nullptr;
         }
 
+        /// Checks to see that a value (of any type) has been associated with
+        /// key.
+        bool containsAnyType(key_type const &key) const {
+            auto it = data_.find(key);
+            return it != data_.end();
+        }
+
+        value_variant_type const &getVariant(key_type const &key) const {
+            if (!containsAnyType(key)) {
+                throw std::logic_error(
+                    "Gotta check first if this key is in there!");
+            }
+
+            auto it = data_.find(key);
+            assert(it != data_.end() &&
+                   "Should be handled by the above check for contains");
+            return it->second;
+        }
+
         /// Gets the value, of the type specified, identified by the key from
         /// the store. Assumes that contains<T>(key) is true: if it's not, it
         /// will return a default-constructed T.
         template <typename T> T get(key_type const &key) const {
-            T ret;
+            auto ret = T{};
             if (!contains<T>(key)) {
                 // hey, not there!
                 return ret;

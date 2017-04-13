@@ -227,7 +227,7 @@ namespace vive {
     }
 
     inline OSVR_ReturnCode ViveDriverHost::update() {
-        m_vive->serverDevProvider().RunFrame();
+        //m_vive->serverDevProvider().RunFrame();
         {
             std::lock_guard<std::mutex> lock(m_mutex);
             /// Copy a fixed number of reports that have been queued up.

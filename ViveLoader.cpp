@@ -280,11 +280,15 @@ int main() {
     // }
 
     std::cout << "*** Entering dummy mainloop" << std::endl;
+#if 0
     for (int i = 0; i < 3000; ++i) {
         vive.serverDevProvider().RunFrame();
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
 		std::cout << "i = " << i << std::endl;
     }
+#else
+	std::this_thread::sleep_for(std::chrono::seconds(10));
+#endif
     std::cout << "*** Done with dummy mainloop" << std::endl;
 
     lookForUniverseData(vive);

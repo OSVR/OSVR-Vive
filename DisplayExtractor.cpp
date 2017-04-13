@@ -315,7 +315,7 @@ int main() {
 			// retrive device from DeviceHolder and call the handleDisplay
 			DeviceHolder devHolder = std::move(vive.devices());
 			auto numDevices = devHolder.numDevices();
-			for (decltype(numDevices) i = 0; i < numDevices; ++i) {
+			for (std::uint32_t i = 0; i < numDevices; ++i) {
 				vr::ITrackedDeviceServerDriver *dev = &(devHolder.getDevice(i));
 				auto disp = osvr::vive::getComponent<vr::IVRDisplayComponent>(dev);
 				if (disp) {

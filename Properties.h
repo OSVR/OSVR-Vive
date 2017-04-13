@@ -25,7 +25,6 @@
 #ifndef INCLUDED_Properties_h_GUID_A9CAB07C_6501_48B4_49B3_902355FD43B5
 #define INCLUDED_Properties_h_GUID_A9CAB07C_6501_48B4_49B3_902355FD43B5
 
-
 // Internal Includes
 #include <osvr/Util/Logger.h>
 #include <vendor/util-headers/util/KVDataStore.h>
@@ -35,43 +34,46 @@
 
 // Standard includes
 
-using PropertiesStoreVariant = boost::variant<bool, float, std::int32_t, std::uint64_t, std::string>;
-using PropertiesStore = osvr::util::KVDataStore<vr::ETrackedDeviceProperty, PropertiesStoreVariant>;
-
+using PropertiesStoreVariant =
+    boost::variant<bool, float, std::int32_t, std::uint64_t, std::string>;
+using PropertiesStore =
+    osvr::util::KVDataStore<vr::ETrackedDeviceProperty, PropertiesStoreVariant>;
 
 namespace vr {
 
 class Properties : public vr::IVRProperties {
   public:
     Properties();
-	/** Reads a set of properties atomically. See the PropertyReadBatch_t struct for more information. */
-	virtual ETrackedPropertyError ReadPropertyBatch( 
-		PropertyContainerHandle_t ulContainerHandle, 
-		PropertyRead_t *pBatch, uint32_t unBatchEntryCount );
+    /** Reads a set of properties atomically. See the PropertyReadBatch_t struct
+     * for more information. */
+    virtual ETrackedPropertyError
+    ReadPropertyBatch(PropertyContainerHandle_t ulContainerHandle,
+                      PropertyRead_t *pBatch, uint32_t unBatchEntryCount);
 
-	/** Writes a set of properties atomically. See the PropertyWriteBatch_t struct for more information. */
-	virtual ETrackedPropertyError WritePropertyBatch( 
-		PropertyContainerHandle_t ulContainerHandle, 
-		PropertyWrite_t *pBatch, uint32_t unBatchEntryCount );
+    /** Writes a set of properties atomically. See the PropertyWriteBatch_t
+     * struct for more information. */
+    virtual ETrackedPropertyError
+    WritePropertyBatch(PropertyContainerHandle_t ulContainerHandle,
+                       PropertyWrite_t *pBatch, uint32_t unBatchEntryCount);
 
-	/** returns a string that corresponds with the specified property error. The string will be the name
-	* of the error enum value for all valid error codes */
-	virtual const char *GetPropErrorNameFromEnum( ETrackedPropertyError error );
+    /** returns a string that corresponds with the specified property error. The
+     * string will be the name of the error enum value for all valid error codes
+     */
+    virtual const char *GetPropErrorNameFromEnum(ETrackedPropertyError error);
 
-	/** Returns a container handle given a tracked device index */
-	virtual PropertyContainerHandle_t TrackedDeviceToPropertyContainer( TrackedDeviceIndex_t nDevice );
-
+    /** Returns a container handle given a tracked device index */
+    virtual PropertyContainerHandle_t
+    TrackedDeviceToPropertyContainer(TrackedDeviceIndex_t nDevice);
 
   private:
-	bool hasDeviceAt(const std::uint64_t idx) const;
-	void addDeviceAt(const std::uint64_t idx);
-	bool reserveIds(std::uint64_t n);
+    bool hasDeviceAt(const std::uint64_t idx) const;
+    void addDeviceAt(const std::uint64_t idx);
+    bool reserveIds(std::uint64_t n);
 
     osvr::util::log::LoggerPtr m_logger;
-	std::vector<PropertiesStore *> m_propertyStores;
+    std::vector<PropertiesStore> m_propertyStores;
 };
 
 } // namespace vr
 
 #endif // INCLUDED_Properties_h_GUID_A9CAB07C_6501_48B4_49B3_902355FD43B5
-

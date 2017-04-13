@@ -133,7 +133,7 @@ bool ServerDriverHost::IsExiting() {
 }
 
 bool ServerDriverHost::PollNextEvent(VREvent_t *pEvent, uint32_t uncbVREvent ) {
-    LOG_EVENTS("PollNextEvent(" << uncbVREvent << ")");
+    //LOG_EVENTS("PollNextEvent(" << uncbVREvent << ")");
     return true;
 }
 
