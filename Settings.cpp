@@ -33,11 +33,28 @@
 
 using namespace vr;
 
-Settings::Settings() : m_logger(osvr::util::log::make_logger("Settings")) {}
+Settings::Settings() : m_logger(osvr::util::log::make_logger("Settings")) {
+
+	m_settingStore.set<bool>("disableimu", false);
+	m_settingStore.set<std::string>("usedisambiguation", "tdm");
+	m_settingStore.set<int32_t>("disambiguationdebug", 0);
+	m_settingStore.set<int32_t>("primarybasestation", 0);
+	m_settingStore.set<bool>("dbhistory", false);
+	m_settingStore.set<bool>("trackedCamera", true);
+	m_settingStore.set<float>("cameraFrameCaptureOffsetTime", 0.0);
+	m_settingStore.set<int32_t>("cameraFrameRate", 30);
+	m_settingStore.set<int32_t>("cameraSensorFrameRate", 30);
+	m_settingStore.set<bool>("cameraEdgeEnhancement", true);
+	m_settingStore.set<int32_t>("cameraISPSyncDivisor", 1);
+	m_settingStore.set<bool>("enableCamera", true);
+	m_settingStore.set<bool>("fakeHtcHmdMainboard", false);
+	m_settingStore.set<int32_t>("deactivateStandbyOverride", 1);
+
+}
 
 const char *
 Settings::GetSettingsErrorNameFromEnum(vr::EVRSettingsError eError) {
-	m_logger->error("GetSettingsErrorNameFromEnum: ") << eError;
+	m_logger->info("GetSettingsErrorNameFromEnum: ") << eError;
     return "Error";
 }
 
