@@ -162,7 +162,7 @@ Properties::ReadPropertyBatch(PropertyContainerHandle_t ulContainerHandle,
         auto &entry = pBatch[i];
 
         m_logger->info("ReadPropertyBatch ")
-            << "Entry " << i << "Property Type " << entry.prop << " Tag type "
+            << "Entry " << i << ", Property Type " << entry.prop << " Tag type "
             << entry.unTag;
         readProperty(store, pBatch[i]);
         if (pBatch[i].eError != TrackedProp_Success) {
@@ -179,9 +179,9 @@ ETrackedPropertyError
 Properties::WritePropertyBatch(PropertyContainerHandle_t ulContainerHandle,
                                PropertyWrite_t *pBatch,
                                uint32_t unBatchEntryCount) {
-    m_logger->info("WritePropertyBatch ")
-        << "ContainerHandle " << ulContainerHandle << "Property Type "
-        << pBatch->prop << " Entry count " << unBatchEntryCount;
+    //m_logger->info("WritePropertyBatch ")
+    //    << "ContainerHandle " << ulContainerHandle << "Property Type "
+    //    << pBatch->prop << " Entry count " << unBatchEntryCount;
     if (pBatch == nullptr) {
         m_logger->error("pBatch is null");
         return TrackedProp_InvalidOperation;
