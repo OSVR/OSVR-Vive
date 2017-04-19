@@ -40,17 +40,21 @@ namespace {
 template <typename T>
 struct PropertyTypeTagTrait
     : std::integral_constant<PropertyTypeTag_t, k_unInvalidPropertyTag> {};
+/// Semicolon intentionally omitted at the end of this macro definition
 #define OSVRVIVE_DEFINE_PROPERTY_TYPE_TAG(TYPE, TAG)                           \
-    \
-template<>                                                                     \
-        \
-struct PropertyTypeTagTrait<TYPE>                                              \
-        : std::integral_constant<PropertyTypeTag_t, TAG>{};
+    template <>                                                                \
+    struct PropertyTypeTagTrait<TYPE>                                          \
+        : std::integral_constant<PropertyTypeTag_t, TAG> {}
+
 OSVRVIVE_DEFINE_PROPERTY_TYPE_TAG(float, k_unFloatPropertyTag);
 OSVRVIVE_DEFINE_PROPERTY_TYPE_TAG(std::int32_t, k_unInt32PropertyTag);
 OSVRVIVE_DEFINE_PROPERTY_TYPE_TAG(std::uint64_t, k_unUint64PropertyTag);
 OSVRVIVE_DEFINE_PROPERTY_TYPE_TAG(bool, k_unBoolPropertyTag);
 OSVRVIVE_DEFINE_PROPERTY_TYPE_TAG(std::string, k_unStringPropertyTag);
+
+/// Note: if you add a type here, you must also make sure it's added to the
+/// PropertyStoreVariant, as well as to Properties::WritePropertyBatch
+
 #undef OSVRVIVE_DEFINE_PROPERTY_TYPE_TAG
 
 struct GetContainedTypeTag : boost::static_visitor<PropertyTypeTag_t> {
@@ -137,19 +141,6 @@ ETrackedPropertyError
 Properties::ReadPropertyBatch(PropertyContainerHandle_t ulContainerHandle,
                               PropertyRead_t *pBatch,
                               uint32_t unBatchEntryCount) {
-#if 0
-    std::string val = "C:\\Program Files (x86)\\Steam\\config";
-    if (pBatch->unBufferSize < val.length()) {
-        pBatch->eError = vr::TrackedProp_BufferTooSmall;
-    } else {
-        auto ret =
-            valveStrCpy(val, (char *)pBatch->pvBuffer, pBatch->unBufferSize);
-        if (!ret) {
-            pBatch->eError = vr::TrackedProp_BufferTooSmall;
-        }
-    }
-    return vr::TrackedProp_Success;
-#endif
     uint64_t deviceId = ulContainerHandle - 1;
     if (!hasDeviceAt(deviceId)) {
         m_logger->error("doesn't have the property container with id: ")
@@ -161,9 +152,8 @@ Properties::ReadPropertyBatch(PropertyContainerHandle_t ulContainerHandle,
     for (std::uint32_t i = 0; i < unBatchEntryCount; ++i) {
         auto &entry = pBatch[i];
 
-        m_logger->info("ReadPropertyBatch ")
-            << "Entry " << i << ", Property Type " << entry.prop << " Tag type "
-            << entry.unTag;
+        m_logger->info() << "ReadPropertyBatch: Entry " << i << ", Property ID "
+                         << entry.prop << ", Supplied tag type " << entry.unTag;
         readProperty(store, pBatch[i]);
         if (pBatch[i].eError != TrackedProp_Success) {
             ret = pBatch[i].eError;
@@ -179,9 +169,6 @@ ETrackedPropertyError
 Properties::WritePropertyBatch(PropertyContainerHandle_t ulContainerHandle,
                                PropertyWrite_t *pBatch,
                                uint32_t unBatchEntryCount) {
-    //m_logger->info("WritePropertyBatch ")
-    //    << "ContainerHandle " << ulContainerHandle << "Property Type "
-    //    << pBatch->prop << " Entry count " << unBatchEntryCount;
     if (pBatch == nullptr) {
         m_logger->error("pBatch is null");
         return TrackedProp_InvalidOperation;
@@ -202,17 +189,17 @@ Properties::WritePropertyBatch(PropertyContainerHandle_t ulContainerHandle,
                 break;
             }
             case k_unInt32PropertyTag: {
-                int32_t val = *(reinterpret_cast<int32_t *>(entry.pvBuffer));
+                auto val = *(reinterpret_cast<int32_t *>(entry.pvBuffer));
                 pStore.set(entry.prop, val);
                 break;
             }
             case k_unUint64PropertyTag: {
-                uint64_t val = *(reinterpret_cast<uint64_t *>(entry.pvBuffer));
+                auto val = *(reinterpret_cast<uint64_t *>(entry.pvBuffer));
                 pStore.set(entry.prop, val);
                 break;
             }
             case k_unBoolPropertyTag: {
-                bool val = *(reinterpret_cast<bool *>(entry.pvBuffer));
+                auto val = *(reinterpret_cast<bool *>(entry.pvBuffer));
                 pStore.set(entry.prop, val);
                 break;
             }
@@ -222,7 +209,10 @@ Properties::WritePropertyBatch(PropertyContainerHandle_t ulContainerHandle,
                 break;
             }
             default: {
-                m_logger->error("unknown Tag type: ") << entry.unTag;
+                m_logger->error()
+                    << "In property setting: Unhandled property tag type: "
+                    << entry.unTag << " for property ID" << entry.prop;
+                entry.eError = vr::TrackedProp_InvalidOperation;
                 break;
             }
             }
@@ -246,7 +236,7 @@ const char *Properties::GetPropErrorNameFromEnum(ETrackedPropertyError error) {
 PropertyContainerHandle_t
 Properties::TrackedDeviceToPropertyContainer(TrackedDeviceIndex_t nDevice) {
     m_logger->info("TrackedDeviceToPropertyContainer")
-        << "at index " << nDevice;
+        << " at index " << nDevice;
     if (!hasDeviceAt(nDevice)) {
         addDeviceAt(nDevice);
     }
