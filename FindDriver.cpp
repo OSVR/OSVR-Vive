@@ -131,6 +131,7 @@ namespace vive {
             return ret;
         }
         // Free the string returned when we're all done.
+        /// @todo Shouldn't this be in a "finally()" call?
         auto freeString = [&] { CoTaskMemFree(outString); };
         // Build the path to the file.
         auto vrPaths =
@@ -280,11 +281,12 @@ namespace vive {
         ret = ConfigDirs{};
         return ret;
     }
-
+#if 0
     ConfigDirs findConfigDirs(std::string const & /*steamVrRoot*/,
                               std::string const &driver) {
         return findConfigDirs(getPathConfig(), driver);
     }
+#endif
 
     LocationInfo findLocationInfoForDriver(std::string const &driver) {
         auto json = getPathConfig();
