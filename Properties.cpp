@@ -238,7 +238,34 @@ Properties::WritePropertyBatch(PropertyContainerHandle_t ulContainerHandle,
 }
 
 const char *Properties::GetPropErrorNameFromEnum(ETrackedPropertyError error) {
-    return nullptr;
+    switch (error) {
+    case vr::TrackedProp_Success:
+        return "Success";
+    case vr::TrackedProp_WrongDataType:
+        return "Wrong Data Type";
+    case vr::TrackedProp_WrongDeviceClass:
+        return "Wrong Device Class";
+    case vr::TrackedProp_BufferTooSmall:
+        return "Buffer too small";
+    case vr::TrackedProp_UnknownProperty:
+        return "Unknown property";
+    case vr::TrackedProp_InvalidDevice:
+        return "Invalid device";
+    case vr::TrackedProp_CouldNotContactServer:
+        return "Could not contact server";
+    case vr::TrackedProp_ValueNotProvidedByDevice:
+        return "Value not provided by device";
+    case vr::TrackedProp_StringExceedsMaximumLength:
+        return "String exceeds maximum length";
+    case vr::TrackedProp_NotYetAvailable:
+        return "Not yet available";
+    case vr::TrackedProp_PermissionDenied:
+        return "Permission denied";
+    case vr::TrackedProp_InvalidOperation:
+        return "Invalid operation";
+    default:
+        return "Other undocumented error";
+    }
 }
 
 PropertyContainerHandle_t
