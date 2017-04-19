@@ -34,8 +34,8 @@ target_include_directories(OpenVRDriver INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/v
 add_library(boost_filesystem_v3 INTERFACE)
 target_link_libraries(boost_filesystem_v3
     INTERFACE
-    ${Boost_FILESYSTEM_LIBRARIES}
-    ${Boost_SYSTEM_LIBRARIES})
+    ${Boost_FILESYSTEM_LIBRARY}
+    ${Boost_SYSTEM_LIBRARY})
 target_compile_definitions(boost_filesystem_v3 INTERFACE BOOST_FILESYSTEM_VERSION=3)
 target_include_directories(boost_filesystem_v3 INTERFACE ${Boost_INCLUDE_DIRS})
 
