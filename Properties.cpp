@@ -51,6 +51,8 @@ OSVRVIVE_DEFINE_PROPERTY_TYPE_TAG(std::int32_t, k_unInt32PropertyTag);
 OSVRVIVE_DEFINE_PROPERTY_TYPE_TAG(std::uint64_t, k_unUint64PropertyTag);
 OSVRVIVE_DEFINE_PROPERTY_TYPE_TAG(bool, k_unBoolPropertyTag);
 OSVRVIVE_DEFINE_PROPERTY_TYPE_TAG(std::string, k_unStringPropertyTag);
+OSVRVIVE_DEFINE_PROPERTY_TYPE_TAG(vr::HmdMatrix34_t,
+                                  k_unHmdMatrix34PropertyTag);
 
 /// Note: if you add a type here, you must also make sure it's added to the
 /// PropertyStoreVariant, as well as to Properties::WritePropertyBatch
@@ -206,6 +208,12 @@ Properties::WritePropertyBatch(PropertyContainerHandle_t ulContainerHandle,
             case k_unStringPropertyTag: {
                 pStore.set(entry.prop, std::string(reinterpret_cast<char *>(
                                            entry.pvBuffer)));
+                break;
+            }
+            case k_unHmdMatrix34PropertyTag: {
+                auto val =
+                    *(reinterpret_cast<vr::HmdMatrix34_t *>(entry.pvBuffer));
+                pStore.set(entry.prop, val);
                 break;
             }
             default: {
