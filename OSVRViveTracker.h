@@ -105,7 +105,7 @@ namespace vive {
         /// Called when we get a new device from the SteamVR driver that we need
         /// to activate. Delegates the real work - this just displays
         /// information.
-        DevIdReturnValue activateDevice(vr::ITrackedDeviceServerDriver *dev);
+        DevIdReturnValue activateDevice(vr::ITrackedDeviceServerDriver *dev, vr::ETrackedDeviceClass trackedDeviceClass);
 
         /// @name ServerDriverHost overrides - called from a tracker thread (not
         /// the main thread)
@@ -176,7 +176,7 @@ namespace vive {
 
         /// Does the real work of adding a new device.
         DevIdReturnValue
-        activateDeviceImpl(vr::ITrackedDeviceServerDriver *dev);
+        activateDeviceImpl(vr::ITrackedDeviceServerDriver *dev, vr::ETrackedDeviceClass trackedDeviceClass);
 
         osvr::pluginkit::DeviceToken m_dev;
         OSVR_TrackerDeviceInterface m_tracker;

@@ -49,6 +49,7 @@ namespace vive {
     /// sensor numbers in SteamVR and for tracking
     static const auto HMD_SENSOR = 0;
     static const auto CONTROLLER_SENSORS = {1, 2};
+	static const auto PUCK_SENSOR = 3;
     static const auto MAX_CONTROLLER_ID = 2;
 
     static const auto NUM_ANALOGS = 7;
@@ -137,7 +138,7 @@ namespace vive {
                 m_logger->info("null input device");
                 return false;
             }
-            auto ret = activateDevice(dev);
+            auto ret = activateDevice(dev, eDeviceClass);
             if (!ret) {
                 std::string os = "Device with serial number ";
                 os += serialNum;
@@ -292,8 +293,8 @@ namespace vive {
     }
 
     ViveDriverHost::DevIdReturnValue
-    ViveDriverHost::activateDevice(vr::ITrackedDeviceServerDriver *dev) {
-        auto ret = activateDeviceImpl(dev);
+    ViveDriverHost::activateDevice(vr::ITrackedDeviceServerDriver *dev, vr::ETrackedDeviceClass trackedDeviceClass) {
+        auto ret = activateDeviceImpl(dev, trackedDeviceClass);
         vr::TrackedDeviceIndex_t idx = ret.value;
         auto mfrProp = getProperty<Props::ManufacturerName>(idx);
         auto modelProp = getProperty<Props::ModelNumber>(idx);
@@ -310,21 +311,30 @@ namespace vive {
     }
 
     ViveDriverHost::DevIdReturnValue
-    ViveDriverHost::activateDeviceImpl(vr::ITrackedDeviceServerDriver *dev) {
+    ViveDriverHost::activateDeviceImpl(vr::ITrackedDeviceServerDriver *dev, vr::ETrackedDeviceClass trackedDeviceClass) {
         auto &devs = m_vive->devices();
         if (getComponent<vr::IVRDisplayComponent>(dev)) {
             /// This is the HMD, since it has the display component.
             /// Always sensor 0.
             return devs.addAndActivateDeviceAt(dev, HMD_SENSOR);
         }
+		
         if (getComponent<vr::IVRControllerComponent>(dev)) {
-            /// This is a controller.
+			
+            /// This is a controller.... or a puck!
+			if (trackedDeviceClass == vr::ETrackedDeviceClass::TrackedDeviceClass_GenericTracker)
+			{
+				//puck
+				return devs.addAndActivateDeviceAt(dev, PUCK_SENSOR);
+			}
+			//controllers
             for (auto ctrlIdx : CONTROLLER_SENSORS) {
                 if (!devs.hasDeviceAt(ctrlIdx)) {
                     return devs.addAndActivateDeviceAt(dev, ctrlIdx);
                 }
             }
         }
+		
         /// This still may be a controller, if somehow there are more than
         /// 2...
         return devs.addAndActivateDevice(dev);
