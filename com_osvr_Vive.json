@@ -6,7 +6,7 @@
     "lastModified": "",
     "interfaces": {
         "tracker": {
-            "count": 3,
+            "count": 4,
             "bounded": true,
             "position": true,
             "orientation": true
@@ -23,6 +23,9 @@
             "$target": "tracker/0",
 			"button": "button/0",
             "proximity": "button/1"
+		},
+		"puck": {
+            "$target": "tracker/3"
 		},
         "ipd": "analog/0",
         "controller": {
@@ -62,6 +65,7 @@
     },
     "automaticAliases": {
         "/me/head": "semantic/hmd",
+        "/me/puck": "semantic/puck",
         "/me/ipd": "semantic/ipd",
         "/controller": "semantic/controller/*",
         "/me/hands/left": "semantic/controller/left",
