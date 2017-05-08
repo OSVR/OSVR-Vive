@@ -44,15 +44,16 @@ namespace vive {} // namespace vive
 
 static const auto PREFIX = "[ViveLoader] ";
 static void whatIsThisDevice(vr::ITrackedDeviceServerDriver *dev,
-	                         vr::TrackedDeviceIndex_t idx) {
+                             vr::TrackedDeviceIndex_t idx) {
     {
         auto disp = osvr::vive::getComponent<vr::IVRDisplayComponent>(dev);
         if (disp) {
             std::cout << PREFIX << "-- it's a display, too!" << std::endl;
             vr::ETrackedPropertyError err;
             uint64_t universe = 0;
-			std::tie(universe, err) =
-				osvr::vive::getProperty<osvr::vive::Props::CurrentUniverseId>(idx);
+            std::tie(universe, err) =
+                osvr::vive::getProperty<osvr::vive::Props::CurrentUniverseId>(
+                    idx);
             if (vr::TrackedProp_Success == err) {
                 std::cout << PREFIX << " -- In tracking universe " << universe
                           << std::endl;
@@ -60,8 +61,9 @@ static void whatIsThisDevice(vr::ITrackedDeviceServerDriver *dev,
                 std::cout << PREFIX << " -- Tracking universe not yet known"
                           << std::endl;
             } else {
-                std::cout << PREFIX << " -- Some other error trying to figure "
-                                       "out the tracking universe: "
+                std::cout << PREFIX
+                          << " -- Some other error trying to figure "
+                             "out the tracking universe: "
                           << err << std::endl;
             }
         }
@@ -106,7 +108,7 @@ void lookForUniverseData(osvr::vive::DriverWrapper &vive) {
     }
 
     std::uint64_t universe = 0;
-	vr::TrackedDeviceIndex_t idx = 0;
+    vr::TrackedDeviceIndex_t idx = 0;
     for (auto &devPtr :
          vive.devices().rawDeviceVectorAccess_NOT_RECOMMENDED_TODO_FIXME()) {
         if (!devPtr) {
@@ -114,18 +116,17 @@ void lookForUniverseData(osvr::vive::DriverWrapper &vive) {
         }
         vr::ETrackedPropertyError err;
         uint64_t myUniverse = 0;
-		std::tie(myUniverse, err) =
-			osvr::vive::getProperty<osvr::vive::Props::CurrentUniverseId>(idx);
+        std::tie(myUniverse, err) =
+            osvr::vive::getProperty<osvr::vive::Props::CurrentUniverseId>(idx);
         if (vr::TrackedProp_Success != err || myUniverse == 0) {
             continue;
         }
         auto model =
-            osvr::vive::getProperty<osvr::vive::Props::ModelNumber>(idx)
-                .first;
+            osvr::vive::getProperty<osvr::vive::Props::ModelNumber>(idx).first;
         std::cout << PREFIX << "Got a real universe (" << myUniverse
                   << ") from " << model << std::endl;
         universe = myUniverse;
-		idx++;
+        idx++;
     }
 
     if (vive.chaperone().knowUniverseId(universe)) {
@@ -168,40 +169,32 @@ int main() {
         return 1;
     }
 
-    //if (!vive.isHMDPresent()) {
-    //    std::cerr << PREFIX
-    //              << "Driver loaded, but no Vive is connected. Exiting"
-    //              << std::endl;
-    //    return 0;
-    //}
-
     std::cout << PREFIX << "Vive is connected!!!" << std::endl;
 
-	auto handleNewDevice = [&](const char *serialNum,
-		vr::ETrackedDeviceClass eDeviceClass,
-		vr::ITrackedDeviceServerDriver *pDriver)
-	{
-		auto dev = pDriver;
-		if (!dev) {
-			std::cout << PREFIX << "null input device" << std::endl;
-			return false;
-		}
-		auto ret = vive.devices().addAndActivateDevice(dev);
-		if (!ret) {
-			std::cout << PREFIX << "Device with serial number " << serialNum
-				<< " couldn't be added to the devices vector."
-				<< std::endl;
-			return false;
-		}
-		std::cout << "\n"
-			<< PREFIX << "Device with s/n " << serialNum
-			<< " activated, assigned ID " << ret.value << std::endl;
-		vr::TrackedDeviceIndex_t idx = ret.value;
-		whatIsThisDevice(dev, idx);
-		return true;
-	};
+    auto handleNewDevice = [&](const char *serialNum,
+                               vr::ETrackedDeviceClass eDeviceClass,
+                               vr::ITrackedDeviceServerDriver *pDriver) {
+        auto dev = pDriver;
+        if (!dev) {
+            std::cout << PREFIX << "null input device" << std::endl;
+            return false;
+        }
+        auto ret = vive.devices().addAndActivateDevice(dev);
+        if (!ret) {
+            std::cout << PREFIX << "Device with serial number " << serialNum
+                      << " couldn't be added to the devices vector."
+                      << std::endl;
+            return false;
+        }
+        std::cout << "\n"
+                  << PREFIX << "Device with s/n " << serialNum
+                  << " activated, assigned ID " << ret.value << std::endl;
+        vr::TrackedDeviceIndex_t idx = ret.value;
+        whatIsThisDevice(dev, idx);
+        return true;
+    };
 
-	vive.driverHost().onTrackedDeviceAdded = handleNewDevice;
+    vive.driverHost().onTrackedDeviceAdded = handleNewDevice;
 
     if (!vive.startServerDeviceProvider()) {
         // can either check return value of this, or do another if (!vive) after
@@ -213,7 +206,7 @@ int main() {
         return 1;
     }
 
-	std::cout << "Vive has started." << std::endl;
+    std::cout << "Vive has started." << std::endl;
 
     /// but now, we can do things with vive.serverDevProvider()
 
@@ -221,14 +214,16 @@ int main() {
     auto interfaceStatus = vive.checkServerDeviceProviderInterfaces();
     switch (interfaceStatus) {
     case osvr::vive::DriverWrapper::InterfaceVersionStatus::AllInterfacesOK:
-        std::cerr << PREFIX << "All interface versions mentioned by the driver "
-                               "are available and supported."
+        std::cerr << PREFIX
+                  << "All interface versions mentioned by the driver "
+                     "are available and supported."
                   << std::endl;
         break;
     case osvr::vive::DriverWrapper::InterfaceVersionStatus::AllUsedInterfacesOK:
-        std::cerr << PREFIX << "Not all interface versions mentioned by the "
-                               "driver are available and supported, but the "
-                               "ones used by this code match."
+        std::cerr << PREFIX
+                  << "Not all interface versions mentioned by the "
+                     "driver are available and supported, but the "
+                     "ones used by this code match."
                   << std::endl;
         break;
     case osvr::vive::DriverWrapper::InterfaceVersionStatus::InterfaceMismatch:
@@ -265,29 +260,28 @@ int main() {
     vive.serverDevProvider().LeaveStandby();
 
     std::vector<std::string> knownSerialNumbers;
-    
 
-    // {
-        // auto numDevices = vive.serverDevProvider().GetTrackedDeviceCount();
-        // std::cout << PREFIX << "Got " << numDevices
-                  // << " tracked devices at startup" << std::endl;
-        // for (decltype(numDevices) i = 0; i < numDevices; ++i) {
-            // auto dev = vive.serverDevProvider().GetTrackedDeviceDriver(i);
-            // vive.devices().addAndActivateDevice(dev);
-            // std::cout << PREFIX << "Device " << i << std::endl;
-            // whatIsThisDevice(dev);
-        // }
-    // }
-
-    std::cout << "*** Entering dummy mainloop" << std::endl;
 #if 0
+     {
+     auto numDevices = vive.serverDevProvider().GetTrackedDeviceCount();
+     std::cout << PREFIX << "Got " << numDevices
+     << " tracked devices at startup" << std::endl;
+     for (decltype(numDevices) i = 0; i < numDevices; ++i) {
+     auto dev = vive.serverDevProvider().GetTrackedDeviceDriver(i);
+     vive.devices().addAndActivateDevice(dev);
+     std::cout << PREFIX << "Device " << i << std::endl;
+     whatIsThisDevice(dev);
+     }
+     }
+#endif
+    std::cout << "*** Entering dummy mainloop" << std::endl;
+#if 1
     for (int i = 0; i < 3000; ++i) {
         vive.serverDevProvider().RunFrame();
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
-		std::cout << "i = " << i << std::endl;
     }
 #else
-	std::this_thread::sleep_for(std::chrono::seconds(10));
+    std::this_thread::sleep_for(std::chrono::seconds(10));
 #endif
     std::cout << "*** Done with dummy mainloop" << std::endl;
 
