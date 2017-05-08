@@ -49,7 +49,7 @@ namespace vive {
     /// sensor numbers in SteamVR and for tracking
     static const auto HMD_SENSOR = 0;
     static const auto CONTROLLER_SENSORS = {1, 2};
-	static const auto PUCK_SENSOR = 3;
+    static const auto PUCK_SENSOR = 3;
     static const auto MAX_CONTROLLER_ID = 2;
 
     static const auto NUM_ANALOGS = 7;
@@ -59,7 +59,7 @@ namespace vive {
     static const auto IPD_ANALOG = 0;
     static const auto PROX_SENSOR_BUTTON_OFFSET = 1;
 
-    static const auto PREFIX = "[OSVR-Vive] ";
+    static const auto PREFIX = "OSVR-Vive";
 
     /// For the HMD and two controllers
     static const std::array<uint32_t, 3> FIRST_BUTTON_ID = {0, 2, 8};
@@ -117,13 +117,14 @@ namespace vive {
     ViveDriverHost::ViveDriverHost()
         : m_universeXform(Eigen::Isometry3d::Identity()),
           m_universeRotation(Eigen::Quaterniond::Identity()),
-		  m_logger(osvr::util::log::make_logger(PREFIX)) {}
+          m_logger(osvr::util::log::make_logger(PREFIX)) {}
 
     ViveDriverHost::StartResult
     ViveDriverHost::start(OSVR_PluginRegContext ctx,
                           osvr::vive::DriverWrapper &&inVive) {
         if (!inVive) {
-			m_logger->error("Called ViveDriverHost::start() with an invalid vive object!");
+            m_logger->error(
+                "Called ViveDriverHost::start() with an invalid vive object!");
             return StartResult::TemporaryFailure;
         }
         /// Take ownership of the Vive.
@@ -131,8 +132,8 @@ namespace vive {
 
         /// define the lambda to handle the ServerDriverHost::TrackedDeviceAdded
         auto handleNewDevice = [&](const char *serialNum,
-            ETrackedDeviceClass eDeviceClass,
-            ITrackedDeviceServerDriver *pDriver) {
+                                   ETrackedDeviceClass eDeviceClass,
+                                   ITrackedDeviceServerDriver *pDriver) {
             auto dev = pDriver;
             if (!dev) {
                 m_logger->info("null input device");
@@ -146,7 +147,7 @@ namespace vive {
                 m_logger->error(os.c_str());
                 return false;
             }
-            NewDeviceReport out{ std::string{ serialNum }, ret.value };
+            NewDeviceReport out{std::string{serialNum}, ret.value};
             {
                 std::lock_guard<std::mutex> lock(m_mutex);
                 m_newDevices.submitNew(std::move(out), lock);
@@ -159,42 +160,46 @@ namespace vive {
         /// Finish setting up the Vive.
         try {
             if (!m_vive->startServerDeviceProvider()) {
-				m_logger->error("Could not start the server device provider in the Vive driver. Exiting.");
+                m_logger->error("Could not start the server device provider in "
+                                "the Vive driver. Exiting.");
                 return StartResult::TemporaryFailure;
             }
         } catch (CouldNotGetInterface &e) {
-			std::string os = "Caught exception trying to start Vive server device provider: ";
-			os += e.what();
-			m_logger->error(os.c_str());
-			os = "SteamVR interface version may have ";
-			os += "changed, may need to be rebuilt against an updated ";
-			os += "header or use an older SteamVR version. Exiting.";
-			m_logger->error(os.c_str());
+            std::string os = "Caught exception trying to start Vive server "
+                             "device provider: ";
+            os += e.what();
+            m_logger->error(os.c_str());
+            os = "SteamVR interface version may have ";
+            os += "changed, may need to be rebuilt against an updated ";
+            os += "header or use an older SteamVR version. Exiting.";
+            m_logger->error(os.c_str());
             return StartResult::PermanentFailure;
         }
 
         /// Check for interface compatibility
         if (DriverWrapper::InterfaceVersionStatus::InterfaceMismatch ==
             m_vive->checkServerDeviceProviderInterfaces()) {
-			std::string os = "SteamVR lighthouse driver requires unavailable/unsupported";
-			os += "SteamVR lighthouse driver requires unavailable/unsupported ";
-			os += "interface versions - either too old or too new for ";
-			os += "this build. Specifically, the following critical mismaches: ";
-			m_logger->error(os.c_str());
+            std::string os =
+                "SteamVR lighthouse driver requires unavailable/unsupported";
+            os += "SteamVR lighthouse driver requires unavailable/unsupported ";
+            os += "interface versions - either too old or too new for ";
+            os +=
+                "this build. Specifically, the following critical mismaches: ";
+            m_logger->error(os.c_str());
             for (auto iface : m_vive->getUnsupportedRequestedInterfaces()) {
                 if (isInterfaceNameWeCareAbout(
                         detail::getInterfaceName(iface))) {
                     auto supported =
                         m_vive->getSupportedInterfaceVersions()
                             .findSupportedVersionOfInterface(iface);
-					std::string os = " - SteamVR lighthouse: ";
-					os += iface;
-					os += "\t\t OSVR-Vive: ";
-					os += supported; 
-					m_logger->error(os.c_str());
+                    std::string os = " - SteamVR lighthouse: ";
+                    os += iface;
+                    os += "\t\t OSVR-Vive: ";
+                    os += supported;
+                    m_logger->error(os.c_str());
                 }
             }
-			m_logger->error("Cannot continue.\n");
+            m_logger->error("Cannot continue.\n");
             return StartResult::PermanentFailure;
         }
 
@@ -228,7 +233,9 @@ namespace vive {
     }
 
     inline OSVR_ReturnCode ViveDriverHost::update() {
-        //m_vive->serverDevProvider().RunFrame();
+
+        m_vive->serverDevProvider().RunFrame();
+
         {
             std::lock_guard<std::mutex> lock(m_mutex);
             /// Copy a fixed number of reports that have been queued up.
@@ -285,7 +292,8 @@ namespace vive {
             auto id = m_vive->chaperone().guessUniverseIdFromBaseStations(
                 baseStations);
             if (0 != id) {
-				m_logger->info("No HMD attached, but guessed universe from sighted base stations...");
+                m_logger->info("No HMD attached, but guessed universe from "
+                               "sighted base stations...");
                 handleUniverseChange(id);
             }
         }
@@ -293,48 +301,50 @@ namespace vive {
     }
 
     ViveDriverHost::DevIdReturnValue
-    ViveDriverHost::activateDevice(vr::ITrackedDeviceServerDriver *dev, vr::ETrackedDeviceClass trackedDeviceClass) {
+    ViveDriverHost::activateDevice(vr::ITrackedDeviceServerDriver *dev,
+                                   vr::ETrackedDeviceClass trackedDeviceClass) {
         auto ret = activateDeviceImpl(dev, trackedDeviceClass);
         vr::TrackedDeviceIndex_t idx = ret.value;
         auto mfrProp = getProperty<Props::ManufacturerName>(idx);
         auto modelProp = getProperty<Props::ModelNumber>(idx);
         auto serialProp = getProperty<Props::SerialNumber>(idx);
-		std::string os;
+        std::string os;
         if (ret) {
-			os = "Assigned sensor ID " + std::to_string(ret.value) + " to ";
+            os = "Assigned sensor ID " + std::to_string(ret.value) + " to ";
         } else {
             os = "Could not assign a sensor ID to ";
         }
-		os += mfrProp.first + " " + modelProp.first + " " + serialProp.first;
-		m_logger->info(os.c_str());
+        os += mfrProp.first + " " + modelProp.first + " " + serialProp.first;
+        m_logger->info(os.c_str());
         return ret;
     }
 
-    ViveDriverHost::DevIdReturnValue
-    ViveDriverHost::activateDeviceImpl(vr::ITrackedDeviceServerDriver *dev, vr::ETrackedDeviceClass trackedDeviceClass) {
+    ViveDriverHost::DevIdReturnValue ViveDriverHost::activateDeviceImpl(
+        vr::ITrackedDeviceServerDriver *dev,
+        vr::ETrackedDeviceClass trackedDeviceClass) {
         auto &devs = m_vive->devices();
         if (getComponent<vr::IVRDisplayComponent>(dev)) {
             /// This is the HMD, since it has the display component.
             /// Always sensor 0.
             return devs.addAndActivateDeviceAt(dev, HMD_SENSOR);
         }
-		
+
         if (getComponent<vr::IVRControllerComponent>(dev)) {
-			
+
             /// This is a controller.... or a puck!
-			if (trackedDeviceClass == vr::ETrackedDeviceClass::TrackedDeviceClass_GenericTracker)
-			{
-				//puck
-				return devs.addAndActivateDeviceAt(dev, PUCK_SENSOR);
-			}
-			//controllers
+            if (trackedDeviceClass ==
+                vr::ETrackedDeviceClass::TrackedDeviceClass_GenericTracker) {
+                // puck
+                return devs.addAndActivateDeviceAt(dev, PUCK_SENSOR);
+            }
+            // controllers
             for (auto ctrlIdx : CONTROLLER_SENSORS) {
                 if (!devs.hasDeviceAt(ctrlIdx)) {
                     return devs.addAndActivateDeviceAt(dev, ctrlIdx);
                 }
             }
         }
-		
+
         /// This still may be a controller, if somehow there are more than
         /// 2...
         return devs.addAndActivateDevice(dev);
@@ -518,24 +528,26 @@ namespace vive {
         if (m_universeId != 0 && newUniverse == 0) {
             /// These are usually tracking glitches, not actual changes in
             /// tracking universes.
-			std::string os = "Got loss of universe ID (Change of universe ID from ";
-			os += m_universeId + " to " + newUniverse;
-			os += ") but will continue using existing transforms for optimum reliability.";
-			m_logger->info(os.c_str());
+            std::string os =
+                "Got loss of universe ID (Change of universe ID from ";
+            os += m_universeId + " to " + newUniverse;
+            os += ") but will continue using existing transforms for optimum "
+                  "reliability.";
+            m_logger->info(os.c_str());
             return;
         }
-		std::string os = "Change of universe ID from " + m_universeId;
-		os += " to " + newUniverse;
-		m_logger->info(os.c_str());
+        std::string os = "Change of universe ID from " + m_universeId;
+        os += " to " + newUniverse;
+        m_logger->info(os.c_str());
         m_universeId = newUniverse;
         auto known = m_vive->chaperone().knowUniverseId(m_universeId);
         if (!known) {
-			std::string os = "No usable information on this universe ";
-			os += "could be found - there may not be a ";
-			os += "calibration for it in your room setup. You may wish ";
-			os += "to complete that then start the OSVR server again. ";
-			os += "Will operate without universe transforms.";
-			m_logger->info(os.c_str());
+            std::string os = "No usable information on this universe ";
+            os += "could be found - there may not be a ";
+            os += "calibration for it in your room setup. You may wish ";
+            os += "to complete that then start the OSVR server again. ";
+            os += "Will operate without universe transforms.";
+            m_logger->info(os.c_str());
             m_universeXform.setIdentity();
             m_universeRotation.setIdentity();
         }
@@ -543,9 +555,9 @@ namespace vive {
         /// Fetch the data
         auto univData = m_vive->chaperone().getDataForUniverse(m_universeId);
         if (univData.type == osvr::vive::CalibrationType::Seated) {
-			std::string os = "Only a seated calibration for this universe ID ";
-			os += "exists: y=0 will not be at floor level.";
-			m_logger->info(os.c_str());
+            std::string os = "Only a seated calibration for this universe ID ";
+            os += "exists: y=0 will not be at floor level.";
+            m_logger->info(os.c_str());
         }
         using namespace Eigen;
         /// Populate the transforms.
@@ -597,7 +609,7 @@ namespace vive {
 
         vr::ETrackedPropertyError err;
         uint64_t universe = 0;
-		std::string os;
+        std::string os;
         std::tie(universe, err) =
             getProperty<Props::CurrentUniverseId>(unWhichDevice);
         switch (err) {
@@ -617,17 +629,17 @@ namespace vive {
         case vr::TrackedProp_WrongDeviceClass:
             /// OK, that's realistic. We'll just not update the universe based
             /// on it.
-			os = "error: TrackedProp_WrongDeviceClass when getting ";
-			os += "universe ID from " + unWhichDevice;
-			m_logger->info(os.c_str());
+            os = "error: TrackedProp_WrongDeviceClass when getting ";
+            os += "universe ID from " + unWhichDevice;
+            m_logger->info(os.c_str());
             return;
             break;
         case vr::TrackedProp_ValueNotProvidedByDevice:
             /// OK, that's realistic. We'll just not update the universe based
             /// on it.
-			os = "error: TrackedProp_ValueNotProvidedByDevice when ";
-			os += "getting universe ID from " + unWhichDevice;
-			m_logger->info(os.c_str());
+            os = "error: TrackedProp_ValueNotProvidedByDevice when ";
+            os += "getting universe ID from " + unWhichDevice;
+            m_logger->info(os.c_str());
             return;
             break;
         case vr::TrackedProp_InvalidDevice:
@@ -640,15 +652,15 @@ namespace vive {
                 /// Well, here we want to set the universe to 0.
                 universe = 0;
             } else {
-				os = "error: TrackedProp_NotYetAvailable when ";
-				os += "getting universe ID from " + unWhichDevice;
-				m_logger->info(os.c_str());
+                os = "error: TrackedProp_NotYetAvailable when ";
+                os += "getting universe ID from " + unWhichDevice;
+                m_logger->info(os.c_str());
             }
             break;
         default:
-			os = "Got unrecognized error ";
-			os += " when getting universe ID from " + unWhichDevice;
-			m_logger->info(os.c_str());
+            os = "Got unrecognized error ";
+            os += " when getting universe ID from " + unWhichDevice;
+            m_logger->info(os.c_str());
             break;
         }
 

@@ -35,8 +35,8 @@
 #include <osvr/PluginKit/PluginKit.h>
 #include <osvr/PluginKit/TrackerInterfaceC.h>
 #include <osvr/Util/ClientReportTypesC.h>
-#include <osvr/Util/TimeValue.h>
 #include <osvr/Util/Logger.h>
+#include <osvr/Util/TimeValue.h>
 
 // Library/third-party includes
 #include <osvr/Util/EigenCoreGeometry.h>
@@ -105,17 +105,19 @@ namespace vive {
         /// Called when we get a new device from the SteamVR driver that we need
         /// to activate. Delegates the real work - this just displays
         /// information.
-        DevIdReturnValue activateDevice(vr::ITrackedDeviceServerDriver *dev, vr::ETrackedDeviceClass trackedDeviceClass);
+        DevIdReturnValue
+        activateDevice(vr::ITrackedDeviceServerDriver *dev,
+                       vr::ETrackedDeviceClass trackedDeviceClass);
 
         /// @name ServerDriverHost overrides - called from a tracker thread (not
         /// the main thread)
         /// @{
         void TrackedDevicePoseUpdated(uint32_t unWhichDevice,
                                       const DriverPose_t &newPose,
-			                          uint32_t unPoseStructSize) override;
+                                      uint32_t unPoseStructSize) override;
 
         // void PhysicalIpdSet(uint32_t unWhichDevice,
-                            // float fPhysicalIpdMeters) override;
+        // float fPhysicalIpdMeters) override;
 
         void ProximitySensorState(uint32_t unWhichDevice,
                                   bool bProximitySensorTriggered) override;
@@ -176,7 +178,8 @@ namespace vive {
 
         /// Does the real work of adding a new device.
         DevIdReturnValue
-        activateDeviceImpl(vr::ITrackedDeviceServerDriver *dev, vr::ETrackedDeviceClass trackedDeviceClass);
+        activateDeviceImpl(vr::ITrackedDeviceServerDriver *dev,
+                           vr::ETrackedDeviceClass trackedDeviceClass);
 
         osvr::pluginkit::DeviceToken m_dev;
         OSVR_TrackerDeviceInterface m_tracker;
@@ -185,7 +188,7 @@ namespace vive {
 
         std::unique_ptr<osvr::vive::DriverWrapper> m_vive;
 
-		osvr::util::log::LoggerPtr m_logger;
+        osvr::util::log::LoggerPtr m_logger;
 
         /// Cached copy of the universe ID only touched from tracking thread
         /// callbacks
@@ -241,7 +244,7 @@ namespace vive {
         /// @}
     };
     using DriverHostPtr = std::unique_ptr<ViveDriverHost>;
-	using DriverWrapperPtr = std::unique_ptr<DriverWrapper>;
+    using DriverWrapperPtr = std::unique_ptr<DriverWrapper>;
 
 } // namespace vive
 } // namespace osvr
