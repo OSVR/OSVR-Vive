@@ -25,8 +25,8 @@
 #include "OSVRViveTracker.h"
 #include "ServerPropertyHelper.h"
 #include <osvr/PluginKit/PluginKit.h>
-#include <osvr/Util/PlatformConfig.h>
 #include <osvr/Util/Logger.h>
+#include <osvr/Util/PlatformConfig.h>
 
 #include "com_osvr_ViveSync_json.h"
 
@@ -46,27 +46,27 @@
 // Anonymous namespace to avoid symbol collision
 namespace {
 
-static const auto PREFIX = "[OSVR-Vive] ";
+static const auto PREFIX = "OSVR-Vive";
 
 class ViveSyncDevice {
   public:
     ViveSyncDevice(OSVR_PluginRegContext ctx,
-                                   osvr::vive::DriverWrapperPtr inVive,
-                                   osvr::vive::DriverHostPtr inHost)
-        : m_ctx(ctx), m_startedInSuccess(false),
-          m_shouldAttemptDetection(true),
-	      m_logger(osvr::util::log::make_logger(PREFIX)) 
-	{
-        m_viveWrapper = std::move(inVive);
-        m_inactiveDriverHost = std::move(inHost);
+                   osvr::vive::DriverWrapperPtr &&inVive,
+                   osvr::vive::DriverHostPtr &&inHost)
+        : m_viveWrapper(std::move(inVive)),
+          m_inactiveDriverHost(std::move(inHost)), m_ctx(ctx),
+          m_startedInSuccess(false), m_shouldAttemptDetection(true),
+          m_logger(osvr::util::log::make_logger(PREFIX)) {
 
         OSVR_DeviceInitOptions opts = osvrDeviceCreateInitOptions(ctx);
-        m_dev.initAsync(ctx, "ViveSync", opts);
+        m_dev.initSync(ctx, "ViveSync", opts);
         m_dev.sendJsonDescriptor(com_osvr_ViveSync_json);
         m_dev.registerUpdateCallback(this);
     }
 
     ~ViveSyncDevice() {
+        /// @todo organize the order of members so we don't have to manually
+        /// delete smart pointers.
         if (m_startedInSuccess) {
             m_driverHost.reset();
         } else {
@@ -89,15 +89,15 @@ class ViveSyncDevice {
         if (startResult) {
             /// and it started up the rest of the way just fine!
             /// We'll keep the driver around!
-			m_logger->info("Vive driver finished startup successfully!");
+            m_logger->info("Vive driver finished startup successfully!");
             m_startedInSuccess = true;
             return OSVR_RETURN_SUCCESS;
         }
 
-		m_logger->error("Vive driver startup failed.");
+        m_logger->error("Vive driver startup failed.");
 
         if (m_shouldAttemptDetection) {
-			m_logger->info(" Unloading to perhaps try again later.");
+            m_logger->info(" Unloading to perhaps try again later.");
         }
 
         return OSVR_RETURN_FAILURE;
@@ -119,7 +119,7 @@ class ViveSyncDevice {
     }
 
     void stopAttemptingDetection() {
-		m_logger->error("Will not re-attempt detecting Vive.");
+        m_logger->error("Will not re-attempt detecting Vive.");
         m_shouldAttemptDetection = false;
         unloadTemporaries();
         m_driverHost.reset();
@@ -135,31 +135,32 @@ class ViveSyncDevice {
     /// driver host. We can only run one Vive at a time.
     osvr::vive::DriverHostPtr m_driverHost;
 
-    /// A Vive object that we hang on to if we don't have a fully-started-up
-    /// device, to save time in hardware detection.
-    osvr::vive::DriverWrapperPtr m_viveWrapper;
-
     /// Populated only when we don't have an active driver - we keep it around
     /// so we don't have to re-load the full driver every time we get hit with a
     /// hardware detect request.
     osvr::vive::DriverHostPtr m_inactiveDriverHost;
 
+    /// A Vive object that we hang on to if we don't have a fully-started-up
+    /// device, to save time in hardware detection.
+    osvr::vive::DriverWrapperPtr m_viveWrapper;
+
+    OSVR_PluginRegContext m_ctx;
+
     bool m_startedInSuccess;
 
     bool m_shouldAttemptDetection;
 
-    OSVR_PluginRegContext m_ctx;
-
     osvr::pluginkit::DeviceToken m_dev;
 
-	osvr::util::log::LoggerPtr m_logger;
+    osvr::util::log::LoggerPtr m_logger;
 };
 
 class HardwareDetection {
 
   public:
-    HardwareDetection() : m_startedInSuccess(false),
-      	m_logger(osvr::util::log::make_logger(PREFIX)) {}
+    HardwareDetection()
+        : m_startedInSuccess(false),
+          m_logger(osvr::util::log::make_logger(PREFIX)) {}
 
     OSVR_ReturnCode operator()(OSVR_PluginRegContext ctx) {
         if (m_startedInSuccess) {
@@ -191,26 +192,26 @@ class HardwareDetection {
             m_viveWrapper.reset(new osvr::vive::DriverWrapper(&getDriveHost()));
 
             if (m_viveWrapper->foundDriver()) {
-				std::string os = "Found the Vive driver at ";
-				os += m_viveWrapper->getDriverFileLocation();
-				m_logger->info(os.c_str());
+                std::string os = "Found the Vive driver at ";
+                os += m_viveWrapper->getDriverFileLocation();
+                m_logger->info(os.c_str());
             }
 
-            if (!m_viveWrapper->haveDriverLoaded())  {
-				m_logger->info("Could not open driver.");
+            if (!m_viveWrapper->haveDriverLoaded()) {
+                m_logger->info("Could not open driver.");
                 m_viveWrapper.reset();
                 m_driverHost.reset();
                 return nullptr;
             }
 
             if (m_viveWrapper->foundConfigDirs()) {
-				std::string os = "Driver config dir is: ";
-				os += m_viveWrapper->getDriverConfigDir();
-				m_logger->info(os.c_str());
+                std::string os = "Driver config dir is: ";
+                os += m_viveWrapper->getDriverConfigDir();
+                m_logger->info(os.c_str());
             }
 
             if (!(*m_viveWrapper)) {
-				m_logger->error("Error in first-stage Vive driver startup.");
+                m_logger->error("Error in first-stage Vive driver startup.");
                 m_viveWrapper.reset();
                 return nullptr;
             }
