@@ -24,6 +24,7 @@
 
 // Internal Includes
 #include "Properties.h"
+#include "FindDriver.h"
 #include "ValveStrCpy.h"
 
 // Library/third-party includes
@@ -120,23 +121,27 @@ inline void readProperty(PropertiesStore const &store,
 Properties::Properties()
     : m_logger(osvr::util::log::make_logger("Properties")) {
 
-    /*addDeviceAt(0);
-    vr::PropertyWrite_t writeBatch;
-    writeBatch.prop = Prop_UserConfigPath_String;
-    writeBatch.writeType = PropertyWrite_Set;
-    std::string userConfigPath = "C:/Program Files(x86)/Steam/config";
-    writeBatch.unBufferSize = userConfigPath.length();
-    writeBatch.pvBuffer = (char *)userConfigPath.c_str();
-    writeBatch.unTag = k_unStringPropertyTag;
-    WritePropertyBatch(1, &writeBatch, 1);
+    osvr::vive::LocationInfo locations;
+    locations = osvr::vive::findLocationInfoForDriver();
+    if (locations.driverFound) {
+        addDeviceAt(0);
+        vr::PropertyWrite_t writeBatch;
+        writeBatch.prop = Prop_UserConfigPath_String;
+        writeBatch.writeType = PropertyWrite_Set;
+        std::string userConfigPath = locations.driverConfigDir;
+        writeBatch.unBufferSize = userConfigPath.length();
+        writeBatch.pvBuffer = (char *)userConfigPath.c_str();
+        writeBatch.unTag = k_unStringPropertyTag;
+        WritePropertyBatch(1, &writeBatch, 1);
 
-    writeBatch.prop = Prop_InstallPath_String;
-    writeBatch.writeType = PropertyWrite_Set;
-    std::string installPath = "C:/Program Files (x86)/Steam/config/lighthouse";
-    writeBatch.unBufferSize = installPath.length();
-    writeBatch.pvBuffer = (char*)userConfigPath.c_str();
-    writeBatch.unTag = k_unStringPropertyTag;
-    WritePropertyBatch(1, &writeBatch, 1);*/
+        writeBatch.prop = Prop_InstallPath_String;
+        writeBatch.writeType = PropertyWrite_Set;
+        std::string installPath = locations.driverRoot;
+        writeBatch.unBufferSize = installPath.length();
+        writeBatch.pvBuffer = (char *)userConfigPath.c_str();
+        writeBatch.unTag = k_unStringPropertyTag;
+        WritePropertyBatch(1, &writeBatch, 1);
+    }
 }
 
 ETrackedPropertyError
