@@ -46,11 +46,12 @@ using namespace vr;
 
 vr::ServerDriverHost::ServerDriverHost() {}
 
-bool ServerDriverHost::TrackedDeviceAdded(const char *pchDeviceSerialNumber, 
-                                          ETrackedDeviceClass eDeviceClass, 
+bool ServerDriverHost::TrackedDeviceAdded(const char *pchDeviceSerialNumber,
+                                          ETrackedDeviceClass eDeviceClass,
                                           ITrackedDeviceServerDriver *pDriver) {
     if (onTrackedDeviceAdded) {
-        return onTrackedDeviceAdded(pchDeviceSerialNumber, eDeviceClass, pDriver);
+        return onTrackedDeviceAdded(pchDeviceSerialNumber, eDeviceClass,
+                                    pDriver);
     }
     LOG_EVENTS("TrackedDeviceAdded(" << pchDeviceSerialNumber << ")");
     return true;
@@ -58,9 +59,10 @@ bool ServerDriverHost::TrackedDeviceAdded(const char *pchDeviceSerialNumber,
 
 void ServerDriverHost::TrackedDevicePoseUpdated(uint32_t unWhichDevice,
                                                 const DriverPose_t &newPose,
-												uint32_t unPoseStructSize) {
-
+                                                uint32_t unPoseStructSize) {
+#if 0
     LOG_EVENTS("TrackedDevicePoseUpdated(" << unWhichDevice << ", newPose)");
+#endif
 }
 
 void ServerDriverHost::VsyncEvent(double vsyncTimeOffsetSeconds) {
@@ -112,9 +114,12 @@ void ServerDriverHost::TrackedDeviceAxisUpdated(
 
 void ServerDriverHost::ProximitySensorState(uint32_t unWhichDevice,
                                             bool bProximitySensorTriggered) {
+/// gets called 1000/sec from some "main thread" and logging can be pricy.
+#if 0
     LOG_EVENTS("ProximitySensorState(" << unWhichDevice << ", "
                                        << std::boolalpha
                                        << bProximitySensorTriggered << ")");
+#endif
 }
 
 void ServerDriverHost::VendorSpecificEvent(uint32_t unWhichDevice,
@@ -132,9 +137,7 @@ bool ServerDriverHost::IsExiting() {
     return isExiting_;
 }
 
-bool ServerDriverHost::PollNextEvent(VREvent_t *pEvent, uint32_t uncbVREvent ) {
-    //LOG_EVENTS("PollNextEvent(" << uncbVREvent << ")");
-    return true;
+bool ServerDriverHost::PollNextEvent(VREvent_t *pEvent, uint32_t uncbVREvent) {
+    // LOG_EVENTS("PollNextEvent(" << uncbVREvent << ")");
+    return false;
 }
-
-
