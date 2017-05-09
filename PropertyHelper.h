@@ -134,22 +134,6 @@ namespace vive {
             }
         };
 
-        /// SYQ-1: comment this out because VRProperties() doesn't have
-        /// GetMaxtrix34Property
-        //    template <> struct PropertyGetter<vr::HmdMatrix34_t> {
-        //        static PropertyGetterReturn<vr::HmdMatrix34_t>
-        //        get(vr::ETrackedDeviceProperty prop, vr::TrackedDeviceIndex_t
-        //        unObjectId) {
-        //            vr::ETrackedPropertyError err = vr::TrackedProp_Success;
-        // auto propertyContainer =
-        // vr::VRProperties()->TrackedDeviceToPropertyContainer(unObjectId);
-        //            vr::HmdMatrix34_t val = vr::VRProperties()->
-        //                dev->GetMatrix34TrackedDeviceProperty(args..., prop,
-        //                &err);
-        //            return std::make_pair(val, err);
-        //        }
-        //    };
-
         template <> struct PropertyGetter<std::string> {
             static PropertyGetterReturn<std::string>
             get(vr::ETrackedDeviceProperty prop,

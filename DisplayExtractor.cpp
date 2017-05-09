@@ -67,7 +67,7 @@ inline UnitClippingPlane getClippingPlanes(vr::IVRDisplayComponent *display,
 }
 
 void updateCenterOfProjection(DisplayDescriptor &descriptor,
-	                          vr::TrackedDeviceIndex_t idx) {
+                              vr::TrackedDeviceIndex_t idx) {
     /// Get the two eye/lens center of projections.
     using CenterOfProjectionIndices =
         std::tuple<std::size_t, osvr::vive::Props, osvr::vive::Props>;
@@ -106,8 +106,9 @@ bool updateFOV(DisplayDescriptor &descriptor,
 
     // Couldn't compute the conversion - must not be symmetrical enough
     // at the moment.
-    std::cout << PREFIX << "First attempt was not symmetrical, will symmetrize "
-                           "and re-convert the field of view."
+    std::cout << PREFIX
+              << "First attempt was not symmetrical, will symmetrize "
+                 "and re-convert the field of view."
               << std::endl;
     averageAndSymmetrize(leftFovs, rightFovs);
     fovsResult = twoEyeFovsToMonoWithOverlap(leftFovs, rightFovs);
@@ -269,12 +270,6 @@ int main() {
                       << std::endl;
             return 1;
         }
-        if (!vive.isHMDPresent()) {
-            std::cerr << PREFIX
-                      << "Driver loaded, but no Vive is connected. Exiting"
-                      << std::endl;
-            return 0;
-        }
         if (!vive.startServerDeviceProvider()) {
             // can either check return value of this, or do another if (!vive)
             // after calling - equivalent.
@@ -309,50 +304,33 @@ int main() {
         /// Power the system up.
         vive.serverDevProvider().LeaveStandby();
 
-		{
-			// SYQ-2: by now we should have all the devices in DeviceHoler
-			// we don't seem to need to add and activate again here, we can just
-			// retrive device from DeviceHolder and call the handleDisplay
-			DeviceHolder devHolder = std::move(vive.devices());
-			auto numDevices = devHolder.numDevices();
-			for (std::uint32_t i = 0; i < numDevices; ++i) {
-				vr::ITrackedDeviceServerDriver *dev = &(devHolder.getDevice(i));
-				auto disp = osvr::vive::getComponent<vr::IVRDisplayComponent>(dev);
-				if (disp) {
-					vr::TrackedDeviceIndex_t idx = i;
-					handleDisplay(idx, disp);
-					break;
-				}
-			}
-		}
-		
-		/// SYQ-2: Using the above block to replace the following one
-        //{
-        //    auto numDevices = vive.serverDevProvider().GetTrackedDeviceCount();
-        //    std::cout << PREFIX << "Got " << numDevices
-        //              << " tracked devices at startup" << std::endl;
-        //    for (decltype(numDevices) i = 0; i < numDevices; ++i) {
-        //        auto dev = vive.serverDevProvider().GetTrackedDeviceDriver(
-        //            i);
-        //        vive.devices().addAndActivateDevice(dev);
-        //        std::cout << PREFIX << "Device " << i << std::endl;
-        //        auto disp =
-        //            osvr::vive::getComponent<vr::IVRDisplayComponent>(dev);
-        //        if (disp) {
-        //            std::cout << PREFIX
-        //                      << "-- it's a display, too! We'll extract its "
-        //                         "display parameters now."
-        //                      << std::endl;
-        //            handleDisplay(dev, disp);
-        //            break;
-        //        }
-        //    }
-        //}
+        {
+            DeviceHolder devHolder = std::move(vive.devices());
+            auto numDevices = devHolder.numDevices();
+            std::cout << PREFIX << "Got " << numDevices
+                      << " tracked devices at startup" << std::endl;
+            for (std::uint32_t i = 0; i < numDevices; ++i) {
+                vr::ITrackedDeviceServerDriver *dev = &(devHolder.getDevice(i));
+                auto disp =
+                    osvr::vive::getComponent<vr::IVRDisplayComponent>(dev);
+                if (disp) {
+                    std::cout << PREFIX
+                              << "-- it's a display, too! We'll extract its "
+                                 "display parameters now."
+                              << std::endl;
+                    vr::TrackedDeviceIndex_t idx = i;
+                    handleDisplay(idx, disp);
+                    break;
+                }
+            }
+        }
+
         vive.stop();
         if (vive.serverDevProvider().ShouldBlockStandbyMode()) {
-            std::cout << PREFIX << "Driver is reporting that it is busy and "
-                                   "should block standby mode, so we will wait "
-                                   "until it is finished to exit..."
+            std::cout << PREFIX
+                      << "Driver is reporting that it is busy and "
+                         "should block standby mode, so we will wait "
+                         "until it is finished to exit..."
                       << std::endl;
             do {
                 std::this_thread::sleep_for(std::chrono::milliseconds(20));

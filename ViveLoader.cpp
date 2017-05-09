@@ -38,10 +38,6 @@
 #include <thread>
 #include <vector>
 
-namespace osvr {
-namespace vive {} // namespace vive
-} // namespace osvr
-
 static const auto PREFIX = "[ViveLoader] ";
 static void whatIsThisDevice(vr::ITrackedDeviceServerDriver *dev,
                              vr::TrackedDeviceIndex_t idx) {
@@ -292,8 +288,9 @@ int main() {
     std::cout << PREFIX << "Stopping the Vive." << std::endl;
     vive.stop();
 
+#if 0
     /// This line will turn off the wireless wands.
-    // vive.serverDevProvider().EnterStandby();
-
+    vive.serverDevProvider().EnterStandby();
+#endif
     return 0;
 }

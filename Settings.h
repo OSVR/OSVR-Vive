@@ -32,8 +32,10 @@
 // Library/third-party includes
 #include <openvr_driver.h>
 
-using SettingsStoreVariant = boost::variant<bool, std::int32_t, float, std::string>;
-using SettingsStore = osvr::util::KVDataStore<std::string, SettingsStoreVariant>;
+using SettingsStoreVariant =
+    boost::variant<bool, std::int32_t, float, std::string>;
+using SettingsStore =
+    osvr::util::KVDataStore<std::string, SettingsStoreVariant>;
 
 // Standard includes
 
@@ -42,7 +44,7 @@ namespace vr {
 class Settings : public vr::IVRSettings {
 
   public:
-	Settings();
+    Settings();
 
     virtual const char *
     GetSettingsErrorNameFromEnum(vr::EVRSettingsError eError);
@@ -81,7 +83,7 @@ class Settings : public vr::IVRSettings {
 
   private:
     osvr::util::log::LoggerPtr m_logger;
-	SettingsStore m_settingStore;
+    SettingsStore m_settingStore;
 };
 
 } // namespace vr

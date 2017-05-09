@@ -192,9 +192,8 @@ class HardwareDetection {
             m_viveWrapper.reset(new osvr::vive::DriverWrapper(&getDriveHost()));
 
             if (m_viveWrapper->foundDriver()) {
-                std::string os = "Found the Vive driver at ";
-                os += m_viveWrapper->getDriverFileLocation();
-                m_logger->info(os.c_str());
+                m_logger->info("Found the Vive driver at ")
+                    << m_viveWrapper->getDriverFileLocation();
             }
 
             if (!m_viveWrapper->haveDriverLoaded()) {
@@ -205,9 +204,8 @@ class HardwareDetection {
             }
 
             if (m_viveWrapper->foundConfigDirs()) {
-                std::string os = "Driver config dir is: ";
-                os += m_viveWrapper->getDriverConfigDir();
-                m_logger->info(os.c_str());
+                m_logger->info("Driver config dir is: ")
+                    << m_viveWrapper->getDriverConfigDir();
             }
 
             if (!(*m_viveWrapper)) {

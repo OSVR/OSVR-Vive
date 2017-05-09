@@ -107,32 +107,6 @@ namespace vive {
             std::move(loader), context, [](SharedDriverLoader const &) {});
     }
 
-	///SYQ-3 : didn't see this function is used anywhere, and with
-	///        ClientProvider is removed, we don't need this either
-	//inline std::pair<ProviderPtr<vr::IServerTrackedDeviceProvider>,
-	//                 ProviderPtr<vr::IVRWatchdogProvider>>
-	//getServerProviderWithUninitializedClientProvider(
-	//    std::unique_ptr<DriverLoader> &&loader, vr::IVRDriverLog *driverLog,
-	//    InterfaceHost<vr::IServerTrackedDeviceProvider> *serverHost,
-	//    std::string const &userDriverConfigDir) {
-
-	//    ProviderPtr<vr::IVRWatchdogProvider> clientPtr;
-	//    auto retrieveClientProvider = [&clientPtr](
-	//        SharedDriverLoader const &driverLoader) {
-	//        auto rawPtr =
-	//            driverLoader
-	//                ->getInterfaceThrowing<vr::IVRWatchdogProvider>();
-	//        /// Use the aliasing constructor to make sure that driverLoader
-	//        /// doesn't go away before clientPtr does, either.
-	//        clientPtr = ProviderPtr<vr::IVRWatchdogProvider>(
-	//            driverLoader, rawPtr);
-	//    };
-	//    auto serverPtr =
-	//        detail::getProviderImpl<vr::IServerTrackedDeviceProvider>(
-	//            std::move(loader), driverLog, serverHost, userDriverConfigDir,
-	//            retrieveClientProvider);
-	//    return std::make_pair(std::move(serverPtr), std::move(clientPtr));
-	//}
 } // namespace vive
 } // namespace osvr
 

@@ -41,7 +41,7 @@ class DriverLog : public vr::IVRDriverLog {
     virtual void Log(const char *pchLogMessage);
 
   private:
-    osvr::util::log::LoggerPtr m_logger;
+    osvr::util::log::LoggerPtr logger_;
 };
 
 } // namespace vr

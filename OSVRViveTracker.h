@@ -116,9 +116,6 @@ namespace vive {
                                       const DriverPose_t &newPose,
                                       uint32_t unPoseStructSize) override;
 
-        // void PhysicalIpdSet(uint32_t unWhichDevice,
-        // float fPhysicalIpdMeters) override;
-
         void ProximitySensorState(uint32_t unWhichDevice,
                                   bool bProximitySensorTriggered) override;
 
