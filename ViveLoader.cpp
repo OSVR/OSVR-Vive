@@ -57,9 +57,8 @@ static void whatIsThisDevice(vr::ITrackedDeviceServerDriver *dev,
                 std::cout << PREFIX << " -- Tracking universe not yet known"
                           << std::endl;
             } else {
-                std::cout << PREFIX
-                          << " -- Some other error trying to figure "
-                             "out the tracking universe: "
+                std::cout << PREFIX << " -- Some other error trying to figure "
+                                       "out the tracking universe: "
                           << err << std::endl;
             }
         }
@@ -210,16 +209,14 @@ int main() {
     auto interfaceStatus = vive.checkServerDeviceProviderInterfaces();
     switch (interfaceStatus) {
     case osvr::vive::DriverWrapper::InterfaceVersionStatus::AllInterfacesOK:
-        std::cerr << PREFIX
-                  << "All interface versions mentioned by the driver "
-                     "are available and supported."
+        std::cerr << PREFIX << "All interface versions mentioned by the driver "
+                               "are available and supported."
                   << std::endl;
         break;
     case osvr::vive::DriverWrapper::InterfaceVersionStatus::AllUsedInterfacesOK:
-        std::cerr << PREFIX
-                  << "Not all interface versions mentioned by the "
-                     "driver are available and supported, but the "
-                     "ones used by this code match."
+        std::cerr << PREFIX << "Not all interface versions mentioned by the "
+                               "driver are available and supported, but the "
+                               "ones used by this code match."
                   << std::endl;
         break;
     case osvr::vive::DriverWrapper::InterfaceVersionStatus::InterfaceMismatch:

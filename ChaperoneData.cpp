@@ -94,8 +94,8 @@ getFile(std::string const &fn,
         } else {
 
             errorReport("Error after reading " +
-                        std::to_string(os.str().size()) + " bytes: " +
-                        formatLastErrorAsString());
+                        std::to_string(os.str().size()) +
+                        " bytes: " + formatLastErrorAsString());
             return std::string{};
         }
     }

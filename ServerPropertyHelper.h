@@ -85,7 +85,7 @@ namespace vive {
     template <typename T>
     inline detail::PropertyGetterReturn<T>
     getProperty(vr::ETrackedDeviceProperty prop,
-	            vr::TrackedDeviceIndex_t unObjectId) {
+                vr::TrackedDeviceIndex_t unObjectId) {
         return generic::getPropertyOfType<T>(prop, unObjectId);
     }
     /// @overload
@@ -107,7 +107,7 @@ namespace vive {
     template <typename T>
     inline detail::PropertyGetterReturn<T>
     getPropertyOfType(vr::ETrackedDeviceProperty prop,
-	                  vr::TrackedDeviceIndex_t unObjectId) {
+                      vr::TrackedDeviceIndex_t unObjectId) {
         return generic::getPropertyOfType<T>(prop, unObjectId);
     }
     /// @overload

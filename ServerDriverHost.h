@@ -44,18 +44,20 @@ class ServerDriverHost : public vr::IVRServerDriverHost {
     /// Sets our "IsExiting()" flag to true.
     void setExiting() { isExiting_ = true; }
 
-    IVRSettings *GetSettings(const char *pchInterfaceVersion) { return vrSettings; }
+    IVRSettings *GetSettings(const char *pchInterfaceVersion) {
+        return vrSettings;
+    }
 
-    virtual bool TrackedDeviceAdded( const char *pchDeviceSerialNumber, 
-	                                 ETrackedDeviceClass eDeviceClass, 
-									 ITrackedDeviceServerDriver *pDriver );
-    std::function<bool(const char *, 
-		               ETrackedDeviceClass, 
-		               ITrackedDeviceServerDriver *)> onTrackedDeviceAdded;
+    virtual bool TrackedDeviceAdded(const char *pchDeviceSerialNumber,
+                                    ETrackedDeviceClass eDeviceClass,
+                                    ITrackedDeviceServerDriver *pDriver);
+    std::function<bool(const char *, ETrackedDeviceClass,
+                       ITrackedDeviceServerDriver *)>
+        onTrackedDeviceAdded;
 
     virtual void TrackedDevicePoseUpdated(uint32_t unWhichDevice,
                                           const DriverPose_t &newPose,
-										  uint32_t unPoseStructSize);
+                                          uint32_t unPoseStructSize);
 
     virtual void VsyncEvent(double vsyncTimeOffsetSeconds);
 
@@ -88,8 +90,8 @@ class ServerDriverHost : public vr::IVRServerDriverHost {
                                      double eventTimeOffset);
 
     virtual bool IsExiting();
-	
-	virtual bool PollNextEvent( VREvent_t *pEvent, uint32_t uncbVREvent );
+
+    virtual bool PollNextEvent(VREvent_t *pEvent, uint32_t uncbVREvent);
 
     IVRSettings *vrSettings = nullptr;
 

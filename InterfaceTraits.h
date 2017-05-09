@@ -42,9 +42,7 @@ namespace vive {
     template <typename InterfaceType> struct InterfaceNameTrait;
 
     template <> struct InterfaceNameTrait<vr::IVRWatchdogProvider> {
-        static const char *get() {
-            return vr::IVRWatchdogProvider_Version;
-        }
+        static const char *get() { return vr::IVRWatchdogProvider_Version; }
     };
 
     template <> struct InterfaceNameTrait<vr::IServerTrackedDeviceProvider> {
@@ -87,8 +85,8 @@ namespace vive {
     struct InterfaceExpectedFromEntryPointTrait : std::false_type {};
 
     template <>
-    struct InterfaceExpectedFromEntryPointTrait<
-        vr::IVRWatchdogProvider> : std::true_type {};
+    struct InterfaceExpectedFromEntryPointTrait<vr::IVRWatchdogProvider>
+        : std::true_type {};
 
     template <>
     struct InterfaceExpectedFromEntryPointTrait<

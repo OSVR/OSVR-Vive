@@ -26,10 +26,10 @@
 #define INCLUDED_DriverContext_h_GUID_36B19EC5_76DE_49B4_5B1A_37B88E5E6C42
 
 // Internal
-#include "ServerDriverHost.h"
-#include "Settings.h"
 #include "DriverLog.h"
 #include "Properties.h"
+#include "ServerDriverHost.h"
+#include "Settings.h"
 
 // Library/third-party includes
 #include <openvr_driver.h>
@@ -45,9 +45,8 @@ class DriverContext : public vr::IVRDriverContext {
   public:
     DriverContext();
     DriverContext(vr::ServerDriverHost *serverDriverHost,
-                  vr::Settings *settings, 
-		          vr::DriverLog *driverLog,
-	              vr::Properties *properties);
+                  vr::Settings *settings, vr::DriverLog *driverLog,
+                  vr::Properties *properties);
 
     /// Returns the requested interface. If the interface was not available
     /// it will return NULL and fill out the error.

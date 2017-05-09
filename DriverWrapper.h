@@ -28,14 +28,14 @@
 // Internal Includes
 #include "ChaperoneData.h"
 #include "DeviceHolder.h"
+#include "DriverContext.h"
 #include "DriverLoader.h"
+#include "DriverLog.h"
 #include "FindDriver.h"
 #include "GetProvider.h"
-#include "ServerDriverHost.h"
-#include "DriverContext.h"
-#include "Settings.h"
-#include "DriverLog.h"
 #include "Properties.h"
+#include "ServerDriverHost.h"
+#include "Settings.h"
 
 // Library/third-party includes
 // - none
@@ -268,9 +268,10 @@ namespace vive {
             }
 
             settings_ = new vr::Settings();
-			driverLog_ = new vr::DriverLog();
-			properties_ = new vr::Properties();
-            context_ = new vr::DriverContext(serverDriverHost_, settings_, driverLog_, properties_);
+            driverLog_ = new vr::DriverLog();
+            properties_ = new vr::Properties();
+            context_ = new vr::DriverContext(serverDriverHost_, settings_,
+                                             driverLog_, properties_);
 
             vr::EVRInitError err;
             err = Init();
@@ -428,11 +429,11 @@ namespace vive {
 
         /// This context pointer is used in calling the
         /// IServerTrackedDeviceProvider.Init
-		/// the next three object ptrs are used for context
+        /// the next three object ptrs are used for context
         vr::DriverContext *context_;
         vr::Settings *settings_;
-		vr::DriverLog *driverLog_;
-		vr::Properties *properties_;
+        vr::DriverLog *driverLog_;
+        vr::Properties *properties_;
     };
 } // namespace vive
 } // namespace osvr
