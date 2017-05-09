@@ -248,19 +248,6 @@ namespace vive {
             return static_cast<bool>(serverDriverHost_ != nullptr);
         }
 
-        /// This method must be called before calling
-        /// startServerDeviceProvider()
-        bool isHMDPresent() {
-            if (!(foundDriver() && foundConfigDirs() && haveDriverLoaded())) {
-                return false;
-            }
-            if (!loader_) {
-                throw std::logic_error("Calls to isHMDPresent must occur "
-                                       "before startServerDeviceProvider!");
-            }
-            return loader_->isHMDPresent(locations_.rootConfigDir);
-        }
-
         /// This must be called before accessing the server device provider.
         ///
         /// @param quiet If true (default), a "null" driver logger will be

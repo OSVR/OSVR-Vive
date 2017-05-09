@@ -98,11 +98,6 @@ namespace vive {
         /// Could we load the driver?
         explicit operator bool() const;
 
-        /// Is an HMD present? If we couldn't load the driver or some other
-        /// error case happens, we just return false from here.
-        bool
-        isHMDPresent(std::string const &userConfigDir = std::string(".")) const;
-
         /// Template function to call the driver's main entry point with the
         /// right string and do the right casting. Returns the pointer and
         /// the error code in a pair.
@@ -170,7 +165,7 @@ namespace vive {
         std::string driverRoot_;
         DriverFactory factory_;
         std::function<void()> cleanup_;
-		osvr::util::log::LoggerPtr logger_;
+        osvr::util::log::LoggerPtr logger_;
     };
 
 } // namespace vive
