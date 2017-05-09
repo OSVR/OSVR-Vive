@@ -38,7 +38,7 @@
 /// These are the only value types used by publicly-declared properties.
 using PropertiesStoreVariant =
     boost::variant<bool, float, std::int32_t, std::uint64_t, std::string,
-                   vr::HmdMatrix34_t>;
+                   vr::HmdMatrix34_t, vr::HmdVector2_t>;
 using PropertiesStore =
     osvr::util::KVDataStore<vr::ETrackedDeviceProperty, PropertiesStoreVariant>;
 

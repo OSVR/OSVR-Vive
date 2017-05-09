@@ -54,6 +54,7 @@ OSVRVIVE_DEFINE_PROPERTY_TYPE_TAG(bool, k_unBoolPropertyTag);
 OSVRVIVE_DEFINE_PROPERTY_TYPE_TAG(std::string, k_unStringPropertyTag);
 OSVRVIVE_DEFINE_PROPERTY_TYPE_TAG(vr::HmdMatrix34_t,
                                   k_unHmdMatrix34PropertyTag);
+OSVRVIVE_DEFINE_PROPERTY_TYPE_TAG(vr::HmdVector2_t, k_unHiddenAreaPropertyTag);
 
 /// Note: if you add a type here, you must also make sure it's added to the
 /// PropertyStoreVariant, as well as to Properties::WritePropertyBatch
@@ -159,8 +160,9 @@ Properties::ReadPropertyBatch(PropertyContainerHandle_t ulContainerHandle,
     for (std::uint32_t i = 0; i < unBatchEntryCount; ++i) {
         auto &entry = pBatch[i];
 
-        m_logger->info() << "ReadPropertyBatch: Entry " << i << ", Property ID "
-                         << entry.prop << ", Supplied tag type " << entry.unTag;
+        m_logger->debug() << "ReadPropertyBatch: Entry " << i
+                          << ", Property ID " << entry.prop
+                          << ", Supplied tag type " << entry.unTag;
         readProperty(store, pBatch[i]);
         if (pBatch[i].eError != TrackedProp_Success) {
             ret = pBatch[i].eError;
@@ -221,6 +223,12 @@ Properties::WritePropertyBatch(PropertyContainerHandle_t ulContainerHandle,
                 pStore.set(entry.prop, val);
                 break;
             }
+            case k_unHiddenAreaPropertyTag: {
+                auto val =
+                    *(reinterpret_cast<vr::HmdVector2_t *>(entry.pvBuffer));
+                pStore.set(entry.prop, val);
+                break;
+            }
             default: {
                 m_logger->error()
                     << "In property setting: Unhandled property tag type: "
@@ -232,7 +240,7 @@ Properties::WritePropertyBatch(PropertyContainerHandle_t ulContainerHandle,
         } else if (entry.writeType == PropertyWrite_Erase) {
             pStore.erase(entry.prop);
         } else if (entry.writeType == PropertyWrite_SetError) {
-            m_logger->info("set error");
+            m_logger->debug("set error");
         } else {
             m_logger->error("unknown writeType: ") << entry.writeType;
             return vr::TrackedProp_InvalidOperation;
@@ -275,7 +283,7 @@ const char *Properties::GetPropErrorNameFromEnum(ETrackedPropertyError error) {
 
 PropertyContainerHandle_t
 Properties::TrackedDeviceToPropertyContainer(TrackedDeviceIndex_t nDevice) {
-    m_logger->info("TrackedDeviceToPropertyContainer")
+    m_logger->debug("TrackedDeviceToPropertyContainer")
         << " at index " << nDevice;
     if (!hasDeviceAt(nDevice)) {
         addDeviceAt(nDevice);
@@ -290,7 +298,7 @@ bool Properties::hasDeviceAt(const std::uint64_t idx) const {
 
 void Properties::addDeviceAt(const std::uint64_t idx) {
     /// @todo this is kind of redundant with reserveIds
-    m_logger->info("addDeviceAt ") << idx;
+    m_logger->debug("addDeviceAt ") << idx;
     if (!(idx < m_propertyStores.size())) {
         /// OK, we need to reserve more room
         reserveIds(idx + 1);
