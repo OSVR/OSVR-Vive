@@ -29,22 +29,11 @@
 // - none
 
 // Standard includes
-#include <iostream>
 
 using namespace vr;
 
-#ifdef DISABLE_LOG_EVENTS
-#define LOG_EVENTS(X)                                                          \
-    do {                                                                       \
-    } while (0)
-#else
-#define LOG_EVENTS(X)                                                          \
-    do {                                                                       \
-        std::cout << X << std::endl;                                           \
-    } while (0)
-#endif
-
-vr::ServerDriverHost::ServerDriverHost() {}
+vr::ServerDriverHost::ServerDriverHost()
+    : logger_(osvr::util::log::make_logger("ServerDriverHost")) {}
 
 bool ServerDriverHost::TrackedDeviceAdded(const char *pchDeviceSerialNumber,
                                           ETrackedDeviceClass eDeviceClass,
@@ -53,91 +42,78 @@ bool ServerDriverHost::TrackedDeviceAdded(const char *pchDeviceSerialNumber,
         return onTrackedDeviceAdded(pchDeviceSerialNumber, eDeviceClass,
                                     pDriver);
     }
-    LOG_EVENTS("TrackedDeviceAdded(" << pchDeviceSerialNumber << ")");
+    logger_->info("TrackedDeviceAdded(") << pchDeviceSerialNumber << ")";
     return true;
 }
 
 void ServerDriverHost::TrackedDevicePoseUpdated(uint32_t unWhichDevice,
                                                 const DriverPose_t &newPose,
                                                 uint32_t unPoseStructSize) {
-#if 0
-    LOG_EVENTS("TrackedDevicePoseUpdated(" << unWhichDevice << ", newPose)");
-#endif
+    logger_->debug("TrackedDevicePoseUpdated(") << unWhichDevice << ")";
 }
 
 void ServerDriverHost::VsyncEvent(double vsyncTimeOffsetSeconds) {
-    LOG_EVENTS("VsyncEvent(" << vsyncTimeOffsetSeconds << ")");
+    logger_->info("VsyncEvent(") << vsyncTimeOffsetSeconds << ")";
 }
 
 void ServerDriverHost::TrackedDeviceButtonPressed(uint32_t unWhichDevice,
                                                   EVRButtonId eButtonId,
                                                   double eventTimeOffset) {
-    LOG_EVENTS("TrackedDeviceButtonPressed("
-               << unWhichDevice << ", " << eButtonId << ", " << eventTimeOffset
-               << ")");
+    logger_->info("TrackedDeviceButtonPressed(")
+        << unWhichDevice << ", " << eButtonId << ", " << eventTimeOffset << ")";
 }
 
 void ServerDriverHost::TrackedDeviceButtonUnpressed(uint32_t unWhichDevice,
                                                     EVRButtonId eButtonId,
                                                     double eventTimeOffset) {
-
-    LOG_EVENTS("TrackedDeviceButtonUnpressed("
-               << unWhichDevice << ", " << eButtonId << ", " << eventTimeOffset
-               << ")");
+    logger_->info("TrackedDeviceButtonUnpressed(")
+        << unWhichDevice << ", " << eButtonId << ", " << eventTimeOffset << ")";
 }
 
 void ServerDriverHost::TrackedDeviceButtonTouched(uint32_t unWhichDevice,
                                                   EVRButtonId eButtonId,
                                                   double eventTimeOffset) {
-
-    LOG_EVENTS("TrackedDeviceButtonTouched("
-               << unWhichDevice << ", " << eButtonId << ", " << eventTimeOffset
-               << ")");
+    logger_->info("TrackedDeviceButtonTouched(")
+        << unWhichDevice << ", " << eButtonId << ", " << eventTimeOffset << ")";
 }
 
 void ServerDriverHost::TrackedDeviceButtonUntouched(uint32_t unWhichDevice,
                                                     EVRButtonId eButtonId,
                                                     double eventTimeOffset) {
-
-    LOG_EVENTS("TrackedDeviceButtonUntouched("
-               << unWhichDevice << ", " << eButtonId << ", " << eventTimeOffset
-               << ")");
+    logger_->info("TrackedDeviceButtonUntouched(")
+        << unWhichDevice << ", " << eButtonId << ", " << eventTimeOffset << ")";
 }
 
 void ServerDriverHost::TrackedDeviceAxisUpdated(
     uint32_t unWhichDevice, uint32_t unWhichAxis,
     const VRControllerAxis_t &axisState) {
-
-    LOG_EVENTS("TrackedDeviceAxisUpdated(" << unWhichDevice << ", "
-                                           << unWhichAxis << ", axisState)");
+    logger_->info("TrackedDeviceAxisUpdated(")
+        << unWhichDevice << ", " << unWhichAxis << ", axisState)";
 }
 
 void ServerDriverHost::ProximitySensorState(uint32_t unWhichDevice,
                                             bool bProximitySensorTriggered) {
-/// gets called 1000/sec from some "main thread" and logging can be pricy.
-#if 0
-    LOG_EVENTS("ProximitySensorState(" << unWhichDevice << ", "
-                                       << std::boolalpha
-                                       << bProximitySensorTriggered << ")");
-#endif
+    /// gets called 1000/sec from some "main thread" and logging can be pricy.
+    logger_->debug("ProximitySensorState(")
+        << unWhichDevice << ", " << std::boolalpha << bProximitySensorTriggered
+        << ")";
 }
 
 void ServerDriverHost::VendorSpecificEvent(uint32_t unWhichDevice,
                                            vr::EVREventType eventType,
                                            const VREvent_Data_t &eventData,
                                            double eventTimeOffset) {
-
-    LOG_EVENTS("VendorSpecificEvent("
-               << unWhichDevice << ", eventType, eventData, " << eventTimeOffset
-               << ")");
+    logger_->info("VendorSpecificEvent(")
+        << unWhichDevice << ", eventType, eventData, " << eventTimeOffset
+        << ")";
 }
 
 bool ServerDriverHost::IsExiting() {
-    LOG_EVENTS("IsExiting()");
+    logger_->info("IsExiting()");
     return isExiting_;
 }
 
 bool ServerDriverHost::PollNextEvent(VREvent_t *pEvent, uint32_t uncbVREvent) {
-    // LOG_EVENTS("PollNextEvent(" << uncbVREvent << ")");
+    logger_->debug("PollNextEvent(") << uncbVREvent << ")";
     return false;
 }
