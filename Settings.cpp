@@ -69,7 +69,7 @@ bool Settings::GetBool(const char *pchSection, const char *pchSettingsKey,
         bool val = m_settingStore.get<bool>(pchSettingsKey);
         return val;
     } else {
-        m_logger->error("GetBool doesn't contain the settingKey: ")
+        m_logger->info("GetBool doesn't contain the settingKey: ")
             << pchSettingsKey;
         peError = new vr::EVRSettingsError(VRSettingsError_ReadFailed);
         return false;
@@ -88,7 +88,7 @@ int32_t Settings::GetInt32(const char *pchSection, const char *pchSettingsKey,
         int32_t val = m_settingStore.get<int32_t>(pchSettingsKey);
         return val;
     } else {
-        m_logger->error("GetInt32 doesn't contain the settingKey: ")
+        m_logger->info("GetInt32 doesn't contain the settingKey: ")
             << pchSettingsKey;
         peError = new vr::EVRSettingsError(VRSettingsError_ReadFailed);
         return 0;
@@ -107,7 +107,7 @@ float Settings::GetFloat(const char *pchSection, const char *pchSettingsKey,
         float val = m_settingStore.get<float>(pchSettingsKey);
         return val;
     } else {
-        m_logger->error("GetFloat doesn't contain the settingKey: ")
+        m_logger->info("GetFloat doesn't contain the settingKey: ")
             << pchSettingsKey;
         peError = new vr::EVRSettingsError(VRSettingsError_ReadFailed);
         return 0;
@@ -136,7 +136,7 @@ void Settings::GetString(const char *pchSection, const char *pchSettingsKey,
             }
         }
     } else {
-        m_logger->error("GetFloat doesn't contain the settingKey: ")
+        m_logger->info("GetString doesn't contain the settingKey: ")
             << pchSettingsKey;
         peError = new vr::EVRSettingsError(VRSettingsError_ReadFailed);
     }
