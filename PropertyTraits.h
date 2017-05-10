@@ -51,6 +51,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     "Please include exactly one of openvr.h or openvr_driver.h before including this file"
 #endif
 
+#include <cstddef>
 #include <string>
 
 namespace osvr {
@@ -92,6 +93,8 @@ namespace vive {
         DriverVersion = vr::Prop_DriverVersion_String,
         Firmware_ForceUpdateRequired =
             vr::Prop_Firmware_ForceUpdateRequired_Bool,
+        ViveSystemButtonFixRequired = vr::Prop_ViveSystemButtonFixRequired_Bool,
+        ParentDriver = vr::Prop_ParentDriver_Uint64,
         ReportsTimeSinceVSync = vr::Prop_ReportsTimeSinceVSync_Bool,
         SecondsFromVsyncToPhotons = vr::Prop_SecondsFromVsyncToPhotons_Float,
         DisplayFrequency = vr::Prop_DisplayFrequency_Float,
@@ -131,6 +134,12 @@ namespace vive {
         ScreenshotVerticalFieldOfViewDegrees =
             vr::Prop_ScreenshotVerticalFieldOfViewDegrees_Float,
         DisplaySuppressed = vr::Prop_DisplaySuppressed_Bool,
+        DisplayAllowNightMode = vr::Prop_DisplayAllowNightMode_Bool,
+        DisplayMCImageWidth = vr::Prop_DisplayMCImageWidth_Int32,
+        DisplayMCImageHeight = vr::Prop_DisplayMCImageHeight_Int32,
+        DisplayMCImageNumChannels = vr::Prop_DisplayMCImageNumChannels_Int32,
+        DisplayMCImageData = vr::Prop_DisplayMCImageData_Binary,
+        UsesDriverDirectMode = vr::Prop_UsesDriverDirectMode_Bool,
         AttachedDeviceId = vr::Prop_AttachedDeviceId_String,
         SupportedButtons = vr::Prop_SupportedButtons_Uint64,
         Axis0Type = vr::Prop_Axis0Type_Int32,
@@ -138,13 +147,30 @@ namespace vive {
         Axis2Type = vr::Prop_Axis2Type_Int32,
         Axis3Type = vr::Prop_Axis3Type_Int32,
         Axis4Type = vr::Prop_Axis4Type_Int32,
+        ControllerRoleHint = vr::Prop_ControllerRoleHint_Int32,
         FieldOfViewLeftDegrees = vr::Prop_FieldOfViewLeftDegrees_Float,
         FieldOfViewRightDegrees = vr::Prop_FieldOfViewRightDegrees_Float,
         FieldOfViewTopDegrees = vr::Prop_FieldOfViewTopDegrees_Float,
         FieldOfViewBottomDegrees = vr::Prop_FieldOfViewBottomDegrees_Float,
         TrackingRangeMinimumMeters = vr::Prop_TrackingRangeMinimumMeters_Float,
         TrackingRangeMaximumMeters = vr::Prop_TrackingRangeMaximumMeters_Float,
-        ModeLabel = vr::Prop_ModeLabel_String
+        ModeLabel = vr::Prop_ModeLabel_String,
+        IconPathName = vr::Prop_IconPathName_String,
+        NamedIconPathDeviceOff = vr::Prop_NamedIconPathDeviceOff_String,
+        NamedIconPathDeviceSearching =
+            vr::Prop_NamedIconPathDeviceSearching_String,
+        NamedIconPathDeviceSearchingAlert =
+            vr::Prop_NamedIconPathDeviceSearchingAlert_String,
+        NamedIconPathDeviceReady = vr::Prop_NamedIconPathDeviceReady_String,
+        NamedIconPathDeviceReadyAlert =
+            vr::Prop_NamedIconPathDeviceReadyAlert_String,
+        NamedIconPathDeviceNotReady =
+            vr::Prop_NamedIconPathDeviceNotReady_String,
+        NamedIconPathDeviceStandby = vr::Prop_NamedIconPathDeviceStandby_String,
+        NamedIconPathDeviceAlertLow =
+            vr::Prop_NamedIconPathDeviceAlertLow_String,
+        UserConfigPath = vr::Prop_UserConfigPath_String,
+        InstallPath = vr::Prop_InstallPath_String
     };
     namespace detail {
         template <std::size_t EnumVal> struct PropertyTypeTrait;
@@ -265,6 +291,13 @@ namespace vive {
         template <>
         struct PropertyTypeTrait<vr::Prop_Firmware_ForceUpdateRequired_Bool> {
             using type = bool;
+        };
+        template <>
+        struct PropertyTypeTrait<vr::Prop_ViveSystemButtonFixRequired_Bool> {
+            using type = bool;
+        };
+        template <> struct PropertyTypeTrait<vr::Prop_ParentDriver_Uint64> {
+            using type = uint64_t;
         };
         template <>
         struct PropertyTypeTrait<vr::Prop_ReportsTimeSinceVSync_Bool> {
@@ -398,6 +431,30 @@ namespace vive {
         template <> struct PropertyTypeTrait<vr::Prop_DisplaySuppressed_Bool> {
             using type = bool;
         };
+        template <>
+        struct PropertyTypeTrait<vr::Prop_DisplayAllowNightMode_Bool> {
+            using type = bool;
+        };
+        template <>
+        struct PropertyTypeTrait<vr::Prop_DisplayMCImageWidth_Int32> {
+            using type = int32_t;
+        };
+        template <>
+        struct PropertyTypeTrait<vr::Prop_DisplayMCImageHeight_Int32> {
+            using type = int32_t;
+        };
+        template <>
+        struct PropertyTypeTrait<vr::Prop_DisplayMCImageNumChannels_Int32> {
+            using type = int32_t;
+        };
+        template <>
+        struct PropertyTypeTrait<vr::Prop_DisplayMCImageData_Binary> {
+            using type = void *;
+        };
+        template <>
+        struct PropertyTypeTrait<vr::Prop_UsesDriverDirectMode_Bool> {
+            using type = bool;
+        };
         template <> struct PropertyTypeTrait<vr::Prop_AttachedDeviceId_String> {
             using type = std::string;
         };
@@ -417,6 +474,10 @@ namespace vive {
             using type = int32_t;
         };
         template <> struct PropertyTypeTrait<vr::Prop_Axis4Type_Int32> {
+            using type = int32_t;
+        };
+        template <>
+        struct PropertyTypeTrait<vr::Prop_ControllerRoleHint_Int32> {
             using type = int32_t;
         };
         template <>
@@ -444,6 +505,49 @@ namespace vive {
             using type = float;
         };
         template <> struct PropertyTypeTrait<vr::Prop_ModeLabel_String> {
+            using type = std::string;
+        };
+        template <> struct PropertyTypeTrait<vr::Prop_IconPathName_String> {
+            using type = std::string;
+        };
+        template <>
+        struct PropertyTypeTrait<vr::Prop_NamedIconPathDeviceOff_String> {
+            using type = std::string;
+        };
+        template <>
+        struct PropertyTypeTrait<vr::Prop_NamedIconPathDeviceSearching_String> {
+            using type = std::string;
+        };
+        template <>
+        struct PropertyTypeTrait<
+            vr::Prop_NamedIconPathDeviceSearchingAlert_String> {
+            using type = std::string;
+        };
+        template <>
+        struct PropertyTypeTrait<vr::Prop_NamedIconPathDeviceReady_String> {
+            using type = std::string;
+        };
+        template <>
+        struct PropertyTypeTrait<
+            vr::Prop_NamedIconPathDeviceReadyAlert_String> {
+            using type = std::string;
+        };
+        template <>
+        struct PropertyTypeTrait<vr::Prop_NamedIconPathDeviceNotReady_String> {
+            using type = std::string;
+        };
+        template <>
+        struct PropertyTypeTrait<vr::Prop_NamedIconPathDeviceStandby_String> {
+            using type = std::string;
+        };
+        template <>
+        struct PropertyTypeTrait<vr::Prop_NamedIconPathDeviceAlertLow_String> {
+            using type = std::string;
+        };
+        template <> struct PropertyTypeTrait<vr::Prop_UserConfigPath_String> {
+            using type = std::string;
+        };
+        template <> struct PropertyTypeTrait<vr::Prop_InstallPath_String> {
             using type = std::string;
         };
     } // namespace detail

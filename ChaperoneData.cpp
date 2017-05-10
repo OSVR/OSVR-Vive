@@ -78,7 +78,8 @@ getFile(std::string const &fn,
     bool keepReading = true;
     while (1) {
         DWORD bytesRead;
-        auto ret = ReadFile(f, buf.data(), buf.size() - 1, &bytesRead, nullptr);
+        auto ret = ReadFile(f, buf.data(), static_cast<DWORD>(buf.size() - 1),
+                            &bytesRead, nullptr);
         if (ret) {
             if (bytesRead == 0) {
                 // end of file
@@ -93,8 +94,8 @@ getFile(std::string const &fn,
         } else {
 
             errorReport("Error after reading " +
-                        std::to_string(os.str().size()) + " bytes: " +
-                        formatLastErrorAsString());
+                        std::to_string(os.str().size()) +
+                        " bytes: " + formatLastErrorAsString());
             return std::string{};
         }
     }

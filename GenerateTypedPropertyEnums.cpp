@@ -122,7 +122,8 @@ std::vector<std::pair<std::string, std::string>> g_cleanNameToFullName;
 std::map<std::string, std::string> g_typeSuffixToTypename = {
     {"String", "std::string"}, {"Bool", "bool"},
     {"Float", "float"},        {"Matrix34", "vr::HmdMatrix34_t"},
-    {"Uint64", "uint64_t"},    {"Int32", "int32_t"}};
+    {"Uint64", "uint64_t"},    {"Int32", "int32_t"},
+    {"Binary", "void *"}};
 
 std::set<std::string> g_ambiguousNames;
 
@@ -167,7 +168,7 @@ bool processEnumValues(Json::Value const &values, std::ostream &output) {
         auto name = enumVal["name"].asString();
 
         auto d = NameDecomp{name};
-        if (shouldIgnoreType(d.typeSuffix)) {
+        if (shouldIgnoreType(d.typeSuffix) || (d.typeSuffix.length() == 0)) {
             continue;
         }
         names.push_back(name);

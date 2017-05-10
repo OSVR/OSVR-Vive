@@ -41,10 +41,8 @@ namespace vive {
     /// GetComponent) to the name string used to retrieve it.
     template <typename InterfaceType> struct InterfaceNameTrait;
 
-    template <> struct InterfaceNameTrait<vr::IClientTrackedDeviceProvider> {
-        static const char *get() {
-            return vr::IClientTrackedDeviceProvider_Version;
-        }
+    template <> struct InterfaceNameTrait<vr::IVRWatchdogProvider> {
+        static const char *get() { return vr::IVRWatchdogProvider_Version; }
     };
 
     template <> struct InterfaceNameTrait<vr::IServerTrackedDeviceProvider> {
@@ -69,11 +67,11 @@ namespace vive {
     /// to the driver host type required by its init function.
     template <typename InterfaceType> struct InterfaceHostTrait;
 
-    template <> struct InterfaceHostTrait<vr::IClientTrackedDeviceProvider> {
-        using type = vr::IClientDriverHost;
+    template <> struct InterfaceHostTrait<vr::IVRWatchdogProvider> {
+        using type = vr::IVRWatchdogHost;
     };
     template <> struct InterfaceHostTrait<vr::IServerTrackedDeviceProvider> {
-        using type = vr::IServerDriverHost;
+        using type = vr::IVRServerDriverHost;
     };
 
     /// Alias for easier use, mapping from interface type to required driver
@@ -87,8 +85,8 @@ namespace vive {
     struct InterfaceExpectedFromEntryPointTrait : std::false_type {};
 
     template <>
-    struct InterfaceExpectedFromEntryPointTrait<
-        vr::IClientTrackedDeviceProvider> : std::true_type {};
+    struct InterfaceExpectedFromEntryPointTrait<vr::IVRWatchdogProvider>
+        : std::true_type {};
 
     template <>
     struct InterfaceExpectedFromEntryPointTrait<

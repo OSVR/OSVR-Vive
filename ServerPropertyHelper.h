@@ -62,8 +62,8 @@ namespace vive {
     /// @sa generic::getProperty()
     template <std::size_t EnumVal>
     inline detail::EnumGetterReturn<EnumVal>
-    getProperty(vr::ITrackedDeviceServerDriver *dev) {
-        return generic::getProperty<EnumVal>(dev);
+    getProperty(vr::TrackedDeviceIndex_t unObjectId) {
+        return generic::getProperty<EnumVal>(unObjectId);
     }
 
     /// @overload
@@ -72,8 +72,8 @@ namespace vive {
     /// @sa generic::getProperty()
     template <Props EnumVal>
     inline detail::EnumClassGetterReturn<EnumVal>
-    getProperty(vr::ITrackedDeviceServerDriver *dev) {
-        return generic::getProperty<EnumVal>(dev);
+    getProperty(vr::TrackedDeviceIndex_t unObjectId) {
+        return generic::getProperty<EnumVal>(unObjectId);
     }
 
     /// @overload
@@ -84,9 +84,9 @@ namespace vive {
     /// perfectly fine.
     template <typename T>
     inline detail::PropertyGetterReturn<T>
-    getProperty(vr::ITrackedDeviceServerDriver *dev,
-                vr::ETrackedDeviceProperty prop) {
-        return generic::getPropertyOfType<T>(dev, prop);
+    getProperty(vr::ETrackedDeviceProperty prop,
+                vr::TrackedDeviceIndex_t unObjectId) {
+        return generic::getPropertyOfType<T>(prop, unObjectId);
     }
     /// @overload
     /// @sa getPropertyOfType()
@@ -96,8 +96,8 @@ namespace vive {
     /// perfectly fine.
     template <typename T>
     inline detail::PropertyGetterReturn<T>
-    getProperty(vr::ITrackedDeviceServerDriver *dev, Props prop) {
-        return generic::getPropertyOfType<T>(dev, prop);
+    getProperty(Props prop, vr::TrackedDeviceIndex_t unObjectId) {
+        return generic::getPropertyOfType<T>(prop, unObjectId);
     }
     /// For when you must pass the enum at runtime - less safe - the template
     /// parameter is the type, then, and the parameters are the device and the
@@ -106,9 +106,9 @@ namespace vive {
     /// @sa generic::getPropertyOfType()
     template <typename T>
     inline detail::PropertyGetterReturn<T>
-    getPropertyOfType(vr::ITrackedDeviceServerDriver *dev,
-                      vr::ETrackedDeviceProperty prop) {
-        return generic::getPropertyOfType<T>(dev, prop);
+    getPropertyOfType(vr::ETrackedDeviceProperty prop,
+                      vr::TrackedDeviceIndex_t unObjectId) {
+        return generic::getPropertyOfType<T>(prop, unObjectId);
     }
     /// @overload
     /// Takes a Props:: enum class value as a parameter instead.
@@ -116,8 +116,8 @@ namespace vive {
     /// @sa generic::getPropertyOfType()
     template <typename T>
     inline detail::PropertyGetterReturn<T>
-    getPropertyOfType(vr::ITrackedDeviceServerDriver *dev, Props prop) {
-        return generic::getPropertyOfType<T>(dev, prop);
+    getPropertyOfType(Props prop, vr::TrackedDeviceIndex_t unObjectId) {
+        return generic::getPropertyOfType<T>(prop, unObjectId);
     }
 } // namespace vive
 } // namespace osvr

@@ -62,6 +62,9 @@ namespace osvr {
 namespace vive {
 
     namespace detail {
+        // k_unTrackingStringSize defined in the vr:: is no more, defined here
+        static const uint32_t k_unTrackingStringSize = 32;
+
         template <typename PropertyType>
         using PropertyGetterReturn =
             std::pair<PropertyType, vr::ETrackedPropertyError>;
@@ -90,70 +93,65 @@ namespace vive {
         template <typename EnumType> struct PropertyGetter;
 
         template <> struct PropertyGetter<bool> {
-            template <typename T, typename... Args>
             static PropertyGetterReturn<bool>
-            get(T *dev, vr::ETrackedDeviceProperty prop, Args... args) {
+            get(vr::ETrackedDeviceProperty prop,
+                vr::TrackedDeviceIndex_t unObjectId) {
                 vr::ETrackedPropertyError err = vr::TrackedProp_Success;
-                bool val =
-                    dev->GetBoolTrackedDeviceProperty(args..., prop, &err);
+                auto propertyContainer =
+                    vr::VRProperties()->TrackedDeviceToPropertyContainer(
+                        unObjectId);
+                bool val = vr::VRProperties()->GetBoolProperty(
+                    propertyContainer, prop, &err);
                 return std::make_pair(val, err);
             }
         };
 
         template <> struct PropertyGetter<float> {
-            template <typename T, typename... Args>
             static PropertyGetterReturn<float>
-            get(T *dev, vr::ETrackedDeviceProperty prop, Args... args) {
+            get(vr::ETrackedDeviceProperty prop,
+                vr::TrackedDeviceIndex_t unObjectId) {
                 vr::ETrackedPropertyError err = vr::TrackedProp_Success;
-                float val = dev->GetFloatTrackedDeviceProperty(
-                    std::forward<Args>(args)..., prop, &err);
+                auto propertyContainer =
+                    vr::VRProperties()->TrackedDeviceToPropertyContainer(
+                        unObjectId);
+                float val = vr::VRProperties()->GetFloatProperty(
+                    propertyContainer, prop, &err);
                 return std::make_pair(val, err);
             }
         };
 
         template <> struct PropertyGetter<int32_t> {
-            template <typename T, typename... Args>
             static PropertyGetterReturn<int32_t>
-            get(T *dev, vr::ETrackedDeviceProperty prop, Args... args) {
+            get(vr::ETrackedDeviceProperty prop,
+                vr::TrackedDeviceIndex_t unObjectId) {
                 vr::ETrackedPropertyError err = vr::TrackedProp_Success;
-                int32_t val =
-                    dev->GetInt32TrackedDeviceProperty(args..., prop, &err);
-                return std::make_pair(val, err);
-            }
-        };
-
-        template <> struct PropertyGetter<vr::HmdMatrix34_t> {
-            template <typename T, typename... Args>
-            static PropertyGetterReturn<vr::HmdMatrix34_t>
-            get(T *dev, vr::ETrackedDeviceProperty prop, Args... args) {
-                vr::ETrackedPropertyError err = vr::TrackedProp_Success;
-                vr::HmdMatrix34_t val =
-                    dev->GetMatrix34TrackedDeviceProperty(args..., prop, &err);
+                auto propertyContainer =
+                    vr::VRProperties()->TrackedDeviceToPropertyContainer(
+                        unObjectId);
+                int32_t val = vr::VRProperties()->GetInt32Property(
+                    propertyContainer, prop, &err);
                 return std::make_pair(val, err);
             }
         };
 
         template <> struct PropertyGetter<std::string> {
-            template <typename T, typename... Args>
             static PropertyGetterReturn<std::string>
-            get(T *dev, vr::ETrackedDeviceProperty prop, Args... args) {
-
-                assert(dev != nullptr &&
-                       "Tried to get a string property from a null device "
-                       "pointer.");
-                static const auto INITIAL_BUFFER_SIZE =
-                    vr::k_unTrackingStringSize;
+            get(vr::ETrackedDeviceProperty prop,
+                vr::TrackedDeviceIndex_t unObjectId) {
+                static const auto INITIAL_BUFFER_SIZE = k_unTrackingStringSize;
                 /// Start with a buffer of k_unTrackingStringSize as suggested.
                 std::vector<char> buf(INITIAL_BUFFER_SIZE, '\0');
                 vr::ETrackedPropertyError err = vr::TrackedProp_Success;
-                auto ret = dev->GetStringTrackedDeviceProperty(
-                    args..., prop, buf.data(),
+                auto propertyContainer =
+                    vr::VRProperties()->TrackedDeviceToPropertyContainer(
+                        unObjectId);
+                uint32_t ret = vr::VRProperties()->GetStringProperty(
+                    propertyContainer, prop, buf.data(),
                     static_cast<uint32_t>(buf.size()), &err);
                 if (0 == ret) {
                     // property not available
                     return std::make_pair(std::string{}, err);
                 }
-
                 if (ret > buf.size()) {
                     std::cout
                         << "[getStringProperty] Got an initial return value "
@@ -168,17 +166,16 @@ namespace vive {
                               << buf.size() << ", return value: " << ret
                               << std::endl;
                     buf.resize(ret + 1, '\0');
-                    ret = dev->GetStringTrackedDeviceProperty(
-                        args..., prop, buf.data(),
+                    ret = 1;
+                    ret = vr::VRProperties()->GetStringProperty(
+                        propertyContainer, prop, buf.data(),
                         static_cast<uint32_t>(buf.size()), &err);
                 }
-
                 if (ret > buf.size()) {
                     std::cout
                         << "[getStringProperty] THIS SHOULDN'T HAPPEN: Got a "
                            "return value larger than the buffer size: ret = "
                         << ret << ", buf.size() = " << buf.size() << std::endl;
-
                     return std::make_pair(std::string{}, err);
                 }
                 return std::make_pair(std::string{buf.data()}, err);
@@ -186,12 +183,15 @@ namespace vive {
         };
 
         template <> struct PropertyGetter<uint64_t> {
-            template <typename T, typename... Args>
             static PropertyGetterReturn<uint64_t>
-            get(T *self, vr::ETrackedDeviceProperty prop, Args... args) {
+            get(vr::ETrackedDeviceProperty prop,
+                vr::TrackedDeviceIndex_t unObjectId) {
                 vr::ETrackedPropertyError err = vr::TrackedProp_Success;
-                uint64_t val =
-                    self->GetUint64TrackedDeviceProperty(args..., prop, &err);
+                auto propertyContainer =
+                    vr::VRProperties()->TrackedDeviceToPropertyContainer(
+                        unObjectId);
+                uint64_t val = vr::VRProperties()->GetUint64Property(
+                    propertyContainer, prop, &err);
                 return std::make_pair(val, err);
             }
         };
@@ -210,11 +210,11 @@ namespace vive {
         /// and any additional parameters required (vr::TrackedDeviceIndex_t
         /// for IVRSystem, for instance), and get back a pair with your result,
         /// correctly typed, and your error code.
-        template <std::size_t EnumVal, typename Obj, typename... Args>
-        inline detail::EnumGetterReturn<EnumVal> getProperty(Obj *obj,
-                                                             Args... args) {
+        template <std::size_t EnumVal>
+        inline detail::EnumGetterReturn<EnumVal>
+        getProperty(vr::TrackedDeviceIndex_t unObjectId) {
             return detail::PropertyGetterFromSizeT<EnumVal>::get(
-                obj, detail::castToProperty(EnumVal), args...);
+                detail::castToProperty(EnumVal), unObjectId);
         }
 
         /// @overload
@@ -224,11 +224,11 @@ namespace vive {
         /// *, vr::IVRSystem*) and any additional parameters required
         /// (vr::TrackedDeviceIndex_t for IVRSystem, for instance), and get back
         /// a pair with your result, correctly typed, and your error code.
-        template <Props EnumVal, typename Obj, typename... Args>
+        template <Props EnumVal>
         inline detail::EnumClassGetterReturn<EnumVal>
-        getProperty(Obj *obj, Args... args) {
+        getProperty(vr::TrackedDeviceIndex_t unObjectId) {
             return detail::PropertyGetterFromEnumClass<EnumVal>::get(
-                obj, detail::castToProperty(EnumVal), args...);
+                detail::castToProperty(EnumVal), unObjectId);
         }
 
         /// Get a property when you only have the type at compile time, not the
@@ -241,22 +241,22 @@ namespace vive {
         /// parameters required (vr::TrackedDeviceIndex_t for IVRSystem, for
         /// instance), and get back a pair with your result as requested, and
         /// your error code.
-        template <typename T, typename Obj, typename... Args>
+        template <typename T>
         inline detail::PropertyGetterReturn<T>
-        getPropertyOfType(Obj *obj, vr::ETrackedDeviceProperty prop,
-                          Args... args) {
-            return detail::PropertyGetter<T>::get(obj, prop, args...);
+        getPropertyOfType(vr::ETrackedDeviceProperty prop,
+                          vr::TrackedDeviceIndex_t unObjectId) {
+            return detail::PropertyGetter<T>::get(prop, unObjectId);
         }
 
         /// @overload
         ///
         /// Takes a Props:: enum class shortened name instead of a vr::Prop_...
         /// enum.
-        template <typename T, typename Obj, typename... Args>
+        template <typename T>
         inline detail::PropertyGetterReturn<T>
-        getPropertyOfType(Obj *obj, Props prop, Args... args) {
-            return detail::PropertyGetter<T>::get(
-                obj, detail::castToProperty(prop), args...);
+        getPropertyOfType(Props prop, vr::TrackedDeviceIndex_t unObjectId) {
+            return detail::PropertyGetter<T>::get(detail::castToProperty(prop),
+                                                  unObjectId);
         }
     } // namespace generic
 } // namespace vive

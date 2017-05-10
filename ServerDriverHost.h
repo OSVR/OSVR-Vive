@@ -26,30 +26,38 @@
 #define INCLUDED_ServerDriverHost_h_GUID_CD530D68_1639_42B7_9B06_BA9E59464E9C
 
 // Internal Includes
-#include <VRSettings.h>
+#include <Settings.h>
 
 // Library/third-party includes
 #include <openvr_driver.h>
+#include <osvr/Util/Logger.h>
 
 // Standard includes
 #include <functional>
 
-// refer to IServerDriverHost for details on each function
+// refer to IVRServerDriverHost for details on each function
 namespace vr {
-class ServerDriverHost : public vr::IServerDriverHost {
+class ServerDriverHost : public vr::IVRServerDriverHost {
   public:
     ServerDriverHost();
 
     /// Sets our "IsExiting()" flag to true.
     void setExiting() { isExiting_ = true; }
 
-    virtual bool TrackedDeviceAdded(const char *pchDeviceSerialNumber);
-    std::function<bool(const char *)> onTrackedDeviceAdded;
+    IVRSettings *GetSettings(const char *pchInterfaceVersion) {
+        return vrSettings;
+    }
+
+    virtual bool TrackedDeviceAdded(const char *pchDeviceSerialNumber,
+                                    ETrackedDeviceClass eDeviceClass,
+                                    ITrackedDeviceServerDriver *pDriver);
+    std::function<bool(const char *, ETrackedDeviceClass,
+                       ITrackedDeviceServerDriver *)>
+        onTrackedDeviceAdded;
 
     virtual void TrackedDevicePoseUpdated(uint32_t unWhichDevice,
-                                          const DriverPose_t &newPose);
-
-    virtual void TrackedDevicePropertiesChanged(uint32_t unWhichDevice);
+                                          const DriverPose_t &newPose,
+                                          uint32_t unPoseStructSize);
 
     virtual void VsyncEvent(double vsyncTimeOffsetSeconds);
 
@@ -73,13 +81,6 @@ class ServerDriverHost : public vr::IServerDriverHost {
                                           uint32_t unWhichAxis,
                                           const VRControllerAxis_t &axisState);
 
-    virtual void MCImageUpdated();
-
-    virtual IVRSettings *GetSettings(const char *pchInterfaceVersion);
-
-    virtual void PhysicalIpdSet(uint32_t unWhichDevice,
-                                float fPhysicalIpdMeters);
-
     virtual void ProximitySensorState(uint32_t unWhichDevice,
                                       bool bProximitySensorTriggered);
 
@@ -90,10 +91,13 @@ class ServerDriverHost : public vr::IServerDriverHost {
 
     virtual bool IsExiting();
 
+    virtual bool PollNextEvent(VREvent_t *pEvent, uint32_t uncbVREvent);
+
     IVRSettings *vrSettings = nullptr;
 
   private:
     bool isExiting_ = false;
+    osvr::util::log::LoggerPtr logger_;
 };
 
 } // namespace vr

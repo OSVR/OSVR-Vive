@@ -20,6 +20,11 @@ find_package(JsonCpp REQUIRED)
 find_package(Boost REQUIRED COMPONENTS system iostreams filesystem)
 find_package(Eigen3 REQUIRED)
 
+#
+# Third-party libraries
+#
+add_subdirectory(vendor)
+
 option(BUILD_EXTRA_TOOLS "Whether the extra, optional tools should also be built." OFF)
 
 # Interface target for the openvr_driver.h header we'll use to interact with the target driver.
@@ -29,8 +34,8 @@ target_include_directories(OpenVRDriver INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/v
 add_library(boost_filesystem_v3 INTERFACE)
 target_link_libraries(boost_filesystem_v3
     INTERFACE
-    ${Boost_FILESYSTEM_LIBRARIES}
-    ${Boost_SYSTEM_LIBRARIES})
+    ${Boost_FILESYSTEM_LIBRARY}
+    ${Boost_SYSTEM_LIBRARY})
 target_compile_definitions(boost_filesystem_v3 INTERFACE BOOST_FILESYSTEM_VERSION=3)
 target_include_directories(boost_filesystem_v3 INTERFACE ${Boost_INCLUDE_DIRS})
 
@@ -102,8 +107,15 @@ add_library(ViveLoaderLib STATIC
     ServerPropertyHelper.h
     PropertyHelper.h
     PropertyTraits.h
-    VRSettings.cpp
-    VRSettings.h)
+	Properties.h
+	Properties.cpp
+    Settings.cpp
+    Settings.h
+    DriverLog.h
+    DriverLog.cpp
+	DriverContext.h
+	DriverContext.cpp
+	ValveStrCpy.h)
 target_link_libraries(ViveLoaderLib
     PUBLIC
     OpenVRDriver osvr::osvrUtil linkable_into_dll
@@ -115,6 +127,9 @@ target_include_directories(ViveLoaderLib PUBLIC ${CMAKE_CURRENT_BINARY_DIRECTORY
 osvr_convert_json(com_osvr_Vive_json
     com_osvr_Vive.json
     "${CMAKE_CURRENT_BINARY_DIR}/com_osvr_Vive_json.h")
+osvr_convert_json(com_osvr_ViveSync_json
+    com_osvr_ViveSync.json
+    "${CMAKE_CURRENT_BINARY_DIR}/com_osvr_ViveSync_json.h")
 osvr_add_plugin(com_osvr_Vive
     CPP
     com_osvr_Vive.cpp
@@ -122,7 +137,8 @@ osvr_add_plugin(com_osvr_Vive
     OSVRViveTracker.h
     QuickProcessingDeque.h
     VerifyLocked.h
-    "${CMAKE_CURRENT_BINARY_DIR}/com_osvr_Vive_json.h")
+    "${CMAKE_CURRENT_BINARY_DIR}/com_osvr_Vive_json.h"
+	"${CMAKE_CURRENT_BINARY_DIR}/com_osvr_ViveSync_json.h")
 
 target_link_libraries(com_osvr_Vive ViveLoaderLib)
 target_include_directories(com_osvr_Vive
@@ -135,7 +151,7 @@ if(BUILD_EXTRA_TOOLS)
         ViveLoader.cpp)
     target_link_libraries(ViveLoader PRIVATE ViveLoaderLib)
     copy_imported_targets(ViveLoader osvr::osvrUtil)
-
+	target_include_directories(ViveLoader PRIVATE ${Boost_INCLUDE_DIRS})
 
     add_executable(GenerateTypedPropertyEnums
         GenerateTypedPropertyEnums.cpp)

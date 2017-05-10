@@ -28,10 +28,14 @@
 // Internal Includes
 #include "ChaperoneData.h"
 #include "DeviceHolder.h"
+#include "DriverContext.h"
 #include "DriverLoader.h"
+#include "DriverLog.h"
 #include "FindDriver.h"
 #include "GetProvider.h"
+#include "Properties.h"
 #include "ServerDriverHost.h"
+#include "Settings.h"
 
 // Library/third-party includes
 // - none
@@ -148,7 +152,7 @@ namespace vive {
             "ITrackedDeviceServerDriver", "IVRDisplayComponent",
             "IVRControllerComponent", //< @todo do we actually use/cast to
                                       // this interface?
-            "IServerTrackedDeviceProvider", "IClientTrackedDeviceProvider"};
+            "IServerTrackedDeviceProvider", "IVRWatchdogProvider"};
 
     } // namespace detail
 
@@ -160,7 +164,7 @@ namespace vive {
     }
 
     /// The do-nothing driver logger.
-    class NullDriverLog : public vr::IDriverLog {
+    class NullDriverLog : public vr::IVRDriverLog {
       public:
         void Log(const char *) override {}
     };
@@ -244,19 +248,6 @@ namespace vive {
             return static_cast<bool>(serverDriverHost_ != nullptr);
         }
 
-        /// This method must be called before calling
-        /// startServerDeviceProvider()
-        bool isHMDPresent() {
-            if (!(foundDriver() && foundConfigDirs() && haveDriverLoaded())) {
-                return false;
-            }
-            if (!loader_) {
-                throw std::logic_error("Calls to isHMDPresent must occur "
-                                       "before startServerDeviceProvider!");
-            }
-            return loader_->isHMDPresent(locations_.rootConfigDir);
-        }
-
         /// This must be called before accessing the server device provider.
         ///
         /// @param quiet If true (default), a "null" driver logger will be
@@ -271,16 +262,30 @@ namespace vive {
             if (serverDeviceProvider_) {
                 return true;
             }
-            vr::IDriverLog *logger = nullptr;
+            vr::IVRDriverLog *logger = nullptr;
             if (quiet) {
                 logger = &nullDriverLog_;
             }
 
+            settings_ = new vr::Settings();
+            driverLog_ = new vr::DriverLog();
+            properties_ = new vr::Properties();
+            context_ = new vr::DriverContext(serverDriverHost_, settings_,
+                                             driverLog_, properties_);
+
+            vr::EVRInitError err;
+            err = Init();
+
             serverDeviceProvider_ =
                 getProvider<vr::IServerTrackedDeviceProvider>(
-                    std::move(loader_), logger, serverDriverHost_,
-                    locations_.driverConfigDir);
+                    std::move(loader_), context_);
+
             return static_cast<bool>(serverDeviceProvider_);
+        }
+
+        vr::EVRInitError Init() {
+            VR_INIT_SERVER_DRIVER_CONTEXT(context_);
+            return vr::VRInitError_None;
         }
 
         enum class InterfaceVersionStatus {
@@ -421,6 +426,14 @@ namespace vive {
 
         DeviceHolder devices_;
         NullDriverLog nullDriverLog_;
+
+        /// This context pointer is used in calling the
+        /// IServerTrackedDeviceProvider.Init
+        /// the next three object ptrs are used for context
+        vr::DriverContext *context_;
+        vr::Settings *settings_;
+        vr::DriverLog *driverLog_;
+        vr::Properties *properties_;
     };
 } // namespace vive
 } // namespace osvr
