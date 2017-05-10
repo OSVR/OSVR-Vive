@@ -102,14 +102,16 @@ inline void readProperty(PropertiesStore const &store,
         return;
     }
     auto &val = store.getVariant(batchEntry.prop);
-    auto containedTag = val.apply_visitor(GetContainedTypeTag());
+    auto containedTypeTag = GetContainedTypeTag();
+    auto containedTag = val.apply_visitor(containedTypeTag);
     bool actuallyGet = true;
     if (containedTag != batchEntry.unTag) {
         actuallyGet = false;
         batchEntry.unTag = containedTag;
     }
+    auto valueSizeGetter = ValueSizeGetter();
     batchEntry.unRequiredBufferSize =
-        static_cast<std::uint32_t>(val.apply_visitor(ValueSizeGetter()));
+        static_cast<std::uint32_t>(val.apply_visitor(valueSizeGetter));
 
     if (batchEntry.unRequiredBufferSize > batchEntry.unBufferSize) {
         return;
@@ -117,7 +119,8 @@ inline void readProperty(PropertiesStore const &store,
     if (!actuallyGet) {
         return;
     }
-    val.apply_visitor(ValueGetter(batchEntry));
+    auto be = ValueGetter(batchEntry);
+    val.apply_visitor(be);
 }
 Properties::Properties()
     : m_logger(osvr::util::log::make_logger("Properties")) {

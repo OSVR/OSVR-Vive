@@ -34,6 +34,7 @@
 
 // Standard includes
 #include <cstdint>
+#include <vector>
 
 /// These are the only value types used by publicly-declared properties.
 using PropertiesStoreVariant =
