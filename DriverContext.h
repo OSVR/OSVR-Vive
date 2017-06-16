@@ -27,7 +27,9 @@
 
 // Internal
 #include "DriverLog.h"
+#include "DriverManager.h"
 #include "Properties.h"
+#include "Resources.h"
 #include "ServerDriverHost.h"
 #include "Settings.h"
 
@@ -46,7 +48,8 @@ class DriverContext : public vr::IVRDriverContext {
     DriverContext();
     DriverContext(vr::ServerDriverHost *serverDriverHost,
                   vr::Settings *settings, vr::DriverLog *driverLog,
-                  vr::Properties *properties);
+                  vr::Properties *properties, vr::DriverManager *driverManager,
+                  vr::Resources *resources);
 
     /// Returns the requested interface. If the interface was not available
     /// it will return NULL and fill out the error.
@@ -61,6 +64,8 @@ class DriverContext : public vr::IVRDriverContext {
     vr::IVRProperties *m_pVRProperties;
     vr::IVRSettings *m_pVRSetting;
     vr::IVRDriverLog *m_pVRDriverLog;
+    vr::IVRDriverManager *m_pVRDriverManager;
+    vr::IVRResources *m_pVRResources;
 };
 
 } // namespace vr
