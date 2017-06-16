@@ -93,6 +93,11 @@ class ServerDriverHost : public vr::IVRServerDriverHost {
 
     virtual bool PollNextEvent(VREvent_t *pEvent, uint32_t uncbVREvent);
 
+    virtual void
+    GetRawTrackedDevicePoses(float fPredictedSecondsFromNow,
+                             TrackedDevicePose_t *pTrackedDevicePoseArray,
+                             uint32_t unTrackedDevicePoseArrayCount);
+
     IVRSettings *vrSettings = nullptr;
 
   private:
