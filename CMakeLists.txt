@@ -92,29 +92,33 @@ add_library(ViveLoaderLib STATIC
     ChaperoneData.cpp
     ChaperoneData.h
     DeviceHolder.h
+    DriverContext.cpp
+    DriverContext.h
     DriverLoader.cpp
     DriverLoader.h
+    DriverLog.cpp
+    DriverLog.h
+    DriverManager.cpp
+    DriverManager.h
     DriverWrapper.h
     FindDriver.cpp
     FindDriver.h
     GetComponent.h
     GetProvider.h
     InterfaceTraits.h
+    PropertyHelper.h
+    PropertyTraits.h
+	Properties.cpp
+    Properties.h
+    Resources.cpp
+    Resources.h
     ReturnValue.h
     SearchPathExtender.h
     ServerDriverHost.cpp
     ServerDriverHost.h
     ServerPropertyHelper.h
-    PropertyHelper.h
-    PropertyTraits.h
-	Properties.h
-	Properties.cpp
     Settings.cpp
     Settings.h
-    DriverLog.h
-    DriverLog.cpp
-	DriverContext.h
-	DriverContext.cpp
 	ValveStrCpy.h)
 target_link_libraries(ViveLoaderLib
     PUBLIC
