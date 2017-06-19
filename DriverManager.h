@@ -39,9 +39,19 @@ namespace vr {
 class DriverManager : public vr::IVRDriverManager {
   public:
     DriverManager();
+    /**
+    @brief This function always returns 1, since we're only using lighthouse
+    driver
+    */
     virtual uint32_t GetDriverCount() const;
+    /**
+    @brief Determine and store path to the SteamVR driver for given nDriver id
+    The resulting path is stored as placeholder string {pchValue}
+    It is used by IVRResources impl to load files specified by path
+    */
     virtual uint32_t GetDriverName(vr::DriverId_t nDriver, char *pchValue,
                                    uint32_t unBufferSize);
+
   private:
     osvr::util::log::LoggerPtr m_logger;
 };
