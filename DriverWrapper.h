@@ -31,9 +31,11 @@
 #include "DriverContext.h"
 #include "DriverLoader.h"
 #include "DriverLog.h"
+#include "DriverManager.h"
 #include "FindDriver.h"
 #include "GetProvider.h"
 #include "Properties.h"
+#include "Resources.h"
 #include "ServerDriverHost.h"
 #include "Settings.h"
 
@@ -270,8 +272,11 @@ namespace vive {
             settings_ = new vr::Settings();
             driverLog_ = new vr::DriverLog();
             properties_ = new vr::Properties();
-            context_ = new vr::DriverContext(serverDriverHost_, settings_,
-                                             driverLog_, properties_);
+            driverManager_ = new vr::DriverManager();
+            resources_ = new vr::Resources();
+            context_ =
+                new vr::DriverContext(serverDriverHost_, settings_, driverLog_,
+                                      properties_, driverManager_, resources_);
 
             vr::EVRInitError err;
             err = Init();
@@ -434,6 +439,8 @@ namespace vive {
         vr::Settings *settings_;
         vr::DriverLog *driverLog_;
         vr::Properties *properties_;
+        vr::DriverManager *driverManager_;
+        vr::Resources *resources_;
     };
 } // namespace vive
 } // namespace osvr

@@ -64,7 +64,7 @@ namespace vive {
         WillDriftInYaw = vr::Prop_WillDriftInYaw_Bool,
         ManufacturerName = vr::Prop_ManufacturerName_String,
         TrackingFirmwareVersion = vr::Prop_TrackingFirmwareVersion_String,
-        // shortcut omitted due to ambiguity for Prop_HardwareRevision_String
+        HardwareRevision_String = vr::Prop_HardwareRevision_String,
         AllWirelessDongleDescriptions =
             vr::Prop_AllWirelessDongleDescriptions_String,
         ConnectedWirelessDongle = vr::Prop_ConnectedWirelessDongle_String,
@@ -75,7 +75,7 @@ namespace vive {
         Firmware_UpdateAvailable = vr::Prop_Firmware_UpdateAvailable_Bool,
         Firmware_ManualUpdate = vr::Prop_Firmware_ManualUpdate_Bool,
         Firmware_ManualUpdateURL = vr::Prop_Firmware_ManualUpdateURL_String,
-        // shortcut omitted due to ambiguity for Prop_HardwareRevision_Uint64
+        HardwareRevision_Uint64 = vr::Prop_HardwareRevision_Uint64,
         FirmwareVersion = vr::Prop_FirmwareVersion_Uint64,
         FPGAVersion = vr::Prop_FPGAVersion_Uint64,
         VRCVersion = vr::Prop_VRCVersion_Uint64,
@@ -95,6 +95,7 @@ namespace vive {
             vr::Prop_Firmware_ForceUpdateRequired_Bool,
         ViveSystemButtonFixRequired = vr::Prop_ViveSystemButtonFixRequired_Bool,
         ParentDriver = vr::Prop_ParentDriver_Uint64,
+        ResourceRoot = vr::Prop_ResourceRoot_String,
         ReportsTimeSinceVSync = vr::Prop_ReportsTimeSinceVSync_Bool,
         SecondsFromVsyncToPhotons = vr::Prop_SecondsFromVsyncToPhotons_Float,
         DisplayFrequency = vr::Prop_DisplayFrequency_Float,
@@ -139,7 +140,11 @@ namespace vive {
         DisplayMCImageHeight = vr::Prop_DisplayMCImageHeight_Int32,
         DisplayMCImageNumChannels = vr::Prop_DisplayMCImageNumChannels_Int32,
         DisplayMCImageData = vr::Prop_DisplayMCImageData_Binary,
-        UsesDriverDirectMode = vr::Prop_UsesDriverDirectMode_Bool,
+        SecondsFromPhotonsToVblank = vr::Prop_SecondsFromPhotonsToVblank_Float,
+        DriverDirectModeSendsVsyncEvents =
+            vr::Prop_DriverDirectModeSendsVsyncEvents_Bool,
+        DisplayDebugMode = vr::Prop_DisplayDebugMode_Bool,
+        GraphicsAdapterLuid = vr::Prop_GraphicsAdapterLuid_Uint64,
         AttachedDeviceId = vr::Prop_AttachedDeviceId_String,
         SupportedButtons = vr::Prop_SupportedButtons_Uint64,
         Axis0Type = vr::Prop_Axis0Type_Int32,
@@ -170,7 +175,13 @@ namespace vive {
         NamedIconPathDeviceAlertLow =
             vr::Prop_NamedIconPathDeviceAlertLow_String,
         UserConfigPath = vr::Prop_UserConfigPath_String,
-        InstallPath = vr::Prop_InstallPath_String
+        InstallPath = vr::Prop_InstallPath_String,
+        HasDisplayComponent = vr::Prop_HasDisplayComponent_Bool,
+        HasControllerComponent = vr::Prop_HasControllerComponent_Bool,
+        HasCameraComponent = vr::Prop_HasCameraComponent_Bool,
+        HasDriverDirectModeComponent =
+            vr::Prop_HasDriverDirectModeComponent_Bool,
+        HasVirtualDisplayComponent = vr::Prop_HasVirtualDisplayComponent_Bool
     };
     namespace detail {
         template <std::size_t EnumVal> struct PropertyTypeTrait;
@@ -298,6 +309,9 @@ namespace vive {
         };
         template <> struct PropertyTypeTrait<vr::Prop_ParentDriver_Uint64> {
             using type = uint64_t;
+        };
+        template <> struct PropertyTypeTrait<vr::Prop_ResourceRoot_String> {
+            using type = std::string;
         };
         template <>
         struct PropertyTypeTrait<vr::Prop_ReportsTimeSinceVSync_Bool> {
@@ -452,8 +466,20 @@ namespace vive {
             using type = void *;
         };
         template <>
-        struct PropertyTypeTrait<vr::Prop_UsesDriverDirectMode_Bool> {
+        struct PropertyTypeTrait<vr::Prop_SecondsFromPhotonsToVblank_Float> {
+            using type = float;
+        };
+        template <>
+        struct PropertyTypeTrait<
+            vr::Prop_DriverDirectModeSendsVsyncEvents_Bool> {
             using type = bool;
+        };
+        template <> struct PropertyTypeTrait<vr::Prop_DisplayDebugMode_Bool> {
+            using type = bool;
+        };
+        template <>
+        struct PropertyTypeTrait<vr::Prop_GraphicsAdapterLuid_Uint64> {
+            using type = uint64_t;
         };
         template <> struct PropertyTypeTrait<vr::Prop_AttachedDeviceId_String> {
             using type = std::string;
@@ -549,6 +575,25 @@ namespace vive {
         };
         template <> struct PropertyTypeTrait<vr::Prop_InstallPath_String> {
             using type = std::string;
+        };
+        template <>
+        struct PropertyTypeTrait<vr::Prop_HasDisplayComponent_Bool> {
+            using type = bool;
+        };
+        template <>
+        struct PropertyTypeTrait<vr::Prop_HasControllerComponent_Bool> {
+            using type = bool;
+        };
+        template <> struct PropertyTypeTrait<vr::Prop_HasCameraComponent_Bool> {
+            using type = bool;
+        };
+        template <>
+        struct PropertyTypeTrait<vr::Prop_HasDriverDirectModeComponent_Bool> {
+            using type = bool;
+        };
+        template <>
+        struct PropertyTypeTrait<vr::Prop_HasVirtualDisplayComponent_Bool> {
+            using type = bool;
         };
     } // namespace detail
 

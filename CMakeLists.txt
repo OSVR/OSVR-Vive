@@ -92,30 +92,34 @@ add_library(ViveLoaderLib STATIC
     ChaperoneData.cpp
     ChaperoneData.h
     DeviceHolder.h
+    DriverContext.cpp
+    DriverContext.h
     DriverLoader.cpp
     DriverLoader.h
+    DriverLog.cpp
+    DriverLog.h
+    DriverManager.cpp
+    DriverManager.h
     DriverWrapper.h
     FindDriver.cpp
     FindDriver.h
     GetComponent.h
     GetProvider.h
     InterfaceTraits.h
+    PropertyHelper.h
+    PropertyTraits.h
+    Properties.cpp
+    Properties.h
+    Resources.cpp
+    Resources.h
     ReturnValue.h
     SearchPathExtender.h
     ServerDriverHost.cpp
     ServerDriverHost.h
     ServerPropertyHelper.h
-    PropertyHelper.h
-    PropertyTraits.h
-	Properties.h
-	Properties.cpp
     Settings.cpp
     Settings.h
-    DriverLog.h
-    DriverLog.cpp
-	DriverContext.h
-	DriverContext.cpp
-	ValveStrCpy.h)
+    ValveStrCpy.h)
 target_link_libraries(ViveLoaderLib
     PUBLIC
     OpenVRDriver osvr::osvrUtil linkable_into_dll
@@ -138,7 +142,7 @@ osvr_add_plugin(com_osvr_Vive
     QuickProcessingDeque.h
     VerifyLocked.h
     "${CMAKE_CURRENT_BINARY_DIR}/com_osvr_Vive_json.h"
-	"${CMAKE_CURRENT_BINARY_DIR}/com_osvr_ViveSync_json.h")
+    "${CMAKE_CURRENT_BINARY_DIR}/com_osvr_ViveSync_json.h")
 
 target_link_libraries(com_osvr_Vive ViveLoaderLib)
 target_include_directories(com_osvr_Vive
@@ -151,7 +155,7 @@ if(BUILD_EXTRA_TOOLS)
         ViveLoader.cpp)
     target_link_libraries(ViveLoader PRIVATE ViveLoaderLib)
     copy_imported_targets(ViveLoader osvr::osvrUtil)
-	target_include_directories(ViveLoader PRIVATE ${Boost_INCLUDE_DIRS})
+    target_include_directories(ViveLoader PRIVATE ${Boost_INCLUDE_DIRS})
 
     add_executable(GenerateTypedPropertyEnums
         GenerateTypedPropertyEnums.cpp)

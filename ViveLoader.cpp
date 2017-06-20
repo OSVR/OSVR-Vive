@@ -57,8 +57,9 @@ static void whatIsThisDevice(vr::ITrackedDeviceServerDriver *dev,
                 std::cout << PREFIX << " -- Tracking universe not yet known"
                           << std::endl;
             } else {
-                std::cout << PREFIX << " -- Some other error trying to figure "
-                                       "out the tracking universe: "
+                std::cout << PREFIX
+                          << " -- Some other error trying to figure "
+                             "out the tracking universe: "
                           << err << std::endl;
             }
         }
@@ -209,14 +210,16 @@ int main() {
     auto interfaceStatus = vive.checkServerDeviceProviderInterfaces();
     switch (interfaceStatus) {
     case osvr::vive::DriverWrapper::InterfaceVersionStatus::AllInterfacesOK:
-        std::cerr << PREFIX << "All interface versions mentioned by the driver "
-                               "are available and supported."
+        std::cerr << PREFIX
+                  << "All interface versions mentioned by the driver "
+                     "are available and supported."
                   << std::endl;
         break;
     case osvr::vive::DriverWrapper::InterfaceVersionStatus::AllUsedInterfacesOK:
-        std::cerr << PREFIX << "Not all interface versions mentioned by the "
-                               "driver are available and supported, but the "
-                               "ones used by this code match."
+        std::cerr << PREFIX
+                  << "Not all interface versions mentioned by the "
+                     "driver are available and supported, but the "
+                     "ones used by this code match."
                   << std::endl;
         break;
     case osvr::vive::DriverWrapper::InterfaceVersionStatus::InterfaceMismatch:
@@ -252,20 +255,18 @@ int main() {
     /// Power the system up.
     vive.serverDevProvider().LeaveStandby();
 
-    std::vector<std::string> knownSerialNumbers;
-
 #if 0
-     {
-     auto numDevices = vive.serverDevProvider().GetTrackedDeviceCount();
-     std::cout << PREFIX << "Got " << numDevices
-     << " tracked devices at startup" << std::endl;
-     for (decltype(numDevices) i = 0; i < numDevices; ++i) {
-     auto dev = vive.serverDevProvider().GetTrackedDeviceDriver(i);
-     vive.devices().addAndActivateDevice(dev);
-     std::cout << PREFIX << "Device " << i << std::endl;
-     whatIsThisDevice(dev);
-     }
-     }
+    {
+        osvr::vive::DeviceHolder devHolder = std::move(vive.devices());
+        auto numDevices = devHolder.numDevices();
+        std::cout << PREFIX << "Got " << numDevices
+                  << " tracked devices at startup" << std::endl;
+        for (decltype(numDevices) i = 0; i < numDevices; ++i) {
+            vr::ITrackedDeviceServerDriver *dev = &(devHolder.getDevice(i));
+            std::cout << PREFIX << "Device " << i << std::endl;
+            whatIsThisDevice(dev, i);
+        }
+    }
 #endif
     std::cout << "*** Entering dummy mainloop" << std::endl;
 #if 1

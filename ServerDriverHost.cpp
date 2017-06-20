@@ -38,11 +38,11 @@ vr::ServerDriverHost::ServerDriverHost()
 bool ServerDriverHost::TrackedDeviceAdded(const char *pchDeviceSerialNumber,
                                           ETrackedDeviceClass eDeviceClass,
                                           ITrackedDeviceServerDriver *pDriver) {
+    logger_->info("TrackedDeviceAdded(") << pchDeviceSerialNumber << ")";
     if (onTrackedDeviceAdded) {
         return onTrackedDeviceAdded(pchDeviceSerialNumber, eDeviceClass,
                                     pDriver);
     }
-    logger_->info("TrackedDeviceAdded(") << pchDeviceSerialNumber << ")";
     return true;
 }
 
@@ -116,4 +116,13 @@ bool ServerDriverHost::IsExiting() {
 bool ServerDriverHost::PollNextEvent(VREvent_t *pEvent, uint32_t uncbVREvent) {
     logger_->debug("PollNextEvent(") << uncbVREvent << ")";
     return false;
+}
+
+void ServerDriverHost::GetRawTrackedDevicePoses(
+    float fPredictedSecondsFromNow,
+    TrackedDevicePose_t *pTrackedDevicePoseArray,
+    uint32_t unTrackedDevicePoseArrayCount) {
+    logger_->debug("GetRawTrackedDevicePoses(")
+        << fPredictedSecondsFromNow << ", " << unTrackedDevicePoseArrayCount
+        << ")";
 }
