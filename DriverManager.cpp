@@ -46,7 +46,7 @@ uint32_t DriverManager::GetDriverName(vr::DriverId_t nDriver, char *pchValue,
     m_logger->debug("GetDriverName(") << nDriver << "," << unBufferSize << ")";
     const std::string driverName = "lighthouse";
     if (unBufferSize > driverName.size()) {
-        auto ret = valveStrCpy(driverName, pchValue, driverName.size());
+        auto ret = valveStrCpy(driverName, pchValue, unBufferSize);
         return ret;
     }
     return 0;
