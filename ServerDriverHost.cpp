@@ -126,3 +126,14 @@ void ServerDriverHost::GetRawTrackedDevicePoses(
         << fPredictedSecondsFromNow << ", " << unTrackedDevicePoseArrayCount
         << ")";
 }
+
+void ServerDriverHost::TrackedDeviceDisplayTransformUpdated(
+        uint32_t unWhichDevice,
+        HmdMatrix34_t eyeToHeadLeft,
+        HmdMatrix34_t eyeToHeadRight) {
+    logger_->debug("TrackedDeviceDisplayTransformUpdated(")
+        << unWhichDevice << ", eyeToHeadLeft, eyeToHeadRight)";
+        //<< eyeToHeadLeft << ", "
+        //<< eyeToHeadRight << ")";
+}
+
