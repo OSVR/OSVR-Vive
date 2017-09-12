@@ -98,6 +98,11 @@ class ServerDriverHost : public vr::IVRServerDriverHost {
                              TrackedDevicePose_t *pTrackedDevicePoseArray,
                              uint32_t unTrackedDevicePoseArrayCount);
 
+    virtual void
+    TrackedDeviceDisplayTransformUpdated(uint32_t unWhichDevice,
+                                         HmdMatrix34_t eyeToHeadLeft,
+                                         HmdMatrix34_t eyeToHeadRight);
+
     IVRSettings *vrSettings = nullptr;
 
   private:

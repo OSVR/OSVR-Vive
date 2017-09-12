@@ -145,6 +145,8 @@ namespace vive {
             vr::Prop_DriverDirectModeSendsVsyncEvents_Bool,
         DisplayDebugMode = vr::Prop_DisplayDebugMode_Bool,
         GraphicsAdapterLuid = vr::Prop_GraphicsAdapterLuid_Uint64,
+        DriverProvidedChaperonePath =
+            vr::Prop_DriverProvidedChaperonePath_String,
         AttachedDeviceId = vr::Prop_AttachedDeviceId_String,
         SupportedButtons = vr::Prop_SupportedButtons_Uint64,
         Axis0Type = vr::Prop_Axis0Type_Int32,
@@ -480,6 +482,10 @@ namespace vive {
         template <>
         struct PropertyTypeTrait<vr::Prop_GraphicsAdapterLuid_Uint64> {
             using type = uint64_t;
+        };
+        template <>
+        struct PropertyTypeTrait<vr::Prop_DriverProvidedChaperonePath_String> {
+            using type = std::string;
         };
         template <> struct PropertyTypeTrait<vr::Prop_AttachedDeviceId_String> {
             using type = std::string;
