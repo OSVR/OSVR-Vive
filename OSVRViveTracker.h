@@ -106,7 +106,8 @@ namespace vive {
         /// to activate. Delegates the real work - this just displays
         /// information.
         DevIdReturnValue
-        activateDevice(vr::ITrackedDeviceServerDriver *dev,
+        activateDevice(const char *serialNumber,
+                       vr::ITrackedDeviceServerDriver *dev,
                        vr::ETrackedDeviceClass trackedDeviceClass);
 
         /// @name ServerDriverHost overrides - called from a tracker thread (not
@@ -140,11 +141,15 @@ namespace vive {
                                  const VRControllerAxis_t &axisState) override;
 
         IVRSettings *GetSettings(const char *) { return nullptr; }
-/// @}
+        /// @}
 
-#if 0
-        void DeviceDescriptorUpdated(std::string const &json);
-#endif
+        /// Add new Vive Tracker aka Puck to the device descriptor
+        /// Called when more than 1 puck is connected
+        /// todo Can be expanded to add controllers
+        void AddDeviceToDevDescriptor(const char *serialNumber,
+                                    uint32_t deviceIndex);
+
+        void DeviceDescriptorUpdated();
 
       private:
         std::ostream &msg() const;
@@ -175,7 +180,8 @@ namespace vive {
 
         /// Does the real work of adding a new device.
         DevIdReturnValue
-        activateDeviceImpl(vr::ITrackedDeviceServerDriver *dev,
+        activateDeviceImpl(const char *serialNumber,
+                           vr::ITrackedDeviceServerDriver *dev,
                            vr::ETrackedDeviceClass trackedDeviceClass);
 
         osvr::pluginkit::DeviceToken m_dev;
@@ -238,6 +244,8 @@ namespace vive {
         Eigen::Quaterniond m_universeRotation;
         std::vector<vr::ETrackingResult> m_trackingResults;
 
+        std::uint32_t m_puckIdx;
+        std::string m_devDescriptor;
         /// @}
     };
     using DriverHostPtr = std::unique_ptr<ViveDriverHost>;
