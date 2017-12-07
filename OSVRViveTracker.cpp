@@ -223,7 +223,7 @@ namespace vive {
         m_dev.initSync(ctx, "Vive", opts);
 
         /// Send JSON descriptor
-        m_dev.sendJsonDescriptor(com_osvr_Vive_json);
+        m_dev.sendJsonDescriptor(m_devDescriptor);
 
         /// Register update callback
         m_dev.registerUpdateCallback(this);
@@ -817,8 +817,14 @@ namespace vive {
     }
 
     void ViveDriverHost::DeviceDescriptorUpdated() {
-
-        m_dev.sendJsonDescriptor(m_devDescriptor);
+        try {
+            m_dev.sendJsonDescriptor(m_devDescriptor);
+        } catch (std::logic_error &e) {
+            /// dev token hasn't been activated yet
+            /// we already update device descriptor so it will be sent once
+            /// token is activated
+            m_logger->info(e.what());
+        }
     }
 
     void ViveDriverHost::AddDeviceToDevDescriptor(const char *serialNumber,
