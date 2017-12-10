@@ -19,14 +19,16 @@
         }
     },
     "semantic": {
-		"hmd": {
+        "hmd": {
             "$target": "tracker/0",
-			"button": "button/0",
+            "button": "button/0",
             "proximity": "button/1"
-		},
-		"puck": {
-            "$target": "tracker/3"
-		},
+        },
+        "baseStations": {
+            "0": "tracker/3",
+            "1": "tracker/4"
+        },
+        "pucks": {},
         "ipd": "analog/0",
         "controller": {
             "left": {
@@ -65,7 +67,6 @@
     },
     "automaticAliases": {
         "/me/head": "semantic/hmd",
-        "/me/puck": "semantic/puck",
         "/me/ipd": "semantic/ipd",
         "/controller": "semantic/controller/*",
         "/me/hands/left": "semantic/controller/left",

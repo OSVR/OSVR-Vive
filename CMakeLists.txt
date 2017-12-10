@@ -144,7 +144,7 @@ osvr_add_plugin(com_osvr_Vive
     "${CMAKE_CURRENT_BINARY_DIR}/com_osvr_Vive_json.h"
     "${CMAKE_CURRENT_BINARY_DIR}/com_osvr_ViveSync_json.h")
 
-target_link_libraries(com_osvr_Vive ViveLoaderLib)
+target_link_libraries(com_osvr_Vive ViveLoaderLib JsonCpp::JsonCpp)
 target_include_directories(com_osvr_Vive
     PRIVATE
     ${EIGEN3_INCLUDE_DIR})

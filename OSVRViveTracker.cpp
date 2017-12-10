@@ -32,6 +32,7 @@
 #include "com_osvr_Vive_json.h"
 
 // Library/third-party includes
+#include "json/reader.h"
 #include <boost/assert.hpp>
 #include <osvr/Util/EigenCoreGeometry.h>
 #include <osvr/Util/EigenInterop.h>
@@ -49,8 +50,9 @@ namespace vive {
     /// sensor numbers in SteamVR and for tracking
     static const auto HMD_SENSOR = 0;
     static const auto CONTROLLER_SENSORS = {1, 2};
-    static const auto PUCK_SENSOR = 3;
     static const auto MAX_CONTROLLER_ID = 2;
+    static const auto BASE_STATIONS_SENSORS = {3, 4};
+    static const auto PUCK_SENSOR = 5;
 
     static const auto NUM_ANALOGS = 7;
     static const auto NUM_BUTTONS = 14;
@@ -79,6 +81,11 @@ namespace vive {
     static const auto TRACKPAD_X_ANALOG_OFFSET = 0;
     static const auto TRACKPAD_Y_ANALOG_OFFSET = 1;
     static const auto TRIGGER_ANALOG_OFFSET = 2;
+
+    /// Device descriptor values
+    static const auto TRACKER_VALUE = "tracker";
+    static const auto PUCK_KEY = "pucks";
+    static const auto SEMANTIC_KEY = "semantic";
 
     /// Add a util::time::TimeValue and a std::chrono::duration, returning a
     /// TimeValue again.
@@ -117,7 +124,8 @@ namespace vive {
     ViveDriverHost::ViveDriverHost()
         : m_universeXform(Eigen::Isometry3d::Identity()),
           m_universeRotation(Eigen::Quaterniond::Identity()),
-          m_logger(osvr::util::log::make_logger(PREFIX)) {}
+          m_logger(osvr::util::log::make_logger(PREFIX)),
+          m_puckIdx(PUCK_SENSOR), m_devDescriptor(com_osvr_Vive_json) {}
 
     ViveDriverHost::StartResult
     ViveDriverHost::start(OSVR_PluginRegContext ctx,
@@ -139,7 +147,7 @@ namespace vive {
                 m_logger->info("null input device");
                 return false;
             }
-            auto ret = activateDevice(dev, eDeviceClass);
+            auto ret = activateDevice(serialNum, dev, eDeviceClass);
             if (!ret) {
                 m_logger->error("Device with serial number ")
                     << serialNum << " couldn't be added to the devices vector.";
@@ -215,7 +223,7 @@ namespace vive {
         m_dev.initSync(ctx, "Vive", opts);
 
         /// Send JSON descriptor
-        m_dev.sendJsonDescriptor(com_osvr_Vive_json);
+        m_dev.sendJsonDescriptor(m_devDescriptor);
 
         /// Register update callback
         m_dev.registerUpdateCallback(this);
@@ -292,9 +300,10 @@ namespace vive {
     }
 
     ViveDriverHost::DevIdReturnValue
-    ViveDriverHost::activateDevice(vr::ITrackedDeviceServerDriver *dev,
+    ViveDriverHost::activateDevice(const char *serialNumber,
+                                   vr::ITrackedDeviceServerDriver *dev,
                                    vr::ETrackedDeviceClass trackedDeviceClass) {
-        auto ret = activateDeviceImpl(dev, trackedDeviceClass);
+        auto ret = activateDeviceImpl(serialNumber, dev, trackedDeviceClass);
         vr::TrackedDeviceIndex_t idx = ret.value;
         auto mfrProp = getProperty<Props::ManufacturerName>(idx);
         auto modelProp = getProperty<Props::ModelNumber>(idx);
@@ -311,7 +320,7 @@ namespace vive {
     }
 
     ViveDriverHost::DevIdReturnValue ViveDriverHost::activateDeviceImpl(
-        vr::ITrackedDeviceServerDriver *dev,
+        const char *serialNumber, vr::ITrackedDeviceServerDriver *dev,
         vr::ETrackedDeviceClass trackedDeviceClass) {
         auto &devs = m_vive->devices();
         if (getComponent<vr::IVRDisplayComponent>(dev)) {
@@ -325,11 +334,30 @@ namespace vive {
             /// This is a controller.... or a puck!
             if (trackedDeviceClass ==
                 vr::ETrackedDeviceClass::TrackedDeviceClass_GenericTracker) {
-                // puck
-                return devs.addAndActivateDeviceAt(dev, PUCK_SENSOR);
+                /// find the next available device id because number of pucks
+                /// is dynamic
+                while (devs.hasDeviceAt(m_puckIdx)) {
+                    m_puckIdx++;
+                }
+                auto ret = devs.addAndActivateDeviceAt(dev, m_puckIdx);
+                // need to update device descriptor
+                AddDeviceToDevDescriptor(serialNumber, m_puckIdx);
+                DeviceDescriptorUpdated();
+                m_puckIdx++;
+                return ret;
             }
             // controllers
             for (auto ctrlIdx : CONTROLLER_SENSORS) {
+                if (!devs.hasDeviceAt(ctrlIdx)) {
+                    return devs.addAndActivateDeviceAt(dev, ctrlIdx);
+                }
+            }
+        }
+
+        /// this is a base station
+        if (trackedDeviceClass ==
+            vr::ETrackedDeviceClass::TrackedDeviceClass_TrackingReference) {
+            for (auto ctrlIdx : BASE_STATIONS_SENSORS) {
                 if (!devs.hasDeviceAt(ctrlIdx)) {
                     return devs.addAndActivateDeviceAt(dev, ctrlIdx);
                 }
@@ -787,13 +815,47 @@ namespace vive {
                          state, eventTimeOffset);
         }
     }
-#if 0
-    void
-    ViveDriverHost::DeviceDescriptorUpdated(std::string const &json) {
 
-        m_dev.sendJsonDescriptor(json);
+    void ViveDriverHost::DeviceDescriptorUpdated() {
+        try {
+            m_dev.sendJsonDescriptor(m_devDescriptor);
+        } catch (std::logic_error &e) {
+            /// dev token hasn't been activated yet
+            /// we already update device descriptor so it will be sent once
+            /// token is activated
+            m_logger->info(e.what());
+        }
     }
-#endif
+
+    void ViveDriverHost::AddDeviceToDevDescriptor(const char *serialNumber,
+                                                  uint32_t deviceIndex) {
+
+        m_logger->debug("AddDeviceToDevDescriptor, serialNumber: ")
+            << std::string(serialNumber);
+
+        Json::Value root;
+        Json::Reader reader;
+        if (!reader.parse(m_devDescriptor, root)) {
+            m_logger->error("Could not parse device descriptor");
+        } else {
+            std::ostringstream trackerVal;
+            trackerVal << TRACKER_VALUE << "/" << deviceIndex;
+            std::string puckAlias = serialNumber;
+            /// in case serial number is not available
+            if (puckAlias.empty()) {
+                m_logger->info("Serial number not available. Using device "
+                               "index to enumerate Vive Tracker (Puck) in "
+                               "device descriptor");
+                uint32_t puckIdx = deviceIndex - PUCK_SENSOR;
+                puckAlias = std::to_string(puckIdx);
+            }
+            root[SEMANTIC_KEY][PUCK_KEY][puckAlias] = trackerVal.str();
+            m_logger->info("Added Vive Tracker (Puck) : "
+                           "/com_osvr_Vive/Vive/semantic/pucks/")
+                << puckAlias << " -> /com_osvr_Vive/Vive/" << trackerVal.str();
+            m_devDescriptor = root.toStyledString();
+        }
+    }
 
 } // namespace vive
 } // namespace osvr
