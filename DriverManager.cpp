@@ -51,3 +51,8 @@ uint32_t DriverManager::GetDriverName(vr::DriverId_t nDriver, char *pchValue,
     }
     return 0;
 }
+
+DriverHandle_t DriverManager::GetDriverHandle(const char *pchDriverName) {
+    m_logger->info("GetDriverHandle(") << pchDriverName << ")";
+    return 0;
+}
