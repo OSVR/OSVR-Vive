@@ -26,8 +26,10 @@
 #define INCLUDED_DriverContext_h_GUID_36B19EC5_76DE_49B4_5B1A_37B88E5E6C42
 
 // Internal
+#include "DriverInput.h"
 #include "DriverLog.h"
 #include "DriverManager.h"
+#include "IOBuffer.h"
 #include "Properties.h"
 #include "Resources.h"
 #include "ServerDriverHost.h"
@@ -49,7 +51,8 @@ class DriverContext : public vr::IVRDriverContext {
     DriverContext(vr::ServerDriverHost *serverDriverHost,
                   vr::Settings *settings, vr::DriverLog *driverLog,
                   vr::Properties *properties, vr::DriverManager *driverManager,
-                  vr::Resources *resources);
+                  vr::Resources *resources, vr::IOBuffer *ioBuffer,
+                  vr::DriverInput *driverInput);
 
     /// Returns the requested interface. If the interface was not available
     /// it will return NULL and fill out the error.
@@ -66,6 +69,8 @@ class DriverContext : public vr::IVRDriverContext {
     vr::IVRDriverLog *m_pVRDriverLog;
     vr::IVRDriverManager *m_pVRDriverManager;
     vr::IVRResources *m_pVRResources;
+    vr::IVRDriverInput *m_pVRDriverInput;
+    vr::IVRIOBuffer *m_pVRIOBuffer;
 };
 
 } // namespace vr

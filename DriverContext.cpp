@@ -42,10 +42,12 @@ DriverContext::DriverContext(vr::ServerDriverHost *serverDriverHost,
                              vr::Settings *settings, vr::DriverLog *driverLog,
                              vr::Properties *properties,
                              vr::DriverManager *driverManager,
-                             vr::Resources *resources)
+                             vr::Resources *resources, vr::IOBuffer *ioBuffer,
+                             vr::DriverInput *driverInput)
     : m_pServerDriverHost(serverDriverHost), m_pVRProperties(properties),
       m_pVRSetting(settings), m_pVRDriverLog(driverLog),
-      m_pVRDriverManager(driverManager), m_pVRResources(resources) {}
+      m_pVRDriverManager(driverManager), m_pVRResources(resources),
+      m_pVRIOBuffer(ioBuffer), m_pVRDriverInput(driverInput) {}
 
 // only consider four type of interfaces
 void *DriverContext::GetGenericInterface(const char *pchInterfaceVersion,
@@ -63,6 +65,10 @@ void *DriverContext::GetGenericInterface(const char *pchInterfaceVersion,
         return m_pVRDriverManager;
     } else if (interfaceVersion.compare(IVRResources_Version) == 0) {
         return m_pVRResources;
+    } else if (interfaceVersion.compare(IVRIOBuffer_Version) == 0) {
+        return m_pVRIOBuffer;
+    } else if (interfaceVersion.compare(IVRDriverInput_Version) == 0) {
+        return m_pVRDriverInput;
     } else {
         std::string errMsg = "Got an unhandled interface type version - " +
                              std::string(pchInterfaceVersion);
