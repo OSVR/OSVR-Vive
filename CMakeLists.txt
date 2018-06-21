@@ -94,6 +94,8 @@ add_library(ViveLoaderLib STATIC
     DeviceHolder.h
     DriverContext.cpp
     DriverContext.h
+    DriverInput.cpp
+    DriverInput.h
     DriverLoader.cpp
     DriverLoader.h
     DriverLog.cpp
@@ -106,6 +108,8 @@ add_library(ViveLoaderLib STATIC
     GetComponent.h
     GetProvider.h
     InterfaceTraits.h
+    IOBuffer.cpp
+    IOBuffer.h
     PropertyHelper.h
     PropertyTraits.h
     Properties.cpp
