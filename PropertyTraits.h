@@ -97,7 +97,10 @@ namespace vive {
         ParentDriver = vr::Prop_ParentDriver_Uint64,
         ResourceRoot = vr::Prop_ResourceRoot_String,
         RegisteredDeviceType = vr::Prop_RegisteredDeviceType_String,
-        InputProfileName = vr::Prop_InputProfileName_String,
+        InputProfilePath = vr::Prop_InputProfilePath_String,
+        NeverTracked = vr::Prop_NeverTracked_Bool,
+        NumCameras = vr::Prop_NumCameras_Int32,
+        CameraFrameLayout = vr::Prop_CameraFrameLayout_Int32,
         ReportsTimeSinceVSync = vr::Prop_ReportsTimeSinceVSync_Bool,
         SecondsFromVsyncToPhotons = vr::Prop_SecondsFromVsyncToPhotons_Float,
         DisplayFrequency = vr::Prop_DisplayFrequency_Float,
@@ -159,6 +162,22 @@ namespace vive {
         NamedIconPathTrackingReferenceDeviceOff =
             vr::Prop_NamedIconPathTrackingReferenceDeviceOff_String,
         DoNotApplyPrediction = vr::Prop_DoNotApplyPrediction_Bool,
+        DistortionMeshResolution = vr::Prop_DistortionMeshResolution_Int32,
+        DriverIsDrawingControllers = vr::Prop_DriverIsDrawingControllers_Bool,
+        DriverRequestsApplicationPause =
+            vr::Prop_DriverRequestsApplicationPause_Bool,
+        DriverRequestsReducedRendering =
+            vr::Prop_DriverRequestsReducedRendering_Bool,
+        MinimumIpdStepMeters = vr::Prop_MinimumIpdStepMeters_Float,
+        AudioBridgeFirmwareVersion = vr::Prop_AudioBridgeFirmwareVersion_Uint64,
+        ImageBridgeFirmwareVersion = vr::Prop_ImageBridgeFirmwareVersion_Uint64,
+        ImuToHeadTransform = vr::Prop_ImuToHeadTransform_Matrix34,
+        ImuFactoryGyroBias = vr::Prop_ImuFactoryGyroBias_Vector3,
+        ImuFactoryGyroScale = vr::Prop_ImuFactoryGyroScale_Vector3,
+        ImuFactoryAccelerometerBias =
+            vr::Prop_ImuFactoryAccelerometerBias_Vector3,
+        ImuFactoryAccelerometerScale =
+            vr::Prop_ImuFactoryAccelerometerScale_Vector3,
         AttachedDeviceId = vr::Prop_AttachedDeviceId_String,
         SupportedButtons = vr::Prop_SupportedButtons_Uint64,
         Axis0Type = vr::Prop_Axis0Type_Int32,
@@ -195,7 +214,9 @@ namespace vive {
         HasCameraComponent = vr::Prop_HasCameraComponent_Bool,
         HasDriverDirectModeComponent =
             vr::Prop_HasDriverDirectModeComponent_Bool,
-        HasVirtualDisplayComponent = vr::Prop_HasVirtualDisplayComponent_Bool
+        HasVirtualDisplayComponent = vr::Prop_HasVirtualDisplayComponent_Bool,
+        ControllerType = vr::Prop_ControllerType_String,
+        LegacyInputProfile = vr::Prop_LegacyInputProfile_String
     };
     namespace detail {
         template <std::size_t EnumVal> struct PropertyTypeTrait;
@@ -331,8 +352,17 @@ namespace vive {
         struct PropertyTypeTrait<vr::Prop_RegisteredDeviceType_String> {
             using type = std::string;
         };
-        template <> struct PropertyTypeTrait<vr::Prop_InputProfileName_String> {
+        template <> struct PropertyTypeTrait<vr::Prop_InputProfilePath_String> {
             using type = std::string;
+        };
+        template <> struct PropertyTypeTrait<vr::Prop_NeverTracked_Bool> {
+            using type = bool;
+        };
+        template <> struct PropertyTypeTrait<vr::Prop_NumCameras_Int32> {
+            using type = int32_t;
+        };
+        template <> struct PropertyTypeTrait<vr::Prop_CameraFrameLayout_Int32> {
+            using type = int32_t;
         };
         template <>
         struct PropertyTypeTrait<vr::Prop_ReportsTimeSinceVSync_Bool> {
@@ -534,6 +564,55 @@ namespace vive {
         struct PropertyTypeTrait<vr::Prop_DoNotApplyPrediction_Bool> {
             using type = bool;
         };
+        template <>
+        struct PropertyTypeTrait<vr::Prop_DistortionMeshResolution_Int32> {
+            using type = int32_t;
+        };
+        template <>
+        struct PropertyTypeTrait<vr::Prop_DriverIsDrawingControllers_Bool> {
+            using type = bool;
+        };
+        template <>
+        struct PropertyTypeTrait<vr::Prop_DriverRequestsApplicationPause_Bool> {
+            using type = bool;
+        };
+        template <>
+        struct PropertyTypeTrait<vr::Prop_DriverRequestsReducedRendering_Bool> {
+            using type = bool;
+        };
+        template <>
+        struct PropertyTypeTrait<vr::Prop_MinimumIpdStepMeters_Float> {
+            using type = float;
+        };
+        template <>
+        struct PropertyTypeTrait<vr::Prop_AudioBridgeFirmwareVersion_Uint64> {
+            using type = uint64_t;
+        };
+        template <>
+        struct PropertyTypeTrait<vr::Prop_ImageBridgeFirmwareVersion_Uint64> {
+            using type = uint64_t;
+        };
+        template <>
+        struct PropertyTypeTrait<vr::Prop_ImuToHeadTransform_Matrix34> {
+            using type = vr::HmdMatrix34_t;
+        };
+        template <>
+        struct PropertyTypeTrait<vr::Prop_ImuFactoryGyroBias_Vector3> {
+            using type = vr::HmdVector3d_t;
+        };
+        template <>
+        struct PropertyTypeTrait<vr::Prop_ImuFactoryGyroScale_Vector3> {
+            using type = vr::HmdVector3d_t;
+        };
+        template <>
+        struct PropertyTypeTrait<vr::Prop_ImuFactoryAccelerometerBias_Vector3> {
+            using type = vr::HmdVector3d_t;
+        };
+        template <>
+        struct PropertyTypeTrait<
+            vr::Prop_ImuFactoryAccelerometerScale_Vector3> {
+            using type = vr::HmdVector3d_t;
+        };
         template <> struct PropertyTypeTrait<vr::Prop_AttachedDeviceId_String> {
             using type = std::string;
         };
@@ -647,6 +726,13 @@ namespace vive {
         template <>
         struct PropertyTypeTrait<vr::Prop_HasVirtualDisplayComponent_Bool> {
             using type = bool;
+        };
+        template <> struct PropertyTypeTrait<vr::Prop_ControllerType_String> {
+            using type = std::string;
+        };
+        template <>
+        struct PropertyTypeTrait<vr::Prop_LegacyInputProfile_String> {
+            using type = std::string;
         };
     } // namespace detail
 
