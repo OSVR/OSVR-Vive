@@ -55,10 +55,6 @@ namespace vive {
         static const char *get() { return vr::IVRDisplayComponent_Version; }
     };
 
-    template <> struct InterfaceNameTrait<vr::IVRControllerComponent> {
-        static const char *get() { return vr::IVRControllerComponent_Version; }
-    };
-
     template <> struct InterfaceNameTrait<vr::IVRCameraComponent> {
         static const char *get() { return vr::IVRCameraComponent_Version; }
     };
@@ -99,10 +95,6 @@ namespace vive {
 
     template <>
     struct InterfaceExpectedFromGetComponent<vr::IVRDisplayComponent>
-        : std::true_type {};
-
-    template <>
-    struct InterfaceExpectedFromGetComponent<vr::IVRControllerComponent>
         : std::true_type {};
 
     template <>

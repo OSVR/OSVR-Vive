@@ -29,11 +29,13 @@
 #include "ChaperoneData.h"
 #include "DeviceHolder.h"
 #include "DriverContext.h"
+#include "DriverInput.h"
 #include "DriverLoader.h"
 #include "DriverLog.h"
 #include "DriverManager.h"
 #include "FindDriver.h"
 #include "GetProvider.h"
+#include "IOBuffer.h"
 #include "Properties.h"
 #include "Resources.h"
 #include "ServerDriverHost.h"
@@ -152,8 +154,6 @@ namespace vive {
         /// A list of just the interface names we actually use.
         static const auto interfaceNamesWeCareAbout = {
             "ITrackedDeviceServerDriver", "IVRDisplayComponent",
-            "IVRControllerComponent", //< @todo do we actually use/cast to
-                                      // this interface?
             "IServerTrackedDeviceProvider", "IVRWatchdogProvider"};
 
     } // namespace detail
@@ -274,9 +274,9 @@ namespace vive {
             properties_ = new vr::Properties();
             driverManager_ = new vr::DriverManager();
             resources_ = new vr::Resources();
-            context_ =
-                new vr::DriverContext(serverDriverHost_, settings_, driverLog_,
-                                      properties_, driverManager_, resources_);
+            context_ = new vr::DriverContext(
+                serverDriverHost_, settings_, driverLog_, properties_,
+                driverManager_, resources_, ioBuffer_, driverInput_);
 
             vr::EVRInitError err;
             err = Init();
@@ -441,6 +441,8 @@ namespace vive {
         vr::Properties *properties_;
         vr::DriverManager *driverManager_;
         vr::Resources *resources_;
+        vr::IOBuffer *ioBuffer_;
+        vr::DriverInput *driverInput_;
     };
 } // namespace vive
 } // namespace osvr
