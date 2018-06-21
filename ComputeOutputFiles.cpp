@@ -51,8 +51,8 @@ static inline std::string getBinaryLocation() { return std::string{}; }
 #endif
 
 namespace fs = boost::filesystem;
-using boost::filesystem::path;
 using boost::filesystem::exists;
+using boost::filesystem::path;
 
 namespace osvr {
 namespace vive {

@@ -77,9 +77,9 @@ namespace vive {
 #endif
 
 #if defined(OSVR_USING_FILESYSTEM_TR2)
+    using std::tr2::sys::exists;
     using std::tr2::sys::path;
     using std::tr2::sys::wpath;
-    using std::tr2::sys::exists;
 #elif defined(OSVR_USING_FILESYSTEM_EXPERIMENTAL)
     using std::experimental::filesystem::path;
 #ifdef _WIN32
@@ -89,8 +89,8 @@ namespace vive {
 #endif
     using std::experimental::filesystem::exists;
 #elif defined(OSVR_USING_BOOST_FILESYSTEM)
-    using boost::filesystem::path;
     using boost::filesystem::exists;
+    using boost::filesystem::path;
 #endif
 
 #ifdef OSVR_MACOSX

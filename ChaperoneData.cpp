@@ -194,7 +194,6 @@ namespace vive {
                        << chapInfoFn;
                     os << " - details [" << message << "]";
                     errorOut_(os.str());
-
                 });
             if (!valid()) {
                 /// this means our fail handler got called.
