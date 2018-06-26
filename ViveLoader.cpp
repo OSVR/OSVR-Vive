@@ -65,13 +65,7 @@ static void whatIsThisDevice(vr::ITrackedDeviceServerDriver *dev,
         }
     }
 
-    {
-        auto controller =
-            osvr::vive::getComponent<vr::IVRControllerComponent>(dev);
-        if (controller) {
-            std::cout << PREFIX << "-- it's a controller, too!" << std::endl;
-        }
-    }
+    /// todo need to add implementation for identifying controller
 
     {
         auto cam = osvr::vive::getComponent<vr::IVRCameraComponent>(dev);
