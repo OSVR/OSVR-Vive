@@ -61,29 +61,6 @@ class ServerDriverHost : public vr::IVRServerDriverHost {
 
     virtual void VsyncEvent(double vsyncTimeOffsetSeconds);
 
-    virtual void TrackedDeviceButtonPressed(uint32_t unWhichDevice,
-                                            EVRButtonId eButtonId,
-                                            double eventTimeOffset);
-
-    virtual void TrackedDeviceButtonUnpressed(uint32_t unWhichDevice,
-                                              EVRButtonId eButtonId,
-                                              double eventTimeOffset);
-
-    virtual void TrackedDeviceButtonTouched(uint32_t unWhichDevice,
-                                            EVRButtonId eButtonId,
-                                            double eventTimeOffset);
-
-    virtual void TrackedDeviceButtonUntouched(uint32_t unWhichDevice,
-                                              EVRButtonId eButtonId,
-                                              double eventTimeOffset);
-
-    virtual void TrackedDeviceAxisUpdated(uint32_t unWhichDevice,
-                                          uint32_t unWhichAxis,
-                                          const VRControllerAxis_t &axisState);
-
-    virtual void ProximitySensorState(uint32_t unWhichDevice,
-                                      bool bProximitySensorTriggered);
-
     virtual void VendorSpecificEvent(uint32_t unWhichDevice,
                                      vr::EVREventType eventType,
                                      const VREvent_Data_t &eventData,

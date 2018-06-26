@@ -329,31 +329,35 @@ namespace vive {
             return devs.addAndActivateDeviceAt(dev, HMD_SENSOR);
         }
 
+/// todo need to replace implementation on how to identify
+/// controllers
+#if 0
         if (getComponent<vr::IVRControllerComponent>(dev)) {
-
-            /// This is a controller.... or a puck!
-            if (trackedDeviceClass ==
-                vr::ETrackedDeviceClass::TrackedDeviceClass_GenericTracker) {
-                /// find the next available device id because number of pucks
-                /// is dynamic
-                while (devs.hasDeviceAt(m_puckIdx)) {
-                    m_puckIdx++;
-                }
-                auto ret = devs.addAndActivateDeviceAt(dev, m_puckIdx);
-                // need to update device descriptor
-                AddDeviceToDevDescriptor(serialNumber, m_puckIdx);
-                DeviceDescriptorUpdated();
+#endif
+        /// This is a controller.... or a puck!
+        if (trackedDeviceClass ==
+            vr::ETrackedDeviceClass::TrackedDeviceClass_GenericTracker) {
+            /// find the next available device id because number of pucks
+            /// is dynamic
+            while (devs.hasDeviceAt(m_puckIdx)) {
                 m_puckIdx++;
-                return ret;
             }
-            // controllers
-            for (auto ctrlIdx : CONTROLLER_SENSORS) {
-                if (!devs.hasDeviceAt(ctrlIdx)) {
-                    return devs.addAndActivateDeviceAt(dev, ctrlIdx);
-                }
+            auto ret = devs.addAndActivateDeviceAt(dev, m_puckIdx);
+            // need to update device descriptor
+            AddDeviceToDevDescriptor(serialNumber, m_puckIdx);
+            DeviceDescriptorUpdated();
+            m_puckIdx++;
+            return ret;
+        }
+        // controllers
+        for (auto ctrlIdx : CONTROLLER_SENSORS) {
+            if (!devs.hasDeviceAt(ctrlIdx)) {
+                return devs.addAndActivateDeviceAt(dev, ctrlIdx);
             }
         }
-
+#if 0
+        }
+#endif
         /// this is a base station
         if (trackedDeviceClass ==
             vr::ETrackedDeviceClass::TrackedDeviceClass_TrackingReference) {
@@ -590,6 +594,8 @@ namespace vive {
                              newPose);
     }
 
+/// todo new to get proximity state
+#if 0
     void ViveDriverHost::ProximitySensorState(uint32_t unWhichDevice,
                                               bool bProximitySensorTriggered) {
         if (unWhichDevice != 0) {
@@ -597,6 +603,7 @@ namespace vive {
         }
         submitButton(PROX_SENSOR_BUTTON_OFFSET, bProximitySensorTriggered, 0);
     }
+#endif
 
     std::pair<vr::ITrackedDeviceServerDriver *, bool>
     ViveDriverHost::getDriverPtr(uint32_t unWhichDevice) {
@@ -682,6 +689,8 @@ namespace vive {
         }
     }
 
+    /// todo add new implementation to handle DriverInput
+#if 0
     void ViveDriverHost::TrackedDeviceButtonPressed(uint32_t unWhichDevice,
                                                     EVRButtonId eButtonId,
                                                     double eventTimeOffset) {
@@ -739,7 +748,7 @@ namespace vive {
             break;
         }
     }
-
+#endif
     void ViveDriverHost::handleTrackedButtonPressUnpress(uint32_t unWhichDevice,
                                                          EVRButtonId eButtonId,
                                                          double eventTimeOffset,

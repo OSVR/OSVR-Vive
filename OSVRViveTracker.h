@@ -117,29 +117,6 @@ namespace vive {
                                       const DriverPose_t &newPose,
                                       uint32_t unPoseStructSize) override;
 
-        void ProximitySensorState(uint32_t unWhichDevice,
-                                  bool bProximitySensorTriggered) override;
-
-        void TrackedDeviceButtonPressed(uint32_t unWhichDevice,
-                                        EVRButtonId eButtonId,
-                                        double eventTimeOffset) override;
-
-        void TrackedDeviceButtonUnpressed(uint32_t unWhichDevice,
-                                          EVRButtonId eButtonId,
-                                          double eventTimeOffset) override;
-
-        void TrackedDeviceButtonTouched(uint32_t unWhichDevice,
-                                        EVRButtonId eButtonId,
-                                        double eventTimeOffset) override;
-
-        void TrackedDeviceButtonUntouched(uint32_t unWhichDevice,
-                                          EVRButtonId eButtonId,
-                                          double eventTimeOffset) override;
-
-        void
-        TrackedDeviceAxisUpdated(uint32_t unWhichDevice, uint32_t unWhichAxis,
-                                 const VRControllerAxis_t &axisState) override;
-
         IVRSettings *GetSettings(const char *) { return nullptr; }
         /// @}
 
@@ -147,7 +124,7 @@ namespace vive {
         /// Called when more than 1 puck is connected
         /// todo Can be expanded to add controllers
         void AddDeviceToDevDescriptor(const char *serialNumber,
-                                    uint32_t deviceIndex);
+                                      uint32_t deviceIndex);
 
         void DeviceDescriptorUpdated();
 
