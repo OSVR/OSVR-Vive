@@ -178,6 +178,26 @@ namespace vive {
             vr::Prop_ImuFactoryAccelerometerBias_Vector3,
         ImuFactoryAccelerometerScale =
             vr::Prop_ImuFactoryAccelerometerScale_Vector3,
+        ConfigurationIncludesLighthouse20Features =
+            vr::Prop_ConfigurationIncludesLighthouse20Features_Bool,
+        DriverRequestedMuraCorrectionMode =
+            vr::Prop_DriverRequestedMuraCorrectionMode_Int32,
+        DriverRequestedMuraFeather_InnerLeft =
+            vr::Prop_DriverRequestedMuraFeather_InnerLeft_Int32,
+        DriverRequestedMuraFeather_InnerRight =
+            vr::Prop_DriverRequestedMuraFeather_InnerRight_Int32,
+        DriverRequestedMuraFeather_InnerTop =
+            vr::Prop_DriverRequestedMuraFeather_InnerTop_Int32,
+        DriverRequestedMuraFeather_InnerBottom =
+            vr::Prop_DriverRequestedMuraFeather_InnerBottom_Int32,
+        DriverRequestedMuraFeather_OuterLeft =
+            vr::Prop_DriverRequestedMuraFeather_OuterLeft_Int32,
+        DriverRequestedMuraFeather_OuterRight =
+            vr::Prop_DriverRequestedMuraFeather_OuterRight_Int32,
+        DriverRequestedMuraFeather_OuterTop =
+            vr::Prop_DriverRequestedMuraFeather_OuterTop_Int32,
+        DriverRequestedMuraFeather_OuterBottom =
+            vr::Prop_DriverRequestedMuraFeather_OuterBottom_Int32,
         AttachedDeviceId = vr::Prop_AttachedDeviceId_String,
         SupportedButtons = vr::Prop_SupportedButtons_Uint64,
         Axis0Type = vr::Prop_Axis0Type_Int32,
@@ -215,6 +235,7 @@ namespace vive {
         HasDriverDirectModeComponent =
             vr::Prop_HasDriverDirectModeComponent_Bool,
         HasVirtualDisplayComponent = vr::Prop_HasVirtualDisplayComponent_Bool,
+        HasSpatialAnchorsSupport = vr::Prop_HasSpatialAnchorsSupport_Bool,
         ControllerType = vr::Prop_ControllerType_String,
         LegacyInputProfile = vr::Prop_LegacyInputProfile_String
     };
@@ -613,6 +634,56 @@ namespace vive {
             vr::Prop_ImuFactoryAccelerometerScale_Vector3> {
             using type = vr::HmdVector3d_t;
         };
+        template <>
+        struct PropertyTypeTrait<
+            vr::Prop_ConfigurationIncludesLighthouse20Features_Bool> {
+            using type = bool;
+        };
+        template <>
+        struct PropertyTypeTrait<
+            vr::Prop_DriverRequestedMuraCorrectionMode_Int32> {
+            using type = int32_t;
+        };
+        template <>
+        struct PropertyTypeTrait<
+            vr::Prop_DriverRequestedMuraFeather_InnerLeft_Int32> {
+            using type = int32_t;
+        };
+        template <>
+        struct PropertyTypeTrait<
+            vr::Prop_DriverRequestedMuraFeather_InnerRight_Int32> {
+            using type = int32_t;
+        };
+        template <>
+        struct PropertyTypeTrait<
+            vr::Prop_DriverRequestedMuraFeather_InnerTop_Int32> {
+            using type = int32_t;
+        };
+        template <>
+        struct PropertyTypeTrait<
+            vr::Prop_DriverRequestedMuraFeather_InnerBottom_Int32> {
+            using type = int32_t;
+        };
+        template <>
+        struct PropertyTypeTrait<
+            vr::Prop_DriverRequestedMuraFeather_OuterLeft_Int32> {
+            using type = int32_t;
+        };
+        template <>
+        struct PropertyTypeTrait<
+            vr::Prop_DriverRequestedMuraFeather_OuterRight_Int32> {
+            using type = int32_t;
+        };
+        template <>
+        struct PropertyTypeTrait<
+            vr::Prop_DriverRequestedMuraFeather_OuterTop_Int32> {
+            using type = int32_t;
+        };
+        template <>
+        struct PropertyTypeTrait<
+            vr::Prop_DriverRequestedMuraFeather_OuterBottom_Int32> {
+            using type = int32_t;
+        };
         template <> struct PropertyTypeTrait<vr::Prop_AttachedDeviceId_String> {
             using type = std::string;
         };
@@ -725,6 +796,10 @@ namespace vive {
         };
         template <>
         struct PropertyTypeTrait<vr::Prop_HasVirtualDisplayComponent_Bool> {
+            using type = bool;
+        };
+        template <>
+        struct PropertyTypeTrait<vr::Prop_HasSpatialAnchorsSupport_Bool> {
             using type = bool;
         };
         template <> struct PropertyTypeTrait<vr::Prop_ControllerType_String> {
