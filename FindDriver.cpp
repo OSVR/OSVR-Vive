@@ -147,7 +147,29 @@ namespace vive {
         return ret;
     }
 
-#elif defined(OSVR_MACOSX) || defined(OSVR_LINUX)
+#elif defined(OSVR_LINUX)
+    inline Json::Value getPathConfig() {
+        auto home = std::getenv("HOME");
+        path homePath =
+            (nullptr == home
+                 ? path{"~"}
+                 /*that's weird, should have been in environment...*/
+                 : path{home});
+        auto vrPaths = homePath / path{".config"} / path{"openvr"} /
+                       path{"openvrpaths.vrpath"};
+
+        std::ifstream is(vrPaths.string());
+        Json::Value ret;
+        if (!is) {
+            std::cerr << "Could not open file containing path configuration "
+                         "- have you run SteamVR yet? "
+                      << vrPaths << "\n";
+            return ret;
+        }
+        parsePathConfigFile(is, ret);
+        return ret;
+    }
+#elif defined(OSVR_MACOSX)
     inline Json::Value getPathConfig() {
         auto home = std::getenv("HOME");
         path homePath =
