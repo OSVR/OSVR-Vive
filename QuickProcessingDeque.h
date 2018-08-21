@@ -57,13 +57,7 @@ namespace vive {
         /// Must hold the lock.
         void submitNew(value_type const &v, lock_type &lock) {
             if (verifyLocked<lock_type>(lock)) {
-                deque_.push_back(v);
-            }
-        }
-
-        void submitNew(value_type &&v, lock_type &lock) {
-            if (verifyLocked<lock_type>(lock)) {
-                deque_.emplace_back(std::move(v));
+                deque_.emplace_back(v);
             }
         }
 

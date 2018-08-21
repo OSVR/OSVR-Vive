@@ -156,7 +156,7 @@ namespace vive {
             NewDeviceReport out{std::string{serialNum}, ret.value};
             {
                 std::lock_guard<std::mutex> lock(m_mutex);
-                m_newDevices.submitNew(std::move(out), lock);
+                m_newDevices.submitNew(out, lock);
             }
             return true;
         };
@@ -394,7 +394,7 @@ namespace vive {
         out.report = newPose;
         {
             std::lock_guard<std::mutex> lock(m_mutex);
-            m_trackingReports.submitNew(std::move(out), lock);
+            m_trackingReports.submitNew(out, lock);
         }
     }
 
@@ -404,7 +404,7 @@ namespace vive {
         out.newUniverse = newUniverse;
         {
             std::lock_guard<std::mutex> lock(m_mutex);
-            m_trackingReports.submitNew(std::move(out), lock);
+            m_trackingReports.submitNew(out, lock);
         }
     }
 
@@ -418,7 +418,7 @@ namespace vive {
             (state ? OSVR_BUTTON_PRESSED : OSVR_BUTTON_NOT_PRESSED != 0);
         {
             std::lock_guard<std::mutex> lock(m_mutex);
-            m_buttonReports.submitNew(std::move(out), lock);
+            m_buttonReports.submitNew(out, lock);
         }
     }
 
@@ -429,7 +429,7 @@ namespace vive {
         out.value = value;
         {
             std::lock_guard<std::mutex> lock(m_mutex);
-            m_analogReports.submitNew(std::move(out), lock);
+            m_analogReports.submitNew(out, lock);
         }
     }
 
@@ -443,7 +443,7 @@ namespace vive {
         out.value2 = value2;
         {
             std::lock_guard<std::mutex> lock(m_mutex);
-            m_analogReports.submitNew(std::move(out), lock);
+            m_analogReports.submitNew(out, lock);
         }
     }
     static inline const char *
