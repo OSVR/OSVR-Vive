@@ -64,6 +64,11 @@ class ViveSyncDevice {
         m_dev.registerUpdateCallback(this);
     }
 
+    ViveSyncDevice(ViveSyncDevice const &) = delete;
+    ViveSyncDevice(ViveSyncDevice &&) = delete;
+    ViveSyncDevice &operator=(ViveSyncDevice const &) = delete;
+    ViveSyncDevice &operator=(ViveSyncDevice &&) = delete;
+
     ~ViveSyncDevice() {
         /// @todo organize the order of members so we don't have to manually
         /// delete smart pointers.
