@@ -80,18 +80,8 @@ else()
 endif()
 
 # Figure out where config files, like display descriptors, should go.
-if(OSVR_CACHED_CONFIG_ROOT)
-    # Using a new enough core that it indicates this for us, hooray!
-    set(OSVR_CONFIG_ROOT "${OSVR_CACHED_CONFIG_ROOT}")
-else()
-    # TODO remove this once enough time has passed after merging
-    # https://github.com/OSVR/OSVR-Core/pull/402
-    if(WIN32)
-        set(OSVR_CONFIG_ROOT "${CMAKE_INSTALL_BINDIR}")
-    else()
-        set(OSVR_CONFIG_ROOT "${CMAKE_INSTALL_DATAROOTDIR}/osvrcore")
-    endif()
-endif()
+set(OSVR_CONFIG_ROOT "${OSVR_CACHED_CONFIG_ROOT}")
+
 set(OSVRVIVE_BIN_DIR ${CMAKE_INSTALL_BINDIR})
 # Generate configured header with this information.
 configure_file(PathConfig.h.in "${CMAKE_CURRENT_BINARY_DIR}/PathConfig.h")
