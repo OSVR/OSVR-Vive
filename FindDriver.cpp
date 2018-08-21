@@ -29,7 +29,6 @@
 #include <boost/iostreams/stream.hpp>
 #include <json/reader.h>
 #include <json/value.h>
-#include <osvr/Util/Finally.h>
 #include <osvr/Util/PlatformConfig.h>
 
 // Standard includes
@@ -51,8 +50,6 @@
 #endif
 
 #undef VIVELOADER_VERBOSE
-
-using osvr::util::finally;
 
 namespace osvr {
 namespace vive {
