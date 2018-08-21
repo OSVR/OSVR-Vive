@@ -57,6 +57,11 @@ namespace vive {
         explicit ChaperoneData(std::string steamConfigDir);
         ~ChaperoneData();
 
+        ChaperoneData(ChaperoneData &&) = delete;
+        ChaperoneData(ChaperoneData const &) = delete;
+        ChaperoneData &operator=(ChaperoneData &&) = delete;
+        ChaperoneData &operator=(ChaperoneData const &) = delete;
+
         using UniverseId = std::uint64_t;
 
         bool valid() const;
