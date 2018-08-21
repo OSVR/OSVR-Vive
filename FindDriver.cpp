@@ -174,7 +174,9 @@ namespace vive {
                  ? path{"~"}
                  /*that's weird, should have been in environment...*/
                  : path{home});
-        auto vrPaths = homePath / path{".openvr"} / path{"openvrpaths.vrpath"};
+        auto vrPaths = homePath / path{"Library"} /
+                       path{"Application Support"} / path{"OpenVR"} /
+                       path{".openvr"} / path{"openvrpaths.vrpath"};
 
         std::ifstream is(vrPaths.string());
         Json::Value ret;
