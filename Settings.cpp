@@ -66,17 +66,17 @@ bool Settings::GetBool(const char *pchSection, const char *pchSettingsKey,
                        vr::EVRSettingsError *peError) {
     m_logger->debug("GetBool: ") << pchSection << ", " << pchSettingsKey;
     if (m_settingStore.contains<bool>(pchSettingsKey)) {
-        bool val = m_settingStore.get<bool>(pchSettingsKey);
-        return val;
-    } else {
-        m_logger->info("GetBool doesn't contain the settingKey: ")
-            << pchSettingsKey;
-        peError = new vr::EVRSettingsError(VRSettingsError_ReadFailed);
-        return false;
+        return m_settingStore.get<bool>(pchSettingsKey);
     }
+    m_logger->info("GetBool doesn't contain the settingsKey: ")
+        << pchSettingsKey;
+    if (peError != nullptr) {
+        *peError = VRSettingsError_ReadFailed;
+    }
+    return false;
 }
 void Settings::SetBool(const char *pchSection, const char *pchSettingsKey,
-                       bool bValue, vr::EVRSettingsError *peError) {
+                       bool bValue, vr::EVRSettingsError * /*peError*/) {
     m_logger->debug("SetBool: ") << pchSection << ", " << pchSettingsKey;
     m_settingStore.set<bool>(pchSettingsKey, bValue);
 }
@@ -85,17 +85,18 @@ int32_t Settings::GetInt32(const char *pchSection, const char *pchSettingsKey,
                            vr::EVRSettingsError *peError) {
     m_logger->debug("GetInt32: ") << pchSection << ", " << pchSettingsKey;
     if (m_settingStore.contains<int32_t>(pchSettingsKey)) {
-        int32_t val = m_settingStore.get<int32_t>(pchSettingsKey);
-        return val;
-    } else {
-        m_logger->info("GetInt32 doesn't contain the settingKey: ")
-            << pchSettingsKey;
-        peError = new vr::EVRSettingsError(VRSettingsError_ReadFailed);
-        return 0;
+        return m_settingStore.get<int32_t>(pchSettingsKey);
     }
+    m_logger->info("GetInt32 doesn't contain the settingsKey: ")
+        << pchSettingsKey;
+    if (peError != nullptr) {
+        *peError = VRSettingsError_ReadFailed;
+    }
+    return 0;
 }
+
 void Settings::SetInt32(const char *pchSection, const char *pchSettingsKey,
-                        int32_t nValue, vr::EVRSettingsError *peError) {
+                        int32_t nValue, vr::EVRSettingsError * /*peError*/) {
     m_logger->debug("SetInt32: ") << pchSection << ", " << pchSettingsKey;
     m_settingStore.set<int32_t>(pchSettingsKey, nValue);
 }
@@ -104,18 +105,18 @@ float Settings::GetFloat(const char *pchSection, const char *pchSettingsKey,
                          vr::EVRSettingsError *peError) {
     m_logger->debug("GetFloat: ") << pchSection << ", " << pchSettingsKey;
     if (m_settingStore.contains<float>(pchSettingsKey)) {
-        float val = m_settingStore.get<float>(pchSettingsKey);
-        return val;
-    } else {
-        m_logger->info("GetFloat doesn't contain the settingKey: ")
-            << pchSettingsKey;
-        peError = new vr::EVRSettingsError(VRSettingsError_ReadFailed);
-        return 0;
+        return m_settingStore.get<float>(pchSettingsKey);
     }
+    m_logger->info("GetFloat doesn't contain the settingsKey: ")
+        << pchSettingsKey;
+    if (peError != nullptr) {
+        *peError = VRSettingsError_ReadFailed;
+    }
+    return 0;
 }
 
 void Settings::SetFloat(const char *pchSection, const char *pchSettingsKey,
-                        float flValue, vr::EVRSettingsError *peError) {
+                        float flValue, vr::EVRSettingsError * /*peError*/) {
     m_logger->debug("SetFloat: ") << pchSection << ", " << pchSettingsKey;
     m_settingStore.set<float>(pchSettingsKey, flValue);
 }
@@ -125,37 +126,42 @@ void Settings::GetString(const char *pchSection, const char *pchSettingsKey,
                          vr::EVRSettingsError *peError) {
     m_logger->debug("GetString: ")
         << pchSection << ", " << pchSettingsKey << ", " << unValueLen;
-    if (m_settingStore.contains<std::string>(pchSettingsKey)) {
-        std::string val = m_settingStore.get<std::string>(pchSettingsKey);
-        if (unValueLen < val.length()) {
-            peError = new vr::EVRSettingsError(VRSettingsError_ReadFailed);
-        } else {
-            auto ret = valveStrCpy(val, pchValue, unValueLen);
-            if (!ret) {
-                peError = new vr::EVRSettingsError(VRSettingsError_ReadFailed);
-            }
-        }
-    } else {
-        m_logger->info("GetString doesn't contain the settingKey: ")
+    if (!m_settingStore.contains<std::string>(pchSettingsKey)) {
+        m_logger->info("GetString doesn't contain the settingsKey: ")
             << pchSettingsKey;
-        peError = new vr::EVRSettingsError(VRSettingsError_ReadFailed);
+        if (peError != nullptr) {
+            *peError = VRSettingsError_ReadFailed;
+        }
+        return;
+    }
+    std::string val = m_settingStore.get<std::string>(pchSettingsKey);
+    if (unValueLen < val.length() + 1) {
+        if (peError != nullptr) {
+            *peError = VRSettingsError_ReadFailed;
+        }
+        return;
+    }
+    auto ret = valveStrCpy(val, pchValue, unValueLen);
+    if (ret == 0u && peError != nullptr) {
+        *peError = VRSettingsError_ReadFailed;
     }
 }
 
 void Settings::SetString(const char *pchSection, const char *pchSettingsKey,
-                         const char *pchValue, vr::EVRSettingsError *peError) {
+                         const char *pchValue,
+                         vr::EVRSettingsError * /*peError*/) {
     m_logger->debug("SetString: ") << pchSection << ", " << pchSettingsKey;
     m_settingStore.set<std::string>(pchSettingsKey, pchValue);
 }
 
 void Settings::RemoveSection(const char *pchSection,
-                             vr::EVRSettingsError *peError) {
+                             vr::EVRSettingsError * /*peError*/) {
     m_logger->debug("We don't remove section: ") << pchSection;
 }
 
 void Settings::RemoveKeyInSection(const char *pchSection,
                                   const char *pchSettingsKey,
-                                  vr::EVRSettingsError *peError) {
+                                  vr::EVRSettingsError * /*peError*/) {
     m_logger->debug("RemoveKeyInSection: ")
         << pchSection << ", " << pchSettingsKey;
     m_settingStore.erase(pchSettingsKey);
