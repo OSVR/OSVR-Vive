@@ -25,6 +25,19 @@ find_package(JsonCpp REQUIRED)
 find_package(Boost REQUIRED COMPONENTS system iostreams filesystem)
 find_package(Eigen3 REQUIRED)
 
+include(CMakeDependentOption)
+
+find_program(CLANGTIDY_COMMAND
+    NAMES
+    clang-tidy
+    clang-tidy.exe
+    clang-tidy-6.0
+    clang-tidy-6.0.exe)
+cmake_dependent_option(BUILD_WITH_CLANG_TIDY "Run the clang-tidy static analysis/lint tool during the build?" ON
+    "CLANGTIDY_COMMAND" OFF)
+cmake_dependent_option(BUILD_WITH_CLANG_TIDY_FIXIT "Run the clang-tidy static analysis/lint tool in --fix mode during the build?" OFF
+    "CLANGTIDY_COMMAND;BUILD_WITH_CLANG_TIDY" OFF)
+
 #
 # Third-party libraries
 #
@@ -158,6 +171,7 @@ target_include_directories(com_osvr_Vive
     PRIVATE
     ${EIGEN3_INCLUDE_DIR})
 
+set(TARGETS com_osvr_Vive ViveLoaderLib)
 if(BUILD_EXTRA_TOOLS)
     # Build the executable
     add_executable(ViveLoader
@@ -170,6 +184,7 @@ if(BUILD_EXTRA_TOOLS)
         GenerateTypedPropertyEnums.cpp)
     target_link_libraries(GenerateTypedPropertyEnums PRIVATE JsonCpp::JsonCpp osvr::osvrUtil)
     target_include_directories(GenerateTypedPropertyEnums PRIVATE ${Boost_INCLUDE_DIRS})
+    list(APPEND TARGETS ViveLoader GenerateTypedPropertyEnums)
 endif()
 
 # Build another tool
@@ -186,6 +201,20 @@ target_link_libraries(ViveDisplayExtractor PRIVATE ViveLoaderLib JsonCpp::JsonCp
 copy_imported_targets(ViveDisplayExtractor osvr::osvrUtil)
 install(TARGETS ViveDisplayExtractor
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+list(APPEND TARGETS ViveDisplayExtractor)
+
+foreach(TARGET ${TARGETS})
+    if(BUILD_WITH_CLANG_TIDY_FIXIT)
+            set_target_properties(
+                ${TARGET} PROPERTIES
+                CXX_CLANG_TIDY "${CLANGTIDY_COMMAND};--fix")
+    elseif(BUILD_WITH_CLANG_TIDY_FIXIT)
+            set_target_properties(
+                ${TARGET} PROPERTIES
+                CXX_CLANG_TIDY "${CLANGTIDY_COMMAND}")
+    endif()
+endforeach()
 
 # Install files for the plugin.
 install(FILES
