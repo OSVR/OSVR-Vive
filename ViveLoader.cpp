@@ -43,7 +43,7 @@ static void whatIsThisDevice(vr::ITrackedDeviceServerDriver *dev,
                              vr::TrackedDeviceIndex_t idx) {
     {
         auto disp = osvr::vive::getComponent<vr::IVRDisplayComponent>(dev);
-        if (disp) {
+        if (disp != nullptr) {
             std::cout << PREFIX << "-- it's a display, too!" << std::endl;
             vr::ETrackedPropertyError err;
             uint64_t universe = 0;
@@ -69,7 +69,7 @@ static void whatIsThisDevice(vr::ITrackedDeviceServerDriver *dev,
 
     {
         auto cam = osvr::vive::getComponent<vr::IVRCameraComponent>(dev);
-        if (cam) {
+        if (cam != nullptr) {
             std::cout << PREFIX << "-- it's a camera, too!" << std::endl;
         }
     }
@@ -101,7 +101,7 @@ void lookForUniverseData(osvr::vive::DriverWrapper &vive) {
     vr::TrackedDeviceIndex_t idx = 0;
     for (auto &devPtr :
          vive.devices().rawDeviceVectorAccess_NOT_RECOMMENDED_TODO_FIXME()) {
-        if (!devPtr) {
+        if (devPtr == nullptr) {
             continue;
         }
         vr::ETrackedPropertyError err;
@@ -165,7 +165,7 @@ int main() {
                                vr::ETrackedDeviceClass eDeviceClass,
                                vr::ITrackedDeviceServerDriver *pDriver) {
         auto dev = pDriver;
-        if (!dev) {
+        if (dev == nullptr) {
             std::cout << PREFIX << "null input device" << std::endl;
             return false;
         }
@@ -231,7 +231,7 @@ int main() {
     case osvr::vive::DriverWrapper::InterfaceVersionStatus::InterfaceMismatch:
         std::cerr << PREFIX
                   << "Unavailable interface version strings:" << std::endl;
-        for (auto iface : vive.getUnsupportedRequestedInterfaces()) {
+        for (const auto &iface : vive.getUnsupportedRequestedInterfaces()) {
             std::cerr << PREFIX << " - " << iface << std::endl;
         }
         break;

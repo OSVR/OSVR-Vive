@@ -46,9 +46,9 @@ bool ServerDriverHost::TrackedDeviceAdded(const char *pchDeviceSerialNumber,
     return true;
 }
 
-void ServerDriverHost::TrackedDevicePoseUpdated(uint32_t unWhichDevice,
-                                                const DriverPose_t &newPose,
-                                                uint32_t unPoseStructSize) {
+void ServerDriverHost::TrackedDevicePoseUpdated(
+    uint32_t unWhichDevice, const DriverPose_t & /*newPose*/,
+    uint32_t /*unPoseStructSize*/) {
     logger_->debug("TrackedDevicePoseUpdated(") << unWhichDevice << ")";
 }
 
@@ -57,8 +57,8 @@ void ServerDriverHost::VsyncEvent(double vsyncTimeOffsetSeconds) {
 }
 
 void ServerDriverHost::VendorSpecificEvent(uint32_t unWhichDevice,
-                                           vr::EVREventType eventType,
-                                           const VREvent_Data_t &eventData,
+                                           vr::EVREventType /*eventType*/,
+                                           const VREvent_Data_t & /*eventData*/,
                                            double eventTimeOffset) {
     logger_->info("VendorSpecificEvent(")
         << unWhichDevice << ", eventType, eventData, " << eventTimeOffset
@@ -70,14 +70,15 @@ bool ServerDriverHost::IsExiting() {
     return isExiting_;
 }
 
-bool ServerDriverHost::PollNextEvent(VREvent_t *pEvent, uint32_t uncbVREvent) {
+bool ServerDriverHost::PollNextEvent(VREvent_t * /*pEvent*/,
+                                     uint32_t uncbVREvent) {
     logger_->debug("PollNextEvent(") << uncbVREvent << ")";
     return false;
 }
 
 void ServerDriverHost::GetRawTrackedDevicePoses(
     float fPredictedSecondsFromNow,
-    TrackedDevicePose_t *pTrackedDevicePoseArray,
+    TrackedDevicePose_t * /*pTrackedDevicePoseArray*/,
     uint32_t unTrackedDevicePoseArrayCount) {
     logger_->debug("GetRawTrackedDevicePoses(")
         << fPredictedSecondsFromNow << ", " << unTrackedDevicePoseArrayCount
@@ -85,8 +86,8 @@ void ServerDriverHost::GetRawTrackedDevicePoses(
 }
 
 void ServerDriverHost::TrackedDeviceDisplayTransformUpdated(
-    uint32_t unWhichDevice, HmdMatrix34_t eyeToHeadLeft,
-    HmdMatrix34_t eyeToHeadRight) {
+    uint32_t unWhichDevice, HmdMatrix34_t /*eyeToHeadLeft*/,
+    HmdMatrix34_t /*eyeToHeadRight*/) {
     logger_->debug("TrackedDeviceDisplayTransformUpdated(")
         << unWhichDevice << ", eyeToHeadLeft, eyeToHeadRight)";
 }

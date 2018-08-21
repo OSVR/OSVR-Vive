@@ -66,7 +66,7 @@ namespace vive {
                 FreeLibrary(driver_);
             }
 #elif defined(OSVR_MACOSX) || defined(OSVR_LINUX)
-            if (driver_) {
+            if (driver_ != nullptr) {
                 dlclose(driver_);
             }
 #endif
@@ -98,13 +98,13 @@ namespace vive {
         factory_ = reinterpret_cast<DriverFactory>(proc);
 #elif defined(OSVR_LINUX) || defined(OSVR_MACOSX)
         impl_->driver_ = dlopen(driverFile.c_str(), RTLD_NOW | RTLD_GLOBAL);
-        if (!impl_->driver_) {
+        if (impl_->driver_ == nullptr) {
             reset();
             throw CouldNotLoadDriverModule(dlerror());
         }
 
         auto proc = dlsym(impl_->driver_, ENTRY_POINT_FUNCTION_NAME);
-        if (!proc) {
+        if (proc == nullptr) {
             reset();
             throw CouldNotLoadEntryPoint(dlerror());
         }

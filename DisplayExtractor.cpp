@@ -43,6 +43,7 @@
 #include <chrono>
 #include <cmath>
 #include <fstream>
+#include <memory>
 #include <thread>
 #include <tuple>
 
@@ -66,7 +67,7 @@ inline UnitClippingPlane getClippingPlanes(vr::IVRDisplayComponent *display,
     return ret;
 }
 
-void updateCenterOfProjection(DisplayDescriptor &descriptor,
+void updateCenterOfProjection(DisplayDescriptor & /*descriptor*/,
                               vr::TrackedDeviceIndex_t idx) {
     /// Get the two eye/lens center of projections.
     using CenterOfProjectionIndices =
@@ -253,8 +254,8 @@ void handleDisplay(vr::TrackedDeviceIndex_t idx,
 
 int main() {
     {
-        g_descriptor.reset(
-            new DisplayDescriptor(osvr::util::makeString(viveDisplayInput)));
+        g_descriptor = std::make_unique<DisplayDescriptor>(
+            osvr::util::makeString(viveDisplayInput));
         if (!(*g_descriptor)) {
             std::cerr << PREFIX
                       << "Could not parse template for display descriptor."
@@ -275,7 +276,7 @@ int main() {
                                    vr::ETrackedDeviceClass eDeviceClass,
                                    vr::ITrackedDeviceServerDriver *pDriver) {
             auto dev = pDriver;
-            if (!dev) {
+            if (dev == nullptr) {
                 std::cout << PREFIX << "null input device" << std::endl;
                 return false;
             }
@@ -315,7 +316,7 @@ int main() {
                          "interface versions - either too old or too new for "
                          "this build. Cannot continue."
                       << std::endl;
-            for (auto iface : vive.getUnsupportedRequestedInterfaces()) {
+            for (const auto &iface : vive.getUnsupportedRequestedInterfaces()) {
                 if (osvr::vive::isInterfaceNameWeCareAbout(iface)) {
                     auto supported =
                         vive.getSupportedInterfaceVersions()
@@ -339,7 +340,7 @@ int main() {
                 vr::ITrackedDeviceServerDriver *dev = &(devHolder.getDevice(i));
                 auto disp =
                     osvr::vive::getComponent<vr::IVRDisplayComponent>(dev);
-                if (disp) {
+                if (disp != nullptr) {
                     std::cout << PREFIX
                               << "-- it's a display, too! We'll extract its "
                                  "display parameters now."

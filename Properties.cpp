@@ -62,12 +62,12 @@ OSVRVIVE_DEFINE_PROPERTY_TYPE_TAG(vr::HmdVector2_t, k_unHiddenAreaPropertyTag);
 #undef OSVRVIVE_DEFINE_PROPERTY_TYPE_TAG
 
 struct GetContainedTypeTag : boost::static_visitor<PropertyTypeTag_t> {
-    template <typename T> PropertyTypeTag_t operator()(T const &val) {
+    template <typename T> PropertyTypeTag_t operator()(T const & /*unused*/) {
         return PropertyTypeTagTrait<T>::value;
     }
 };
 struct ValueSizeGetter : boost::static_visitor<std::size_t> {
-    template <typename T> std::size_t operator()(T const &) const {
+    template <typename T> std::size_t operator()(T const & /*unused*/) const {
         return sizeof(T);
     }
     std::size_t operator()(std::string const &s) const {
@@ -86,7 +86,7 @@ struct ValueGetter : boost::static_visitor<> {
         *reinterpret_cast<T *>(batchEntry_->pvBuffer) = val;
     }
     void operator()(std::string const &s) const {
-        char *strBuf = reinterpret_cast<char *>(batchEntry_->pvBuffer);
+        auto *strBuf = reinterpret_cast<char *>(batchEntry_->pvBuffer);
         valveStrCpy(s, strBuf, batchEntry_->unBufferSize);
     }
 
@@ -129,7 +129,7 @@ Properties::Properties()
     locations = osvr::vive::findLocationInfoForDriver();
     if (locations.driverFound) {
         addDeviceAt(0);
-        vr::PropertyWrite_t writeBatch;
+        vr::PropertyWrite_t writeBatch{};
         writeBatch.prop = Prop_UserConfigPath_String;
         writeBatch.writeType = PropertyWrite_Set;
         std::string userConfigPath = locations.driverConfigDir;

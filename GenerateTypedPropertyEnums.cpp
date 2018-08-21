@@ -39,6 +39,7 @@
 #include <set>
 #include <sstream>
 #include <string>
+#include <utility>
 #include <vector>
 
 static const auto indent = "    ";
@@ -146,7 +147,7 @@ inline std::string getTypenameForTypeSuffix(std::string const &suffix) {
 /// Structure that decomposes a full name of an enum value into a clean name and
 /// a type suffix.
 struct NameDecomp {
-    explicit NameDecomp(std::string const &enumName) : name(enumName) {
+    explicit NameDecomp(std::string enumName) : name(std::move(enumName)) {
 
         // Before the regex, search for known type suffixes.
         for (auto const &pair : g_typeSuffixToTypename) {

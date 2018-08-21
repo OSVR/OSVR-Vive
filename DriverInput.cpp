@@ -38,7 +38,7 @@ DriverInput::DriverInput()
 EVRInputError
 DriverInput::CreateBooleanComponent(PropertyContainerHandle_t ulContainer,
                                     const char *pchName,
-                                    VRInputComponentHandle_t *pHandle) {
+                                    VRInputComponentHandle_t * /*pHandle*/) {
     m_logger->info("CreateBooleanComponent(")
         << ulContainer << ", " << pchName << ")";
 
@@ -89,7 +89,7 @@ DriverInput::CreateHapticComponent(PropertyContainerHandle_t ulContainer,
 EVRInputError DriverInput::CreateSkeletonComponent(
     PropertyContainerHandle_t ulContainer, const char *pchName,
     const char *pchSkeletonPath, const char *pchBasePosePath,
-    const VRBoneTransform_t *pGripLimitTransforms,
+    const VRBoneTransform_t * /*pGripLimitTransforms*/,
     uint32_t unGripLimitTransformCount, VRInputComponentHandle_t *pHandle) {
     m_logger->info("CreateSkeletonComponent(")
         << ulContainer << ", " << pchName << ", " << pchSkeletonPath << ", "
@@ -101,7 +101,7 @@ EVRInputError DriverInput::CreateSkeletonComponent(
 
 EVRInputError
 DriverInput::UpdateSkeletonComponent(VRInputComponentHandle_t ulComponent,
-                                     const VRBoneTransform_t *pTransforms,
+                                     const VRBoneTransform_t * /*pTransforms*/,
                                      uint32_t unTransformCount) {
     m_logger->info("UpdateSkeletonComponent(")
         << ulComponent << ", " << unTransformCount << ")";

@@ -31,7 +31,7 @@
 #include "com_osvr_ViveSync_json.h"
 
 // Library/third-party includes
-#include <math.h>
+#include <cmath>
 #include <openvr_driver.h>
 
 // Standard includes
@@ -46,7 +46,7 @@
 // Anonymous namespace to avoid symbol collision
 namespace {
 
-static const auto PREFIX = "OSVR-Vive";
+const auto PREFIX = "OSVR-Vive";
 
 class ViveSyncDevice {
   public:
@@ -158,9 +158,7 @@ class ViveSyncDevice {
 class HardwareDetection {
 
   public:
-    HardwareDetection()
-        : m_startedInSuccess(false),
-          m_logger(osvr::util::log::make_logger(PREFIX)) {}
+    HardwareDetection() : m_logger(osvr::util::log::make_logger(PREFIX)) {}
 
     OSVR_ReturnCode operator()(OSVR_PluginRegContext ctx) {
         if (m_startedInSuccess) {
@@ -168,7 +166,7 @@ class HardwareDetection {
         }
 
         auto vivePtr = startupAndGetVive();
-        if (!vivePtr) {
+        if (vivePtr == nullptr) {
             /// There was trouble in early startup
             return OSVR_RETURN_FAILURE;
         }
@@ -233,7 +231,7 @@ class HardwareDetection {
     osvr::vive::DriverHostPtr m_driverHost;
     osvr::util::log::LoggerPtr m_logger;
 
-    bool m_startedInSuccess;
+    bool m_startedInSuccess{false};
 };
 } // namespace
 

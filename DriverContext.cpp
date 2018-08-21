@@ -51,30 +51,36 @@ DriverContext::DriverContext(vr::ServerDriverHost *serverDriverHost,
 
 // only consider four type of interfaces
 void *DriverContext::GetGenericInterface(const char *pchInterfaceVersion,
-                                         vr::EVRInitError *peError) {
-    std::string interfaceVersion = pchInterfaceVersion;
-    if (interfaceVersion.compare(IVRServerDriverHost_Version) == 0) {
+                                         vr::EVRInitError * /*peError*/) {
+    const auto interfaceVersion = std::string{pchInterfaceVersion};
+    if (interfaceVersion == IVRServerDriverHost_Version) {
         return m_pServerDriverHost;
-    } else if (interfaceVersion.compare(IVRSettings_Version) == 0) {
-        return m_pVRSetting;
-    } else if (interfaceVersion.compare(IVRProperties_Version) == 0) {
-        return m_pVRProperties;
-    } else if (interfaceVersion.compare(IVRDriverLog_Version) == 0) {
-        return m_pVRDriverLog;
-    } else if (interfaceVersion.compare(IVRDriverManager_Version) == 0) {
-        return m_pVRDriverManager;
-    } else if (interfaceVersion.compare(IVRResources_Version) == 0) {
-        return m_pVRResources;
-    } else if (interfaceVersion.compare(IVRIOBuffer_Version) == 0) {
-        return m_pVRIOBuffer;
-    } else if (interfaceVersion.compare(IVRDriverInput_Version) == 0) {
-        return m_pVRDriverInput;
-    } else {
-        std::string errMsg = "Got an unhandled interface type version - " +
-                             std::string(pchInterfaceVersion);
-        m_pVRDriverLog->Log(errMsg.c_str());
-        return nullptr;
     }
+    if (interfaceVersion == IVRSettings_Version) {
+        return m_pVRSetting;
+    }
+    if (interfaceVersion == IVRProperties_Version) {
+        return m_pVRProperties;
+    }
+    if (interfaceVersion == IVRDriverLog_Version) {
+        return m_pVRDriverLog;
+    }
+    if (interfaceVersion == IVRDriverManager_Version) {
+        return m_pVRDriverManager;
+    }
+    if (interfaceVersion == IVRResources_Version) {
+        return m_pVRResources;
+    }
+    if (interfaceVersion == IVRIOBuffer_Version) {
+        return m_pVRIOBuffer;
+    }
+    if (interfaceVersion == IVRDriverInput_Version) {
+        return m_pVRDriverInput;
+    }
+    std::string errMsg = "Got an unhandled interface type version - " +
+                         std::string(pchInterfaceVersion);
+    m_pVRDriverLog->Log(errMsg.c_str());
+    return nullptr;
 }
 
 // not sure which driver handle to return now

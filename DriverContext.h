@@ -69,8 +69,8 @@ class DriverContext : public vr::IVRDriverContext {
     vr::IVRDriverLog *m_pVRDriverLog;
     vr::IVRDriverManager *m_pVRDriverManager;
     vr::IVRResources *m_pVRResources;
-    vr::IVRDriverInput *m_pVRDriverInput;
-    vr::IVRIOBuffer *m_pVRIOBuffer;
+    vr::IVRDriverInput *m_pVRDriverInput{};
+    vr::IVRIOBuffer *m_pVRIOBuffer{};
 };
 
 } // namespace vr

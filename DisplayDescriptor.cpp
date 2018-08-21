@@ -35,8 +35,8 @@
 
 // Standard includes
 #include <algorithm>
+#include <cfloat> // FLT_EPSILON
 #include <cmath>
-#include <float.h> // FLT_EPSILON
 #include <iostream>
 
 namespace osvr {
@@ -177,7 +177,7 @@ namespace vive {
         valid_ = true;
     }
 
-    DisplayDescriptor::~DisplayDescriptor() {}
+    DisplayDescriptor::~DisplayDescriptor() = default;
     void DisplayDescriptor::updateFovs(Fovs const &fovs) {
         Json::Value &fov = impl_->get("field_of_view");
         fov["monocular_horizontal"] = fovs.monoHoriz;

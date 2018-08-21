@@ -143,7 +143,7 @@ namespace vive {
                                    ETrackedDeviceClass eDeviceClass,
                                    ITrackedDeviceServerDriver *pDriver) {
             auto dev = pDriver;
-            if (!dev) {
+            if (dev == nullptr) {
                 m_logger->info("null input device");
                 return false;
             }
@@ -322,7 +322,7 @@ namespace vive {
         const char *serialNumber, vr::ITrackedDeviceServerDriver *dev,
         vr::ETrackedDeviceClass trackedDeviceClass) {
         auto &devs = m_vive->devices();
-        if (getComponent<vr::IVRDisplayComponent>(dev)) {
+        if (getComponent<vr::IVRDisplayComponent>(dev) != nullptr) {
             /// This is the HMD, since it has the display component.
             /// Always sensor 0.
             return devs.addAndActivateDeviceAt(dev, HMD_SENSOR);
@@ -410,11 +410,12 @@ namespace vive {
 
     void ViveDriverHost::submitButton(OSVR_ChannelCount sensor, bool state,
                                       double eventTimeOffset) {
-        ButtonReport out;
+        ButtonReport out{};
         out.timestamp =
             correctTimeByOffset(osvr::util::time::getNow(), eventTimeOffset);
         out.sensor = sensor;
-        out.buttonState = state ? OSVR_BUTTON_PRESSED : OSVR_BUTTON_NOT_PRESSED;
+        out.buttonState =
+            (state ? OSVR_BUTTON_PRESSED : OSVR_BUTTON_NOT_PRESSED != 0);
         {
             std::lock_guard<std::mutex> lock(m_mutex);
             m_buttonReports.submitNew(std::move(out), lock);
@@ -586,9 +587,10 @@ namespace vive {
             Quaterniond(AngleAxisd(univData.yaw, Vector3d::UnitY()));
     }
 
-    void ViveDriverHost::TrackedDevicePoseUpdated(uint32_t unWhichDevice,
-                                                  const DriverPose_t &newPose,
-                                                  uint32_t unPoseStructSize) {
+    void
+    ViveDriverHost::TrackedDevicePoseUpdated(uint32_t unWhichDevice,
+                                             const DriverPose_t &newPose,
+                                             uint32_t /*unPoseStructSize*/) {
         submitTrackingReport(unWhichDevice, osvr::util::time::getNow(),
                              newPose);
     }
@@ -617,7 +619,7 @@ namespace vive {
     void ViveDriverHost::getUniverseUpdateFromDevice(uint32_t unWhichDevice) {
         auto devRet = getDriverPtr(unWhichDevice);
         auto dev = devRet.first;
-        if (!dev) {
+        if (dev == nullptr) {
             // couldn't get the device
             return;
         }

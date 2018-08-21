@@ -33,9 +33,9 @@
 #include <osvr/Util/PlatformConfig.h>
 
 // Standard includes
+#include <climits>
 #include <fstream> // std::ifstream
 #include <iostream>
-#include <limits.h>
 #include <vector>
 
 #if defined(OSVR_USING_FILESYSTEM_HEADER)

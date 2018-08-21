@@ -162,9 +162,9 @@ namespace vive {
                            vr::ETrackedDeviceClass trackedDeviceClass);
 
         osvr::pluginkit::DeviceToken m_dev;
-        OSVR_TrackerDeviceInterface m_tracker;
-        OSVR_AnalogDeviceInterface m_analog;
-        OSVR_ButtonDeviceInterface m_button;
+        OSVR_TrackerDeviceInterface m_tracker{};
+        OSVR_AnalogDeviceInterface m_analog{};
+        OSVR_ButtonDeviceInterface m_button{};
 
         std::unique_ptr<osvr::vive::DriverWrapper> m_vive;
 
@@ -214,7 +214,7 @@ namespace vive {
                                    const DriverPose_t &newPose);
         void handleUniverseChange(std::uint64_t newUniverse);
 
-        OSVR_PluginRegContext m_ctx;
+        OSVR_PluginRegContext m_ctx{};
 
         std::uint64_t m_universeId = 0;
         Eigen::Isometry3d m_universeXform;

@@ -85,11 +85,11 @@ namespace vive {
         }
 
         Json::Value *distortion_ = nullptr;
-        std::array<Json::Value *, 3> colors_;
+        std::array<Json::Value *, 3> colors_{};
     };
 
     RGBPoints::RGBPoints() : impl_(new Impl) {}
-    RGBPoints::~RGBPoints() {}
+    RGBPoints::~RGBPoints() = default;
     void RGBPoints::addSample(Eye eye, Point2 const &inputUV,
                               Point2 const &outR, Point2 const &outG,
                               Point2 const &outB) {

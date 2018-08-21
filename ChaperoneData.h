@@ -50,11 +50,11 @@ namespace vive {
         using BaseStationSerials = std::vector<std::string>;
         struct UniverseData {
             CalibrationType type = CalibrationType::Standing;
-            std::array<double, 3> translation;
+            std::array<double, 3> translation{};
             double yaw = 0.;
         };
 
-        explicit ChaperoneData(std::string const &steamConfigDir);
+        explicit ChaperoneData(std::string steamConfigDir);
         ~ChaperoneData();
 
         using UniverseId = std::uint64_t;

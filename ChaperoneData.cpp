@@ -103,6 +103,7 @@ getFile(std::string const &fn,
 }
 #else
 #include <cstring> // strerror
+#include <utility>
 
 std::string
 getFile(std::string const &fn,
@@ -158,8 +159,8 @@ namespace vive {
             data.translation[i] = xlate[i].asDouble();
         }
     }
-    ChaperoneData::ChaperoneData(std::string const &steamConfigDir)
-        : impl_(new Impl), configDir_(steamConfigDir) {
+    ChaperoneData::ChaperoneData(std::string steamConfigDir)
+        : impl_(new Impl), configDir_(std::move(steamConfigDir)) {
         {
             Json::Reader reader;
             auto chapInfoFn =
@@ -215,7 +216,7 @@ namespace vive {
                 return;
             }
 
-            if (impl_->chaperoneInfo["universes"].size() == 0) {
+            if (impl_->chaperoneInfo["universes"].empty()) {
                 errorOut_("Chaperone info file at " + chapInfoFn +
                           " did not contain any known chaperone universes - "
                           "user must run Room Setup at least once");
@@ -236,10 +237,10 @@ namespace vive {
                         "No seated or standing calibration data for universe " +
                         univIdString + ", so had to skip it.");
                     continue;
-                } else {
-                    data.type = CalibrationType::Seated;
-                    loadJsonIntoUniverseData(seated, data);
                 }
+                data.type = CalibrationType::Seated;
+                loadJsonIntoUniverseData(seated, data);
+
             } else {
                 data.type = CalibrationType::Standing;
                 loadJsonIntoUniverseData(standing, data);
@@ -265,7 +266,7 @@ namespace vive {
         }
     }
 
-    ChaperoneData::~ChaperoneData() {}
+    ChaperoneData::~ChaperoneData() = default;
 
     bool ChaperoneData::valid() const { return static_cast<bool>(impl_); }
 
@@ -280,7 +281,7 @@ namespace vive {
     ChaperoneData::getDataForUniverse(UniverseId universe) const {
         auto it = impl_->universes.find(universe);
         if (it == end(impl_->universes)) {
-            return UniverseData();
+            return {};
         }
         return it->second;
     }

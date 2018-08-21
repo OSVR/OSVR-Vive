@@ -36,7 +36,7 @@ IOBuffer::IOBuffer() : m_logger(osvr::util::log::make_logger("IOBuffer")) {}
 
 vr::EIOBufferError IOBuffer::Open(const char *pchPath, vr::EIOBufferMode mode,
                                   uint32_t unElementSize, uint32_t unElements,
-                                  vr::IOBufferHandle_t *pulBuffer) {
+                                  vr::IOBufferHandle_t * /*pulBuffer*/) {
 
     m_logger->info("Open(") << pchPath << ", " << mode << ", " << unElementSize
                             << ", " << unElements << ")";
@@ -49,14 +49,15 @@ vr::EIOBufferError IOBuffer::Close(vr::IOBufferHandle_t ulBuffer) {
     return IOBuffer_OperationFailed;
 }
 
-vr::EIOBufferError IOBuffer::Read(vr::IOBufferHandle_t ulBuffer, void *pDst,
-                                  uint32_t unBytes, uint32_t *punRead) {
+vr::EIOBufferError IOBuffer::Read(vr::IOBufferHandle_t ulBuffer,
+                                  void * /*pDst*/, uint32_t unBytes,
+                                  uint32_t * /*punRead*/) {
     m_logger->info("Read(") << ulBuffer << "," << unBytes << ")";
     return IOBuffer_OperationFailed;
 }
 
-vr::EIOBufferError IOBuffer::Write(vr::IOBufferHandle_t ulBuffer, void *pSrc,
-                                   uint32_t unBytes) {
+vr::EIOBufferError IOBuffer::Write(vr::IOBufferHandle_t ulBuffer,
+                                   void * /*pSrc*/, uint32_t unBytes) {
     m_logger->info("Write(") << ulBuffer << "," << unBytes << ")";
     return IOBuffer_OperationFailed;
 }
