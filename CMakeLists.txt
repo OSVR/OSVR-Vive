@@ -9,7 +9,12 @@ include(CopyImportedTarget)
 include(GNUInstallDirs)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
-set(CMAKE_CXX_STANDARD 11)
+if(MSVC)
+    # Don't need 14 for std::make_unique on msvc
+    set(CMAKE_CXX_STANDARD 11)
+else()
+    set(CMAKE_CXX_STANDARD 14)
+endif()
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if(WIN32 OR ANDROID)
