@@ -141,29 +141,44 @@ inline std::string getTypenameForTypeSuffix(std::string const &suffix) {
 /// Structure that decomposes a full name of an enum value into a clean name and
 /// a type suffix.
 struct NameDecomp {
-    explicit NameDecomp(std::string const &name) {
+    explicit NameDecomp(std::string const &enumName) : name(enumName) {
+
+        // Before the regex, search for known type suffixes.
+        for (auto const &pair : g_typeSuffixToTypename) {
+            auto len = pair.first.length();
+            if (len >= name.length()) {
+                continue;
+            }
+            auto pos = name.length() - len;
+            if (name.substr(pos) == pair.first) {
+                // OK, we found this type
+                typeSuffix = pair.first;
+                static const auto partDecomposeRegex =
+                    std::regex{"^Prop_(.*)_$"};
+                std::smatch m;
+                auto typelessName = name.substr(0, pos);
+                std::regex_search(typelessName, m, partDecomposeRegex);
+                cleanName = m[1];
+                return;
+            }
+        }
+
+        // In the absence of a known type suffix, do the best we can with
+        // decomposing by regex. Will just result in a warning anyway.
         static const auto fullDecomposeRegex =
             std::regex{"^Prop_(.*)_([^_]*)$"};
+        std::smatch m;
         std::regex_search(name, m, fullDecomposeRegex);
         cleanName = m[1];
         typeSuffix = m[2];
     }
-    std::smatch m;
-    std::ssub_match cleanName;
-    std::ssub_match typeSuffix;
+    const std::string name;
+    std::string cleanName;
+    std::string typeSuffix;
 };
 
-/// Helper function that uses a simpler regex to just extract the type suffix,
-/// when that's all you want.
-inline std::string getTypeSuffix(std::string const &name) {
-    static const auto valTypeRegex = std::regex{"_([^_]*)$"};
-    std::smatch m;
-    std::regex_search(name, m, valTypeRegex);
-    return m[1];
-}
-
 bool processEnumValues(Json::Value const &values, std::ostream &output) {
-    std::vector<std::string> names;
+    std::vector<NameDecomp> names;
     for (auto &enumVal : values) {
         auto name = enumVal["name"].asString();
 
@@ -171,7 +186,7 @@ bool processEnumValues(Json::Value const &values, std::ostream &output) {
         if (shouldIgnoreType(d.typeSuffix) || (d.typeSuffix.length() == 0)) {
             continue;
         }
-        names.push_back(name);
+        names.push_back(d);
 #if 0
         std::cout << "Name: " << name << " Clean name: " << d.cleanName << " Value type: " << d.typeSuffix << std::endl;
 #endif
@@ -242,9 +257,9 @@ bool processEnumValues(Json::Value const &values, std::ostream &output) {
            << "template<std::size_t EnumVal> using PropertyType = "
               "typename PropertyTypeTrait<EnumVal>::type;"
            << std::endl;
-    for (auto &name : names) {
-        auto enumTypename = getTypenameForTypeSuffix(getTypeSuffix(name));
-        output << indent << "template<> struct PropertyTypeTrait<vr::" << name
+    for (auto &d : names) {
+        auto enumTypename = getTypenameForTypeSuffix(d.typeSuffix);
+        output << indent << "template<> struct PropertyTypeTrait<vr::" << d.name
                << "> { using type = " << enumTypename << "; };" << std::endl;
     }
     output << "} // namespace detail" << std::endl;
