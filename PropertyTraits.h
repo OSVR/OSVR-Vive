@@ -162,6 +162,7 @@ namespace vive {
         NamedIconPathTrackingReferenceDeviceOff =
             vr::Prop_NamedIconPathTrackingReferenceDeviceOff_String,
         DoNotApplyPrediction = vr::Prop_DoNotApplyPrediction_Bool,
+        CameraToHeadTransforms = vr::Prop_CameraToHeadTransforms_Matrix34_Array,
         DistortionMeshResolution = vr::Prop_DistortionMeshResolution_Int32,
         DriverIsDrawingControllers = vr::Prop_DriverIsDrawingControllers_Bool,
         DriverRequestsApplicationPause =
@@ -237,7 +238,7 @@ namespace vive {
         HasVirtualDisplayComponent = vr::Prop_HasVirtualDisplayComponent_Bool,
         HasSpatialAnchorsSupport = vr::Prop_HasSpatialAnchorsSupport_Bool,
         ControllerType = vr::Prop_ControllerType_String,
-        LegacyInputProfile = vr::Prop_LegacyInputProfile_String
+        LegacyInputProfile = vr::Prop_LegacyInputProfile_String,
     };
     namespace detail {
         template <std::size_t EnumVal> struct PropertyTypeTrait;
@@ -584,6 +585,11 @@ namespace vive {
         template <>
         struct PropertyTypeTrait<vr::Prop_DoNotApplyPrediction_Bool> {
             using type = bool;
+        };
+        template <>
+        struct PropertyTypeTrait<
+            vr::Prop_CameraToHeadTransforms_Matrix34_Array> {
+            using type = vr::HmdMatrix34_t *;
         };
         template <>
         struct PropertyTypeTrait<vr::Prop_DistortionMeshResolution_Int32> {
