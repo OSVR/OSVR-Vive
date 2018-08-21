@@ -120,9 +120,14 @@ std::vector<std::pair<std::string, std::string>> g_fullNameToTypeSuffix;
 std::vector<std::pair<std::string, std::string>> g_cleanNameToFullName;
 
 std::map<std::string, std::string> g_typeSuffixToTypename = {
-    {"String", "std::string"}, {"Bool", "bool"},
-    {"Float", "float"},        {"Matrix34", "vr::HmdMatrix34_t"},
-    {"Uint64", "uint64_t"},    {"Int32", "int32_t"},
+    {"String", "std::string"},
+    {"Bool", "bool"},
+    {"Float", "float"},
+    {"Matrix34", "vr::HmdMatrix34_t"},
+    {"Matrix34_Array", "vr::HmdMatrix34_t *"},
+    {"Vector3", "vr::HmdVector3d_t"},
+    {"Uint64", "uint64_t"},
+    {"Int32", "int32_t"},
     {"Binary", "void *"}};
 
 std::set<std::string> g_ambiguousNames;
