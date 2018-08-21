@@ -34,5 +34,5 @@
 using namespace vr;
 DriverLog::DriverLog() : logger_(osvr::util::log::make_logger("DriverLog")) {}
 void DriverLog::Log(const char *pchLogMessage) {
-    logger_->debug(pchLogMessage);
+    logger_->info(pchLogMessage);
 };
