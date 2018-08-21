@@ -41,6 +41,7 @@
 // Standard includes
 #include <array>
 #include <chrono>
+#include <memory>
 
 namespace osvr {
 namespace vive {
@@ -136,7 +137,7 @@ namespace vive {
             return StartResult::TemporaryFailure;
         }
         /// Take ownership of the Vive.
-        m_vive.reset(new osvr::vive::DriverWrapper(std::move(inVive)));
+        m_vive = std::make_unique<osvr::vive::DriverWrapper>(std::move(inVive));
 
         /// define the lambda to handle the ServerDriverHost::TrackedDeviceAdded
         auto handleNewDevice = [&](const char *serialNum,

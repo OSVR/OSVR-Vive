@@ -187,7 +187,8 @@ class HardwareDetection {
     /// Attempts the first part of startup, if required.
     osvr::vive::DriverWrapper *startupAndGetVive() {
         if (!m_viveWrapper) {
-            m_viveWrapper.reset(new osvr::vive::DriverWrapper(&getDriveHost()));
+            m_viveWrapper =
+                std::make_unique<osvr::vive::DriverWrapper>(&getDriveHost());
 
             if (m_viveWrapper->foundDriver()) {
                 m_logger->info("Found the Vive driver at ")
@@ -219,7 +220,7 @@ class HardwareDetection {
     /// Creates one if needed.
     osvr::vive::ViveDriverHost &getDriveHost() {
         if (!m_driverHost) {
-            m_driverHost.reset(new osvr::vive::ViveDriverHost);
+            m_driverHost = std::make_unique<osvr::vive::ViveDriverHost>();
         }
         return *m_driverHost.get();
     }
