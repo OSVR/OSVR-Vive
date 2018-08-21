@@ -155,9 +155,9 @@ namespace vive {
                                   ChaperoneData::UniverseData &data) {
         data.yaw = obj["yaw"].asDouble();
         auto &xlate = obj["translation"];
-        for (Json::Value::ArrayIndex i = 0; i < 3; ++i) {
-            data.translation[i] = xlate[i].asDouble();
-        }
+        data.translation[0] = xlate[0].asDouble();
+        data.translation[1] = xlate[1].asDouble();
+        data.translation[2] = xlate[2].asDouble();
     }
     ChaperoneData::ChaperoneData(std::string steamConfigDir)
         : impl_(new Impl), configDir_(std::move(steamConfigDir)) {
