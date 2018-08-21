@@ -112,8 +112,8 @@ static const auto endOfOutput = R"(
 )";
 
 inline bool shouldIgnoreType(std::string const &t) {
-    return t == "Start" ||
-           t == "End"; // ignore the sentinels that look like types.
+    return t == "Start" || t == "End" ||
+           t == "Max"; // ignore the sentinels that look like types.
 }
 
 std::vector<std::pair<std::string, std::string>> g_fullNameToTypeSuffix;
@@ -250,8 +250,9 @@ bool processEnumValues(Json::Value const &values, std::ostream &output) {
     output << indent
            << "template<std::size_t EnumVal> struct PropertyTypeTrait;"
            << std::endl;
-    output << indent << "template<std::size_t EnumVal> using PropertyType = "
-                        "typename PropertyTypeTrait<EnumVal>::type;"
+    output << indent
+           << "template<std::size_t EnumVal> using PropertyType = "
+              "typename PropertyTypeTrait<EnumVal>::type;"
            << std::endl;
     for (auto &name : names) {
         auto enumTypename = getTypenameForTypeSuffix(getTypeSuffix(name));
