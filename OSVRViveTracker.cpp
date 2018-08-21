@@ -415,8 +415,7 @@ namespace vive {
         out.timestamp =
             correctTimeByOffset(osvr::util::time::getNow(), eventTimeOffset);
         out.sensor = sensor;
-        out.buttonState =
-            (state ? OSVR_BUTTON_PRESSED : OSVR_BUTTON_NOT_PRESSED != 0);
+        out.buttonState = state;
         {
             std::lock_guard<std::mutex> lock(m_mutex);
             m_buttonReports.submitNew(out, lock);
