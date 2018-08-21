@@ -1,4 +1,17 @@
 ---
-Checks:          '*,-clang-analyzer-alpha*,-llvm-include-order,-google-*,-llvm-header-guard,-misc-use-override,-readability-named-parameter'
-HeaderFilterRegex: '.*'
+Checks:          'clang-diagnostic-*,clang-analyzer-*,modernize-*,cppcoreguidelines-*,performance-*,bugprone-*,cert-*,readability-*,misc-*,llvm-namespace-comment'
+WarningsAsErrors: ''
+AnalyzeTemporaryDtors: false
+FormatStyle:     file
+CheckOptions:
+  - key:             modernize-loop-convert.MinConfidence
+    value:           reasonable
+  - key:             modernize-loop-convert.NamingStyle
+    value:           CamelCase
+  - key:             modernize-pass-by-value.IncludeStyle
+    value:           llvm
+  - key:             modernize-replace-auto-ptr.IncludeStyle
+    value:           llvm
+  - key:             modernize-use-nullptr.NullMacros
+    value:           'NULL'
 ...
