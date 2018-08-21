@@ -3,6 +3,7 @@
 /.linter-clang-flags
 /.linter-clang-includes
 /compile_commands.json
+/.vscode/
 
 # Doxygen output
 /doxygen/
