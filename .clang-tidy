@@ -1,5 +1,5 @@
 ---
-Checks:          'clang-diagnostic-*,clang-analyzer-*,modernize-*,cppcoreguidelines-*,performance-*,bugprone-*,cert-*,readability-*,misc-*,llvm-namespace-comment'
+Checks:          'clang-diagnostic-*,clang-analyzer-*,modernize-*,cppcoreguidelines-*,performance-*,bugprone-*,cert-*,readability-*,misc-*,llvm-namespace-comment,-cppcoreguidelines-pro-bounds-*'
 WarningsAsErrors: ''
 AnalyzeTemporaryDtors: false
 FormatStyle:     file
