@@ -224,19 +224,7 @@ bool processEnumValues(Json::Value const &values, std::ostream &output) {
             }
             lines.emplace_back(os.str());
         }
-        // take the comma off the last actual entry.
-        for (auto &line : boost::adaptors::reverse(lines)) {
-            if (line.front() == '/') {
-                continue;
-            }
-            if (line.back() == ',') {
-                // should always be true if we get here!
-                line.pop_back();
-                break;
-            }
-            throw std::logic_error(
-                "Found a non-comment line that didn't end in a comma!");
-        }
+
         output << "enum class Props {" << std::endl;
         for (auto &line : lines) {
             output << indent << line << std::endl;
