@@ -206,21 +206,21 @@ bool processEnumValues(Json::Value const &values, std::ostream &output) {
         return success;
     }
 
-    /// Second pass: output the shortcut enum class for everything but the
-    /// ambiguous
-    /// names.
+    /// Second pass: output the shortcut enum class for everything, qualifying
+    /// the ambiguous names.
     {
 
         std::vector<std::string> lines;
-        for (auto &name : names) {
+        for (auto &d : names) {
             std::ostringstream os;
-            auto d = NameDecomp{name};
             auto isAmbiguous =
                 (end(g_ambiguousNames) != g_ambiguousNames.find(d.cleanName));
             if (isAmbiguous) {
-                os << "// shortcut omitted due to ambiguity for " << name;
+                // Qualify ambiguous enums with a type suffix
+                os << d.cleanName << "_" << d.typeSuffix << " = vr::" << d.name
+                   << ",";
             } else {
-                os << d.cleanName << " = vr::" << name << ",";
+                os << d.cleanName << " = vr::" << d.name << ",";
             }
             lines.emplace_back(os.str());
         }
