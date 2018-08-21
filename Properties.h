@@ -50,24 +50,26 @@ class Properties : public vr::IVRProperties {
     Properties();
     /** Reads a set of properties atomically. See the PropertyReadBatch_t struct
      * for more information. */
-    virtual ETrackedPropertyError
+    ETrackedPropertyError
     ReadPropertyBatch(PropertyContainerHandle_t ulContainerHandle,
-                      PropertyRead_t *pBatch, uint32_t unBatchEntryCount);
+                      PropertyRead_t *pBatch,
+                      uint32_t unBatchEntryCount) override;
 
     /** Writes a set of properties atomically. See the PropertyWriteBatch_t
      * struct for more information. */
-    virtual ETrackedPropertyError
+    ETrackedPropertyError
     WritePropertyBatch(PropertyContainerHandle_t ulContainerHandle,
-                       PropertyWrite_t *pBatch, uint32_t unBatchEntryCount);
+                       PropertyWrite_t *pBatch,
+                       uint32_t unBatchEntryCount) override;
 
     /** returns a string that corresponds with the specified property error. The
      * string will be the name of the error enum value for all valid error codes
      */
-    virtual const char *GetPropErrorNameFromEnum(ETrackedPropertyError error);
+    const char *GetPropErrorNameFromEnum(ETrackedPropertyError error) override;
 
     /** Returns a container handle given a tracked device index */
-    virtual PropertyContainerHandle_t
-    TrackedDeviceToPropertyContainer(TrackedDeviceIndex_t nDevice);
+    PropertyContainerHandle_t
+    TrackedDeviceToPropertyContainer(TrackedDeviceIndex_t nDevice) override;
 
   private:
     bool hasDeviceAt(const std::uint64_t idx) const;

@@ -82,12 +82,12 @@ template <typename T> inline std::size_t getValueSize(T const &val) {
 
 struct ValueGetter : boost::static_visitor<> {
     ValueGetter(PropertyRead_t &batchEntry) : batchEntry_(&batchEntry) {}
-    template <typename T> void operator()(T const &val) const {
-        *reinterpret_cast<T *>(batchEntry_->pvBuffer) = val;
+    template <typename T> void operator()(T const &val) {
+        *static_cast<T *>(batchEntry_->pvBuffer) = val;
     }
-    void operator()(std::string const &s) const {
-        auto *strBuf = reinterpret_cast<char *>(batchEntry_->pvBuffer);
-        valveStrCpy(s, strBuf, batchEntry_->unBufferSize);
+    void operator()(std::string const &s) {
+        valveStrCpy(s, static_cast<char *>(batchEntry_->pvBuffer),
+                    batchEntry_->unBufferSize);
     }
 
   private:
@@ -134,7 +134,9 @@ Properties::Properties()
         writeBatch.writeType = PropertyWrite_Set;
         std::string userConfigPath = locations.driverConfigDir;
         writeBatch.unBufferSize = userConfigPath.length();
-        writeBatch.pvBuffer = (char *)userConfigPath.c_str();
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
+        writeBatch.pvBuffer = const_cast<void *>(
+            static_cast<const void *>(userConfigPath.c_str()));
         writeBatch.unTag = k_unStringPropertyTag;
         WritePropertyBatch(1, &writeBatch, 1);
 
@@ -142,7 +144,9 @@ Properties::Properties()
         writeBatch.writeType = PropertyWrite_Set;
         std::string installPath = locations.driverRoot;
         writeBatch.unBufferSize = installPath.length();
-        writeBatch.pvBuffer = (char *)userConfigPath.c_str();
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
+        writeBatch.pvBuffer = const_cast<void *>(
+            static_cast<const void *>(userConfigPath.c_str()));
         writeBatch.unTag = k_unStringPropertyTag;
         WritePropertyBatch(1, &writeBatch, 1);
     }
@@ -196,39 +200,37 @@ Properties::WritePropertyBatch(PropertyContainerHandle_t ulContainerHandle,
             entry.eError = vr::TrackedProp_Success;
             switch (entry.unTag) {
             case k_unFloatPropertyTag: {
-                auto val = *(reinterpret_cast<float *>(entry.pvBuffer));
+                auto val = *(static_cast<float *>(entry.pvBuffer));
                 pStore.set(pBatch->prop, val);
                 break;
             }
             case k_unInt32PropertyTag: {
-                auto val = *(reinterpret_cast<int32_t *>(entry.pvBuffer));
+                auto val = *(static_cast<int32_t *>(entry.pvBuffer));
                 pStore.set(entry.prop, val);
                 break;
             }
             case k_unUint64PropertyTag: {
-                auto val = *(reinterpret_cast<uint64_t *>(entry.pvBuffer));
+                auto val = *(static_cast<uint64_t *>(entry.pvBuffer));
                 pStore.set(entry.prop, val);
                 break;
             }
             case k_unBoolPropertyTag: {
-                auto val = *(reinterpret_cast<bool *>(entry.pvBuffer));
+                auto val = *(static_cast<bool *>(entry.pvBuffer));
                 pStore.set(entry.prop, val);
                 break;
             }
             case k_unStringPropertyTag: {
-                pStore.set(entry.prop, std::string(reinterpret_cast<char *>(
-                                           entry.pvBuffer)));
+                pStore.set(entry.prop,
+                           std::string(static_cast<char *>(entry.pvBuffer)));
                 break;
             }
             case k_unHmdMatrix34PropertyTag: {
-                auto val =
-                    *(reinterpret_cast<vr::HmdMatrix34_t *>(entry.pvBuffer));
+                auto val = *(static_cast<vr::HmdMatrix34_t *>(entry.pvBuffer));
                 pStore.set(entry.prop, val);
                 break;
             }
             case k_unHiddenAreaPropertyTag: {
-                auto val =
-                    *(reinterpret_cast<vr::HmdVector2_t *>(entry.pvBuffer));
+                auto val = *(static_cast<vr::HmdVector2_t *>(entry.pvBuffer));
                 pStore.set(entry.prop, val);
                 break;
             }

@@ -182,6 +182,7 @@ class HardwareDetection {
         // create a fake call-back device for device detection
         // this is to replace the unavailable isHMDPresent func
         osvr::pluginkit::registerObjectForDeletion(
+            // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
             ctx, new ViveSyncDevice(ctx, std::move(m_viveWrapper),
                                     std::move(m_driverHost)));
 
@@ -245,6 +246,7 @@ OSVR_PLUGIN(com_osvr_Vive) {
     osvr::pluginkit::PluginContext context(ctx);
 
     /// Register a detection callback function object.
+    // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
     context.registerHardwareDetectCallback(new HardwareDetection());
 
     return OSVR_RETURN_SUCCESS;
