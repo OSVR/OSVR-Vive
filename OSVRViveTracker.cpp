@@ -185,7 +185,6 @@ namespace vive {
             m_vive->checkServerDeviceProviderInterfaces()) {
             m_logger->error(
                 "SteamVR lighthouse driver requires unavailable/unsupported "
-                "SteamVR lighthouse driver requires unavailable/unsupported "
                 "interface versions - either too old or too new for this "
                 "build. Specifically, the following critical mismaches: ");
             for (auto iface : m_vive->getUnsupportedRequestedInterfaces()) {
